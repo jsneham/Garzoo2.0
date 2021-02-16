@@ -1,0 +1,177 @@
+<resources>
+    <string name="app_name">GarZoo</string>
+    <string name="app_name_marathi">गरजू</string>
+    <string name="copyright">Garzoo Technologies and Solution Private Limited</string>
+    <string name="login_text_string">Enter mobile number, OTP will be sent to this number</string>
+    <string name="terms"><u>Please accept the terms and conditions!</u></string>
+    <string name="no_internet_msg">No internet connection!</string>
+    <string name="err_login">"Failed, please try again later !!"</string>
+    <string name="entno">"Entered mobile number:"</string>
+    <string name="otp_text">OTP will send in 0.07 sec</string>
+    <string name="otp">OTP</string>
+    <string name="resend">Resend OTP</string>
+    <string name="hoy">Okay</string>
+    <string name="ho">Yes</string>
+    <string name="no">No</string>
+    <string name="welcomeTo">Welcome to the GarZoo !! Register here</string>
+    <string name="app_info_1">This whole application runs on your voice</string>
+    <string name="app_info_2">Touch the mic in the box and register</string>
+    <string name="app_info_3">Connecting Needy People</string>
+    <string name="MyListings">My list</string>
+    <string name="Interested">My favourite</string>
+    <string name="ContactUs">Contact Us</string>
+    <string name="feedback">Reactions and changes</string>
+    <string name="blocklist">List of blocked users</string>
+    <string name="out">Exit application/ Log Out</string>
+    <string name="lang">Select the language of the application</string>
+    <string name="update">Update application</string>
+    <string name="name">Name</string>
+    <string name="mobile">Mobile</string>
+    <string name="chat">Chat</string>
+    <string name="jahirat">Advertising</string>
+    <string name="charcha">Discussion</string>
+    <string name="charcha__">Discussion/Advertising</string>
+    <string name="share">Share</string>
+    <string name="interestd">Interested</string>
+    <string name="title">The name of the item</string>
+    <string name="description_">Item Information</string>
+    <string name="price_">Price</string>
+    <string name="photos"> Photo</string>
+    <string name="videos"> 20 second video</string>
+    <string name="category">Select the type</string>
+    <string name="serach_hint">Speak here and find out .....</string>
+    <string name="write_hint">Speak here.....</string>
+    <string name="rentrequiremnt">(To rent)</string>
+    <string name="rentregist">(Rental)</string>
+    <string name="roj_pahije">(Want a job/employment)</string>
+    <string name="kam_pahije">(Employees/workers wanted)</string>
+    <string name="jahirat_">(Advertising)</string>
+    <string name="charcha_">(Discussion)</string>
+    <string name="title_charch">Name</string>
+    <string name="description_charch">More info</string>
+    <string name="sell_">(For sale)</string>
+    <string name="video_uploading">Uploading video</string>
+    <string name="distance">Km.</string>
+    <string name="rbHome">Home</string>
+    <string name="rbCurrent">Current</string>
+    <string name="rbSelect">Select</string>
+    <string name="charch_vishay">Topic of discussion</string>
+    <string name="charch_varnan">Description of the discussion</string>
+    <string name="jahirat_vishay">Advertising topic</string>
+    <string name="jahirat_varnan">Advertisement description</string>
+    <string name="kala">Art skills</string>
+    <string name="kala_hint">(Farmer, driver, plumber, doctor, teacher, waiter etc.)</string>
+    <string name="empdescription_">Information about your work</string>
+    <string name="emp_description_">More info</string>
+    <string name="bus">Please register your business</string>
+    <string name="bus_type">The nature of the business</string>
+    <string name="bus_hint">(Health, hotel, sewing, shop..etc)</string>
+    <string name="bus_name">Business name</string>
+    <string name="bus_description">Business information</string>
+    <string name="discussion">Please post your questions here for discussion</string>
+    <string name="ads">Please register your Advertisement here</string>
+    <string name="empprice_">Salary</string> <!--    /दर-->
+    <string name="buy">Buy</string>
+    <string name="sell">Sale</string>
+    <string name="rent">Rent</string>
+    <string name="dar">Rate</string>
+    <string name="employement">Employment</string>
+    <string name="buisness">Business</string>
+    <string name="promotion">Entertainment/Advertising</string>
+    <string name="edit">Edit</string>
+    <string name="edit_">Edit</string>
+    <string name="renew">Renew</string>
+    <string name="delete">Delete</string>
+    <string name="select_location">Select a location</string>
+    <string name="mobile_show">Show my mobile number</string>
+    <string name="mobile_dont_show">Dont show my mobile number</string>
+    <string name="mobile_not_available">Mobile number not available</string>
+    <string name="available">Available</string>
+    <string name="notavailable">Not available</string>
+    <string name="advance_search_tal">City/Village</string>
+    <string name="advance_search_city">Area/premises</string>
+    <string name="Submit">Submit </string>
+    <string name="path">Check the location and path of the business</string>
+    <string name="regestration">Please register your item here (Rental)</string>
+    <string name="regestration_one">(Rental) \nPlease register your item here </string>
+    <string name="btnRequirement_">Please register your item here (To Rent) </string>
+    <string name="btnRequirement">(To Rent)\nPlease register your item here</string>
+    <string name="rojgar_reg">Please register your needs here (employment)</string>
+    <string name="add_sell">Please register your item here (for sale)</string>
+    <string name="image_selection">You can only upload up to 10 pictures.</string>
+    <string name="image_error">You can only upload 10 pictures and 1 video.</string>
+    <string name="delete_post">Are you sure you want to delete this post?</string>
+    <string name="yes">Yes</string>
+    <string name="No">No</string>
+    <string name="help_text">Hello! What can I do to help you?</string>
+    <string name="err_phone">Please enter your 10 digit mobile number.</string>
+    <string name="err_otp">Please enter your OTP.</string>
+    <string name="err_title">Please enter an item name.</string>
+    <string name="err_description">Please enter item details.</string>
+    <string name="err_price">Please write the price of the item.</string>
+    <string name="err_category">Please select a type.</string>
+    <string name="err_address">Please add your address.</string>
+
+    <string name="err_emp_title">Please judge your art skills.</string>
+    <string name="err_emp_descr">Please write information about your work.</string>
+
+    <string name="err_busi_type">Please write the nature of your business.</string>
+    <string name="err_busi_title">Please enter your business name.</string>
+    <string name="err_busi_descr">Please enter your business information.</string>
+
+    <string name="err_charch_title">Please write down the topic of your discussion.</string>
+    <string name="err_charch_descr">Please write a description of your discussion.</string>
+
+    <string name="err_adv_title">Please enter the name of your advertisement.</string>
+    <string name="err_adv_descr">Please enter a description of your advertisement.</string>
+
+    <string name="err_limit">You have exceeded the 1000 word limit.</string>
+    <string name="err_nodata">No data found, please register your item.</string>
+    <string name="err_nodata_notify">No suggestions yet.</string>
+    <string name="err_noAdd">Address not provided.</string>
+    <string name="bhadeprice_">Rent/Rate</string>
+
+    <string name="empRequirement">(Employee/Worker Required)\n Register here for employment</string>
+    <string name="empregister">(Want a job/employment)\n Register here for employment</string>
+    <string name="empRequirement_">Register here for employment(Employee/Worker Required)</string>
+    <string name="empregister_">Register here for employment (Want a job / employment)</string>
+
+    <string name="icon_desc">Ad icon</string>
+    <string name="image_desc">Ad image</string>
+    <string name="sponsored">Sponsored</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="rphone">Mobile No.</string>
+    <string name="rfname">First Name</string>
+    <string name="rlname">Last name</string>
+    <string name="rgender">Gender</string>
+    <string name="rage">Age</string>
+    <string name="raddress">Address</string>
+    <string name="rstate">State</string>
+    <string name="rcity">District</string>
+    <string name="rtaluka">Taluka</string>
+    <string name="rgav">City / Village / Areaर</string>
+    <string name="Female">Female</string>
+    <string name="male">Male</string>
+
+    <string name="fb_placement_id">390694838957593_390726152287795</string>
+
+    <string name="app_ID">ca-app-pub-5826510987412325~4193563164</string>
+    <string name="title_activity_path_maps">Map</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="btn_view_position">btn_view_position</string>
+
+</resources>
+
+
+
+
+

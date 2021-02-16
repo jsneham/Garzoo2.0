@@ -1,0 +1,172 @@
+package com.garzoopvt.garzoo.Business.Adapter;
+
+import android.content.Context;
+import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.util.ViewPreloadSizeProvider;
+import com.garzoopvt.garzoo.Adapter.MultipleImagesAdapter;
+import com.garzoopvt.garzoo.Business.Model.Business;
+import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
+import com.garzoopvt.garzoo.R;
+import com.garzoopvt.garzoo.Util.ExpandableTextView;
+import com.garzoopvt.garzoo.Util.URLs;
+import com.garzoopvt.garzoo.Util.Utils;
+import com.google.android.material.card.MaterialCardView;
+
+import java.util.ArrayList;
+
+public class BusinessViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+    OnDashboardListener mOnListener;
+    ImageView ivEdit, ivCall;
+    TextView txtView_title, head, tprice, tdescription, timestamp, tvLocation, ivSpeaker;
+    TextView username, type, price;
+    Button ivShare, ivInterested, ivChat;
+    RecyclerView rvImages;
+    ImageView image, img_playback;
+    FrameLayout flVideo;
+    MaterialCardView item_container;
+    ExpandableTextView txtView_description;
+    LinearLayout.LayoutParams params;
+    RequestManager requestManager;
+    ViewPreloadSizeProvider<String> preloadSizeProvider;
+
+
+    public BusinessViewHolder(@NonNull View itemView, OnDashboardListener mOnListener, RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider) {
+        super(itemView);
+        this.mOnListener = mOnListener;
+        this.requestManager = requestManager;
+        this.preloadSizeProvider = preloadSizeProvider;
+        item_container = itemView.findViewById(R.id.item_container);
+        params = new LinearLayout.LayoutParams(0, 0);
+        ivInterested = itemView.findViewById(R.id.ivInterested);
+        ivChat = itemView.findViewById(R.id.ivChat);
+        ivEdit = itemView.findViewById(R.id.ivEdit);
+        ivCall = itemView.findViewById(R.id.ivCall);
+        ivShare = itemView.findViewById(R.id.ivShare);
+        ivSpeaker = itemView.findViewById(R.id.ivSpeaker);
+        txtView_title = itemView.findViewById(R.id.title);
+        txtView_description = itemView.findViewById(R.id.description);
+        username = itemView.findViewById(R.id.username);
+        type = itemView.findViewById(R.id.type);
+        price = itemView.findViewById(R.id.price);
+        timestamp = itemView.findViewById(R.id.timestamp);
+        tvLocation = itemView.findViewById(R.id.tvLocation);
+        head = itemView.findViewById(R.id.head);
+        tprice = itemView.findViewById(R.id.tprice);
+        tdescription = itemView.findViewById(R.id.tdescription);
+        tvLocation = itemView.findViewById(R.id.tvLocation);
+        rvImages = itemView.findViewById(R.id.rvImages);
+        //img_vol = itemView.findViewById(R.id.img_vol);
+        img_playback = itemView.findViewById(R.id.img_playback);
+        flVideo = itemView.findViewById(R.id.flVideo);
+       // image = itemView.findViewById(R.id.image);
+
+
+        ivCall.setOnClickListener(this::onClick);
+        ivChat.setOnClickListener(this::onClick);
+        ivInterested.setOnClickListener(this::onClick);
+        ivShare.setOnClickListener(this::onClick);
+        ivEdit.setOnClickListener(this::onClick);
+        item_container.setOnClickListener(this::onClick);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+
+            case R.id.ivCall:
+                mOnListener.onCallClick(getAdapterPosition());
+                break;
+            case R.id.ivChat:
+                mOnListener.onChatClick(getAdapterPosition());
+                break;
+
+            case R.id.ivInterested:
+                mOnListener.onLikeClick(getAdapterPosition(),ivInterested);
+                break;
+            case R.id.ivShare:
+                mOnListener.onShareClick(getAdapterPosition());
+                break;
+            case R.id.ivEdit:
+                mOnListener.onEditClick(getAdapterPosition());
+                break;
+
+            case R.id.item_container:
+                mOnListener.onItemClick(getAdapterPosition());
+                break;
+        }
+    }
+
+
+    public void onBind(Business mList, Context mContext, int i) {
+
+        username.setText(i + ") " + mList.getFname() + " " + mList.getLname());
+        txtView_title.setText(mList.getTitle());
+        txtView_description.setText(mList.getDescription().trim());
+        timestamp.setText(Utils.formateDate(mList.getDt()));
+        ivSpeaker.setText(String.format("%1$s %2$s", mList.getDistance(), mContext.getString(R.string.distance)));
+        if (mList.getAddress().isEmpty())
+            tvLocation.setVisibility(View.GONE);
+        else
+            tvLocation.setText(mList.getAddress());
+
+        if (mList.getCategory_id().isEmpty())
+            price.setVisibility(View.GONE);
+        else
+            price.setText(String.format("%1$s", mList.getCategory_id()));
+
+        type.setText(String.format("%1$s %2$s %3$s", "(", mContext.getString(R.string.buisness), ")"));
+        price.setTextColor(mContext.getResources().getColor(R.color.black));
+
+        head.setText(String.format("%1$s %2$s", mContext.getString(R.string.bus_name), " : "));
+        tdescription.setText(String.format("%1$s %2$s", mContext.getString(R.string.bus_description), " : "));
+        tprice.setText(String.format("%1$s %2$s", mContext.getString(R.string.bus_type), " : "));
+
+        String imge[] = mList.getImages().split(",");
+        createGallery(imge, rvImages, mList, mContext);
+
+    }
+
+
+    private void createGallery(String[] images, RecyclerView rvImages, Business productArrayList, Context mContext) {
+        GridLayoutManager _sGridLayoutManager = new GridLayoutManager(mContext, 2);
+        ArrayList<String> imagesList = new ArrayList<>();
+
+        for (String img : images) {
+            if (img.contains("video")) productArrayList.setVideo(URLs.IMAGE_URL + img);
+            else if (!img.equals("")) imagesList.add(img);
+        }
+
+        _sGridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (imagesList.size() == 1) return 2;
+                else if (imagesList.size() == 3) {
+                    if (position == 2) return 2;
+                    else return 1;
+                } else
+                    return 1;
+
+            }
+        });
+//        }
+
+        rvImages.setLayoutManager(_sGridLayoutManager);
+        MultipleImagesAdapter rcAdapter = new MultipleImagesAdapter(mContext, imagesList, requestManager, preloadSizeProvider);
+        rvImages.setAdapter(rcAdapter);
+        rvImages.setLayoutFrozen(true);
+
+    }
+
+}

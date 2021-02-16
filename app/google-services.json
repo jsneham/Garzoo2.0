@@ -1,0 +1,93 @@
+{
+  "project_info": {
+    "project_number": "1053638572749",
+    "firebase_url": "https://garzoo.firebaseio.com",
+    "project_id": "garzoo",
+    "storage_bucket": "garzoo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1053638572749:android:9252d85c7616690efec784",
+        "android_client_info": {
+          "package_name": "com.garzoopvt.garzoo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1053638572749-qt3aapihe2elimdact10i1572cqei8jr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.garzoopvt.garzoo",
+            "certificate_hash": "383d6cb3b27b07370ea82e3282951d8d70919b35"
+          }
+        },
+        {
+          "client_id": "1053638572749-fqaov17ts96dt07hfn5pl9e71k2ajtme.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC49vvJjcWCmJeE6tF6n5LzEIguhpnv_eQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1053638572749-fqaov17ts96dt07hfn5pl9e71k2ajtme.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1053638572749:android:0c2ed16c92a975f4fec784",
+        "android_client_info": {
+          "package_name": "com.technocodellp.garzoo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1053638572749-mba91qc33fdeoj6nd04dvb0181lm2ftg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.technocodellp.garzoo",
+            "certificate_hash": "383d6cb3b27b07370ea82e3282951d8d70919b35"
+          }
+        },
+        {
+          "client_id": "1053638572749-2bh6folen5bji1e212opaob74kk7n5r7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.technocodellp.garzoo",
+            "certificate_hash": "f6d5fd9dee9d93fc6b7ab46afd7d4083b7d31440"
+          }
+        },
+        {
+          "client_id": "1053638572749-fqaov17ts96dt07hfn5pl9e71k2ajtme.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC49vvJjcWCmJeE6tF6n5LzEIguhpnv_eQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1053638572749-fqaov17ts96dt07hfn5pl9e71k2ajtme.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,194 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/theme2</item>
+        <item name="navigationIcon">@drawable/ic_close_vd_theme_24px</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:editTextColor">@color/black</item>
+        <item name="android:textColorHint">@color/black</item>
+        <item name="titleTextColor">@color/theme2</item>
+
+        <!--        <item name="actionBarItemBackground">@drawable/nav_item_state_list</item>-->
+        <!--        <item name="android:actionBarItemBackground">@drawable/nav_item_state_list</item>-->
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
+
+
+    <!-- custom dialog activity theme -->
+    <style name="AppTheme.Dialog" parent="Base.Theme.AppCompat.Dialog">
+        <!-- removing the dialog's action bar -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Transparent" parent="Base.Theme.AppCompat">
+        <item name="android:windowIsTranslucent">true</item>
+        <!--                <item name="android:windowBackground">@android:color/transparent</item>-->
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:backgroundDimEnabled">false</item>-->
+    </style>
+
+    <!--    <style name="Theme.Transparent" parent="android:Theme">-->
+    <!--        <item name="android:windowIsTranslucent">true</item>-->
+    <!--        <item name="android:windowBackground">@android:color/transparent</item>-->
+    <!--        <item name="android:windowContentOverlay">@null</item>-->
+    <!--        <item name="android:windowNoTitle">true</item>-->
+    <!--        <item name="android:windowIsFloating">true</item>-->
+    <!--        <item name="android:backgroundDimEnabled">false</item>-->
+    <!--    </style>-->
+
+
+    <style name="Splash" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="navigationIcon">@drawable/ic_close_vd_theme_24px</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
+
+
+    <style name="SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!--        <item name="android:windowBackground">@drawable/splash_screen</item>-->
+        <item name="navigationIcon">@drawable/ic_close_vd_theme_24px</item>
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/theme2</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:editTextColor">@color/black</item>
+        <item name="android:textColorHint">@color/black</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
+
+    <style name="LoginTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/theme2</item>
+        <item name="colorPrimaryDark">@color/white</item>
+        <item name="colorAccent">@color/theme2</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+    </style>
+
+
+    <style name="AppTheme.NoActionBar" >
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <!-- color used by the toolbar title -->
+        <item name="android:textColorPrimary">@color/black</item>
+        <!-- color used by navigation icon and overflow icon -->
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="actionButtonStyle">@style/MyActionButtonStyle</item>
+
+    </style>
+
+    <style name="MyActionButtonStyle" parent="AppBaseTheme">
+        <item name="android:minWidth">35dip</item>
+        <item name="android:padding">10dip</item>
+    </style>
+
+    <style name="TextViewHeader">
+        <item name="fontFamily">sans-serif-black</item>
+        <!--        cursive-->
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+        <!--        <item name="android:textSize">45sp</item>-->
+        <item name="android:textSize">30sp</item>
+        <item name="android:textColor">@color/theme1</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
+    <style name="TextViewCopyRight">
+        <item name="fontFamily">sans-serif-black</item>
+        <!--        cursive-->
+        <item name="android:gravity">center</item>
+        <item name="android:textStyle">bold</item>
+        <!--        <item name="android:textSize">45sp</item>-->
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/black</item>
+        <!--        <item name="android:textColor">@color/theme1</item>-->
+        <!--        <item name="android:padding">5dp</item>-->
+    </style>
+
+    <style name="TextViewTitle">
+        <item name="fontFamily">monospace</item>
+        <item name="android:gravity">left</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">25sp</item>
+        <item name="android:textColor">@color/theme2</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
+    <style name="TextViewSubTitle">
+        <item name="android:layout_marginLeft">@dimen/dp10</item>
+        <item name="fontFamily">serif</item>
+        <item name="android:gravity">left</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
+    <style name="TextViewSubTitle1">
+        <item name="fontFamily">serif</item>
+        <item name="android:gravity">left</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:padding">5dp</item>
+    </style>
+
+
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+        <!--        <item name="android:textColorPrimary">@android:color/black</item>-->
+        <!--        <item name="android:textColorSecondary">@android:color/black</item>-->
+    </style>
+
+
+    <style name="AppBaseTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionBarStyle">@style/MyActionBar</item>
+    </style>
+
+    <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">
+        <item name="titleTextStyle">@style/MyTitleTextStyle</item>
+    </style>
+
+    <style name="MyTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/theme2</item>
+    </style>
+
+    <style name="MyHintStyle" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/theme2</item>
+    </style>
+
+    <style name="ToolbarTitleStyle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">30sp</item>
+        <item name="fontFamily">monospace</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SimpleBreakStrategy">
+        <item name="android:breakStrategy" tools:targetApi="m">simple</item>
+    </style>
+
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:colorAccent">#f3f3f3</item>
+        <item name="android:textColor">#f3f3f3</item>
+        <item name="android:textColorPrimary">#f3f3f3</item>
+    </style>
+
+    <!--    <style name="Widget.Catalog.Toolbar" parent="Widget.MaterialComponents.Toolbar.PrimarySurface">-->
+    <!--        &lt;!&ndash; Toolbar should always be within an AppBarLayout which provides the background. &ndash;&gt;-->
+    <!--        <item name="android:background">@null</item>-->
+    <!--    </style>-->
+
+    <!--    <style name="Widget.Catalog.Toolbar.WithCloseButton" parent="Widget.Catalog.Toolbar">-->
+    <!--        <item name="navigationContentDescription">@string/toolbar_navigation_close_description</item>-->
+    <!--        <item name="navigationIcon">@drawable/ic_close_vd_theme_24px</item>-->
+    <!--    </style>-->
+</resources>

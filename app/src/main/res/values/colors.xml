@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="theme1">#6c1a64</color>
+
+    <color name="theme2">#006AFF</color>
+    <!--    <color name="theme2">#0092FF</color>-->
+    <color name="theme_indicator">#adbce6</color>
+    <color name="theme_indicator1">#adbce6</color>
+    <color name="theme3">#da251c</color>
+    <color name="theme4">#f8c301</color>
+    <color name="theme5">#85c226</color>
+
+    <color name="transperent">#00000000</color>
+    <color name="unselected_txt">#5c5e5b</color>
+    <color name="seleted_txt">#43c2af</color>
+    <color name="bottom_tab_backround">#eef3ed</color>
+    <color name="view_line">#d4d9d5</color>
+    <color name="bg_color">#f5f5f5</color>
+
+    <!--Category Type Tab Color-->
+    <color name="Indicator_tabTextColor">#2e332d</color>
+    <color name="Indicator_tabSelectedTextColor">#5e9188</color>
+    <color name="tabindiacator_background">#eef3ed</color>
+    <color name="tabIndicator_color">#5e9188</color>
+
+    <color name="yellow">#ec8f04</color>
+    <color name="gray">#eaece9</color>
+
+    <color name="text_color">#282d27</color>
+    <color name="sub_text_color">#95989a</color>
+    <color name="subtext_color">#696969</color>
+
+    <color name="btn_txt_color">#36ae9e</color>
+
+    <color name="theme_indicator_light">#00adbce6</color>
+    <color name="background">#808080</color>
+    <color name="tab_background_selected">#43c2af</color>
+    <color name="tab_background_unselected">#5c5e5b</color>
+
+
+    <integer-array name="androidcolors">
+        <item>@color/yellow</item>
+        <item>@color/colorPrimaryDark</item>
+        <item>@color/theme5</item>
+        <item>@color/theme3</item>
+        <item>@color/theme1</item>
+        <item>@color/colorAccent</item>
+        <item>@color/colorPrimary</item>
+        <item>@color/theme2</item>
+        <item>@color/theme4</item>
+        <item>@color/black</item>
+        <item>@color/black</item>
+    </integer-array>
+</resources>

@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+
+    android:theme="@style/Theme.MaterialComponents.Light">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp7"
+            android:background="#eaece9" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dp10"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/dp5">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="3.5">
+
+                    <TextView
+                        android:id="@+id/username"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="left|center"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/type"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1.5"
+                        android:gravity="center"
+                        android:textColor="@color/sub_text_color"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:orientation="horizontal">
+
+
+                        <ImageView
+                            android:id="@+id/ivCall"
+                            android:layout_width="@dimen/dp25"
+                            android:layout_height="@dimen/dp25"
+                            android:layout_margin="@dimen/dp5"
+                            android:clickable="true"
+                            android:visibility="visible"
+                            app:backgroundTint="@color/white"
+                            app:srcCompat="@drawable/ic_baseline_call_24_white" />
+
+                        <ImageView
+                            android:id="@+id/ivEdit"
+                            android:layout_width="@dimen/dp25"
+                            android:layout_height="@dimen/dp25"
+                            android:layout_margin="@dimen/dp5"
+                            android:clickable="true"
+                            android:visibility="visible"
+                            app:backgroundTint="@color/white"
+                            app:srcCompat="@drawable/ic_baseline_more_vert_24" />
+
+
+                    </LinearLayout>
+
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_weight="2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/timestamp"
+                        android:gravity="left"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:gravity="right"
+                        android:maxLines="2"
+                        android:id="@+id/tvLocation"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"/>
+
+
+
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginBottom="@dimen/dp1"
+                android:layout_marginTop="@dimen/dp1"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp1"
+                android:background="#eaece9" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/head"
+                    android:layout_alignParentLeft="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="2"
+                    android:text="@string/title"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_toRightOf="@+id/head"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="2"
+                    android:textColor="@color/subtext_color"
+                    android:textSize="15sp"
+                    android:layout_toLeftOf="@+id/ivSpeaker"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:drawableStart="@drawable/ic_baseline_local_airport_24"
+                    android:layout_alignParentRight="true"
+                    android:id="@+id/ivSpeaker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible"
+                    android:textColor="@color/theme2"
+                    />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tprice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/price_"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/theme2"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tdescription"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="4"
+                    android:text="@string/description_"
+                    android:textColor="@color/black"
+                    android:textSize="15sp" />
+
+                <!--                <com.technocodellp.garzoo.customfonts.MyTextView_Roboto_Regular-->
+                <com.garzoopvt.garzoo.Util.ExpandableTextView
+                    android:id="@+id/description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/subtext_color"
+                    android:textSize="15sp"
+                    />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp1"
+                android:background="@color/gray" />
+
+
+            <include layout="@layout/video_view"></include>
+            <View
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp1"
+                android:background="@color/gray" />
+
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvImages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+            <!--            tools:listitem="@layout/images_row"-->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp1"
+                android:background="@color/gray" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:weightSum="3">
+
+
+                <Button
+                    android:id="@+id/ivInterested"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginLeft="@dimen/dp15"
+                    android:background="@drawable/btn_shape"
+                    android:backgroundTint="@color/white"
+                    android:drawableLeft="@drawable/ic_outline_thumb_up_24"
+                    android:text="@string/interestd"
+                    android:textColor="@color/black"
+                    android:textAllCaps="false"
+                    android:textSize="13sp">
+
+                </Button>
+
+                <Button
+                    android:textAllCaps="false"
+                    android:id="@+id/ivChat"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/btn_shape"
+                    android:backgroundTint="@color/white"
+                    android:drawableLeft="@drawable/ic_chat"
+                    android:text="@string/chat"
+                    android:textColor="@color/black"
+                    android:textSize="13sp">
+
+                </Button>
+
+                <Button
+                    android:textAllCaps="false"
+                    android:id="@+id/ivShare"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="@dimen/dp15"
+                    android:background="@drawable/btn_shape"
+                    android:backgroundTint="@color/white"
+                    android:drawableLeft="@drawable/ic_share"
+                    android:text="@string/share"
+                    android:textColor="@color/black"
+                    android:textSize="13sp">
+
+                </Button>
+
+
+
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp7"
+            android:background="#eaece9" />
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+

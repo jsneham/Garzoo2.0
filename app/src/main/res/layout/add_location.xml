@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/dp5"
+    android:background="@drawable/btn_shape"
+    android:orientation="vertical">
+
+    <TextView
+        android:gravity="center"
+        android:textSize="20sp"
+        android:text="@string/select_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <RadioGroup
+        android:weightSum="2"
+        android:id="@+id/rbLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:visibility="gone"
+            android:id="@+id/rbHome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rbHome" />
+
+        <RadioButton
+            android:checked="true"
+            android:layout_weight="1"
+            android:id="@+id/rbCurrent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rbCurrent" />
+
+        <RadioButton
+            android:layout_weight="1"
+            android:id="@+id/rbSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rbSelect" />
+    </RadioGroup>
+
+
+    <LinearLayout
+        android:visibility="gone"
+        android:orientation="horizontal"
+        android:id="@+id/llHomeAddress"
+        android:weightSum="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <EditText
+            android:gravity="center"
+            android:layout_weight="1"
+            android:id="@+id/tvHomeTaluka"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp50"
+            android:layout_margin="@dimen/dp5"
+            android:layout_toLeftOf="@+id/gifTitle"
+            android:background="@drawable/custom_layout_border_black"
+            android:hint="@string/advance_search_tal"
+            android:inputType="text"
+            android:maxLength="50"
+            android:padding="@dimen/dp5"
+            android:textColor="@color/black"
+            android:textColorHint="@color/sub_text_color"></EditText>
+
+        <EditText
+            android:gravity="center"
+            android:layout_weight="1"
+            android:id="@+id/tvHomeArea"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp50"
+            android:layout_margin="@dimen/dp5"
+            android:layout_toLeftOf="@+id/gifTitle"
+            android:background="@drawable/custom_layout_border_black"
+            android:hint="@string/advance_search_city"
+            android:inputType="text"
+            android:maxLength="50"
+            android:padding="@dimen/dp5"
+            android:textColor="@color/black"
+            android:textColorHint="@color/sub_text_color"></EditText>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:visibility="visible"
+        android:orientation="vertical"
+        android:id="@+id/llAddress"
+        android:weightSum="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp50"
+            android:layout_margin="@dimen/dp5"
+            android:background="@drawable/custom_layout_border_black">
+
+            <pl.droidsonroids.gif.GifImageView
+                android:id="@+id/gifTaluka"
+                android:layout_width="@dimen/dp25"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/mic" />
+
+            <EditText
+                android:id="@+id/tvTaluka"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp50"
+                android:layout_marginStart="@dimen/dp5"
+                android:layout_marginTop="@dimen/dp5"
+                android:layout_marginEnd="@dimen/dp5"
+                android:layout_toLeftOf="@+id/gifTaluka"
+                android:background="@null"
+                android:hint="@string/advance_search_tal"
+                android:inputType="text"
+                android:maxLength="50"
+                android:padding="@dimen/dp5"
+                android:textColor="@color/black"
+                android:textColorHint="@color/sub_text_color"></EditText>
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp50"
+            android:layout_margin="@dimen/dp5"
+            android:background="@drawable/custom_layout_border_black">
+
+            <pl.droidsonroids.gif.GifImageView
+
+                android:id="@+id/gifArea"
+                android:layout_width="@dimen/dp25"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/mic" />
+
+            <EditText
+                android:id="@+id/tvArea"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp50"
+                android:layout_margin="@dimen/dp5"
+                android:layout_toLeftOf="@+id/gifArea"
+                android:background="@null"
+                android:hint="@string/advance_search_city"
+                android:inputType="text"
+                android:maxLength="50"
+                android:padding="@dimen/dp5"
+                android:textColor="@color/black"
+                android:textColorHint="@color/sub_text_color"></EditText>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -1,0 +1,177 @@
+<resources>
+    <string name="app_name">GarZoo</string>
+    <string name="app_name_marathi">गरजू</string>
+    <string name="copyright">Garzoo Technologies and Solution Private Limited</string>
+    <string name="login_text_string">मोबाइल नंबर प्रविष्ट करा,ओटीपी या नंबरवर पाठविला जाईल</string>
+    <string name="terms"><u>कृपया नियम व अटी मान्य करा!</u></string>
+    <string name="app_info_1">हे संपुर्ण अँप आपल्या आवाजावर चालतं</string>
+    <string name="app_info_2">बॉक्स मधिल माईकला टच करा आणि आपली नोंदणी करा</string>
+    <string name="no_internet_msg">No internet connection!</string>
+    <string name="err_login">"अयशस्वी, कृपया नंतर प्रयत्न करा !!"</string>
+    <string name="entno">"प्रविष्ट केलेला मोबाइल नंबर: "</string>
+    <string name="app_info_3">Connecting Needy People</string>
+    <string name="MyListings">माझी यादी</string>
+    <string name="Interested">माझी आवड</string>
+    <string name="ContactUs">संपर्क साधा</string>
+    <string name="feedback">प्रतिक्रीया आणि बदल</string>
+    <string name="blocklist">अवरोधित वापरकर्त्याची यादी</string>
+    <string name="out">अप्लीकेशन मधुन बाहेर पडा</string>
+    <string name="lang">अप्लीकेशनची भाषा निवडा</string>
+    <string name="update">अप्लीकेशन अपडेट करा</string>
+    <string name="name">नाव</string>
+    <string name="mobile">मोबाइल</string>
+    <string name="chat">संवाद</string>
+    <string name="jahirat">जाहिरात</string>
+    <string name="charcha">चर्चा</string>
+    <string name="charcha__">चर्चा/जाहिरात</string>
+    <string name="share">शेअर करा</string>
+    <string name="interestd">इच्छुक</string>
+    <string name="title">वस्तुचे नाव</string>
+    <string name="description_">वस्तुची माहिती</string>
+    <string name="price_">किंमत</string>
+    <string name="photos"> फोटो</string>
+    <string name="videos"> 20 सेकंदांचा व्हिडिओ</string>
+    <string name="category">प्रकार निवडा</string>
+    <string name="serach_hint">येथे बोलून शोधा.....</string>
+    <string name="write_hint">येथे बोला.....</string>
+    <string name="rentrequiremnt">(भाड्याने घेणे)</string>
+    <string name="rentregist">(भाड्याने देणे)</string>
+    <string name="roj_pahije">(नोकरी/रोजगार पहिजे)</string>
+    <string name="kam_pahije">(कर्मचारी/कामगार पहिजे)</string>
+    <string name="jahirat_">(जाहिरात)</string>
+    <string name="charcha_">(चर्चा)</string>
+    <string name="title_charch">नाव</string>
+    <string name="description_charch">अधिक महिती</string>
+    <string name="sell_">(विक्रीसाठी)</string>
+    <string name="video_uploading">व्हिडिओ अपलोड होत आहे</string>
+    <string name="distance">किमी.</string>
+    <string name="rbHome">होम</string>
+    <string name="rbCurrent">सध्याचे</string>
+    <string name="rbSelect">निवडा</string>
+    <string name="charch_vishay">चर्चेचा विषय</string>
+    <string name="charch_varnan">चर्चेचे वर्णन</string>
+    <string name="jahirat_vishay">जाहिरात विषय</string>
+    <string name="jahirat_varnan">जाहिरात वर्णन</string>
+    <string name="kala">कला कौशल्य</string>
+    <string name="kala_hint">(शेतकाम,ड्रायव्हर,प्लंबर,डॉक्टर,शिक्षक,वेटर.इत्यादी)</string>
+    <string name="empdescription_">तुमच्या कामा बद्दल महिती</string>
+    <string name="emp_description_">अधिक महिती</string>
+    <string name="bus">कृपया आपला व्यवसाय नोंदवा</string>
+    <string name="bus_type">व्यवसायाचे स्वरूप</string>
+    <string name="bus_hint">(आरोग्य, हॉटेल,शिवणकाम, दुकान..इत्यादी)</string>
+    <string name="bus_name">व्यवसायाचे नाव</string>
+    <string name="bus_description">व्यवसायाची माहिती</string>
+    <string name="discussion">कृपया चर्चेसाठी आपले प्रश्न येथे नोंदवा</string>
+    <string name="ads">कृपया आपली जाहिरात येथे नोंदवा</string>
+    <string name="empprice_">पगार</string> <!--    /दर-->
+    <string name="buy">खरेदी</string>
+    <string name="sell">विक्री</string>
+    <string name="rent">भाडे</string>
+    <string name="dar">दर</string>
+    <string name="employement">रोजगार</string>
+    <string name="buisness">व्यवसाय</string>
+    <string name="promotion">करमणूक/जाहिरात</string>
+    <string name="edit">बदल करा</string>
+    <string name="edit_">बदल करा</string>
+    <string name="renew">रिन्यूव करा</string>
+    <string name="delete">काढुन टाका</string>
+    <string name="select_location">ठिकाण निवडा</string>
+    <string name="mobile_show">माझा मोबाइल नंबर दाखवा</string>
+    <string name="mobile_dont_show">माझा मोबाइल नंबर दाखवू नका</string>
+    <string name="mobile_not_available">मोबाइल नंबर उपलब्ध नाही</string>
+    <string name="available">उपलब्ध</string>
+    <string name="notavailable">उपलब्ध नाही</string>
+    <string name="advance_search_tal">शहर/गाव</string>
+    <string name="advance_search_city">क्षेत्र/परीसर</string>
+    <string name="Submit">सबमिट/समाविष्ट करा</string>
+    <string name="path">व्यवसायाचे स्थान आणि पथ तपासा</string>
+    <string name="regestration">कृपया येथे आपले वस्तु नोंदवा (भाड्याने देणे) </string>
+    <string name="regestration_one">(भाड्याने देणे) \nकृपया येथे आपले वस्तु नोंदवा  </string>
+    <string name="btnRequirement_">कृपया येथे आपले वस्तु नोंदवा (भाड्याने घेणे)  </string>
+    <string name="btnRequirement">(भाड्याने घेणे)\nकृपया येथे आपले वस्तु नोंदवा  </string>
+    <string name="rojgar_reg">कृपया येथे आपल्या गरजा नोंदवा (रोजगार देणे) </string>
+    <string name="add_sell">कृपया येथे आपल्या वस्तु नोंदवा (विक्रिसाठी) </string>
+    <string name="image_selection">आपण केवळ 10 चित्र अपलोड करू शकता.</string>
+    <string name="image_error">आपण केवळ 10 चित्र आणि 1 व्हिडिओ अपलोड करू शकता.</string>
+    <string name="delete_post">आपली खात्री आहे की आपण हे पोस्ट डिलीट करू इच्छिता?</string>
+    <string name="yes">होय</string>
+    <string name="No">नाही</string>
+    <string name="help_text">नमस्कार! मी तुमची काय मदत करू शकतो?</string>
+    <string name="err_phone">कृपया आपला 10 अंकी मोबाइल नंबर टाका.</string>
+    <string name="err_otp">कृपया आपला OTP टाका.</string>
+    <string name="err_title">कृपया वस्तुचे नाव लिहा.</string>
+    <string name="err_description">कृपया वस्तुची माहिती लिहा.</string>
+    <string name="err_price">कृपया वस्तुची किंमत लिहा.</string>
+    <string name="err_category">कृपया प्रकार निवडा.</string>
+    <string name="err_address">कृपया तुमचा पत्ता जोडा.</string>
+
+    <string name="err_emp_title">कृपया आपले कला कौशल्य निवाडा.</string>
+    <string name="err_emp_descr">कृपया तुमच्या कामा बद्दल महिती लिहा.</string>
+
+    <string name="err_busi_type">कृपया तुमच्या व्यवसायाचे स्वरूप लिहा.</string>
+    <string name="err_busi_title">कृपया तुमच्या व्यवसायाचे नाव लिहा.</string>
+    <string name="err_busi_descr">कृपया तुमच्या व्यवसायाची महिती लिहा.</string>
+
+    <string name="err_charch_title">कृपया तुमच्या चर्चेचा विषय लिहा.</string>
+    <string name="err_charch_descr">कृपया तुमच्या चर्चेचे वर्णन लिहा.</string>
+
+    <string name="err_adv_title">कृपया तुमच्या जाहिरातीचे नाव लिहा.</string>
+    <string name="err_adv_descr">कृपया तुमच्या जाहिरातीचे वर्णन लिहा.</string>
+
+    <string name="err_limit">आपण 1000 शब्दांची मर्यादा ओलांडली आहे.</string>
+    <string name="err_nodata">कोणताही डेटा आढळला नाही, कृपया आपल्या वस्तु नोंदवा.</string>
+    <string name="err_nodata_notify">अद्याप कोणतीही सूचना नाही.</string>
+    <string name="err_noAdd">पत्ता दिलेला नाही.</string>
+    <string name="bhadeprice_">भाडे/दर</string>
+
+    <string name="empRequirement">(कर्मचारी/कामगार पहिजे)\n रोजगर देण्या करीता येथे नोंदणी करा</string>
+    <string name="empregister">(नोकरी/रोजगार पहिजे)\n रोजगारासाठी येथे नोंदणी करा</string>
+    <string name="empRequirement_">रोजगार देण्या करीता येथे नोंदणी करा (कर्मचारी/कामगार पहिजे)</string>
+    <string name="empregister_">रोजगारासाठी येथे नोंदणी करा (नोकरी/रोजगार पहिजे)</string>
+
+    <string name="icon_desc">Ad icon</string>
+    <string name="image_desc">Ad image</string>
+    <string name="sponsored">Sponsored</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="rphone">फोन नंबर</string>
+    <string name="otp_text">OTP will send in 0.07 sec</string>
+    <string name="otp">OTP</string>
+    <string name="resend">OTP पुन्हा पाठवा</string>
+    <string name="hoy">ठीक आहे</string>
+    <string name="ho">होय</string>
+    <string name="no">नाही</string>
+    <string name="welcomeTo">गरजू मध्ये आपले स्वागत आहे!! \nयेथे नोंदणी करा</string>
+    <string name="rfname">प्रथम नाव</string>
+    <string name="rlname">आडनाव</string>
+    <string name="rgender">लिंग</string>
+    <string name="rage">वय</string>
+    <string name="raddress">पत्ता</string>
+    <string name="rstate">राज्य</string>
+    <string name="rcity">जिल्हा</string>
+    <string name="rtaluka">तालुका</string>
+    <string name="rgav">शहर/गाव/क्षेत्र</string>
+    <string name="Female">स्त्री</string>
+    <string name="male">पुरूष</string>
+
+    <string name="fb_placement_id">390694838957593_390726152287795</string>
+
+    <string name="app_ID">ca-app-pub-5826510987412325~4193563164</string>
+    <string name="title_activity_path_maps">Map</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="btn_view_position">btn_view_position</string>
+
+</resources>
+
+
+
+
+

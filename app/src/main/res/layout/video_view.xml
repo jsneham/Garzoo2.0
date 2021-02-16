@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:layout_width="match_parent"
+    android:id="@+id/flVideo"
+    android:layout_height="@dimen/dp250"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.allattentionhere.autoplayvideos.AAH_VideoImage
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:visibility="visible"
+        android:clickable="true"
+        android:id="@+id/img_playback"
+        android:layout_width="@dimen/dp60"
+        android:layout_height="@dimen/dp60"
+        android:layout_gravity="center"
+        android:layout_margin="8dp"
+        android:src="@drawable/ic_play"/>
+</FrameLayout>

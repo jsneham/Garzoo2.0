@@ -1,0 +1,100 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "e401d416d218b157e6b7e3e7b2cb4a7e",
+    "entities": [
+      {
+        "tableName": "chatindividual",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `to_uid` TEXT, `from_uid` TEXT, `message` TEXT, `file_type` TEXT, `status` TEXT, `dt` TEXT, `ufname` TEXT, `ulname` TEXT, `uufname` TEXT, `uulname` TEXT, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "to_uid",
+            "columnName": "to_uid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "from_uid",
+            "columnName": "from_uid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "file_type",
+            "columnName": "file_type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "dt",
+            "columnName": "dt",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ufname",
+            "columnName": "ufname",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ulname",
+            "columnName": "ulname",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "uufname",
+            "columnName": "uufname",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "uulname",
+            "columnName": "uulname",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e401d416d218b157e6b7e3e7b2cb4a7e')"
+    ]
+  }
+}

@@ -1,0 +1,114 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
+    defaultConfig {
+        applicationId "com.garzoopvt.garzoo"
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+}
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    def retrofitVersion = "2.5.0"
+    def glideVersion = "4.8.0"
+    def lifecycle_version = "1.1.1"
+
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
+
+    // Dependencies for working with Architecture components
+    // You'll probably have to update the version numbers in build.gradle (Project)
+
+    //Retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+
+    // Room components
+    implementation "androidx.room:room-runtime:$rootProject.roomVersion"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+//    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.annotation:annotation:1.1.0'
+    annotationProcessor "androidx.room:room-compiler:$rootProject.roomVersion"
+    androidTestImplementation "androidx.room:room-testing:$rootProject.roomVersion"
+
+    // Lifecycle components
+//    implementation "androidx.lifecycle:lifecycle-viewmodel:$rootProject.lifecycleVersion"
+//    implementation "androidx.lifecycle:lifecycle-livedata:$rootProject.lifecycleVersion"
+//    implementation "androidx.lifecycle:lifecycle-common-java8:$rootProject.lifecycleVersion"
+
+    // ViewModel and LiveData
+    implementation "android.arch.lifecycle:extensions:$lifecycle_version"
+    implementation "android.arch.lifecycle:viewmodel:$lifecycle_version"
+
+    // UI
+    implementation "androidx.constraintlayout:constraintlayout:$rootProject.constraintLayoutVersion"
+    implementation "com.google.android.material:material:$rootProject.materialVersion"
+
+    //Pagination
+    implementation 'android.arch.paging:runtime:2.1.0'
+
+    //Binding
+    implementation 'com.jakewharton:butterknife:10.0.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
+
+    //google play
+    implementation 'com.google.firebase:firebase-ads:19.6.0'
+    implementation 'com.google.android.gms:play-services-location:17.1.0'
+
+    // Glide
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
+// Glide RecyclerView Preloader
+    implementation("com.github.bumptech.glide:recyclerview-integration:$glideVersion") {
+        // Excludes the support library because it's already included by Glide.
+        transitive = false
+    }
+    implementation 'com.squareup.picasso:picasso:2.3.2'
+    implementation 'com.github.siyamed:android-shape-imageview:0.9.+@aar'
+
+    // Testing
+    testImplementation "junit:junit:$rootProject.junitVersion"
+    androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
+    androidTestImplementation("androidx.test.espresso:espresso-core:$rootProject.espressoVersion", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    androidTestImplementation "androidx.test.ext:junit:$rootProject.androidxJunitVersion"
+
+
+    //GIF
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.19'
+    implementation 'com.facebook.android:audience-network-sdk:6.+'
+    implementation 'com.google.android.exoplayer:exoplayer:2.8.4'
+    implementation 'com.github.MasayukiSuda:Mp4Composer-android:v0.4.1'
+
+    implementation project(':autoplayvideos')
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
+    implementation 'fr.avianey.com.viewpagerindicator:library:2.4.1.1@aar'
+}

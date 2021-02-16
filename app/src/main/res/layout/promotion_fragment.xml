@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Notification.Fragment.NotificationFragment">
+
+    <androidx.cardview.widget.CardView
+        android:layout_alignParentTop="true"
+        android:id="@+id/llSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="@dimen/dp10">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:orientation="horizontal">
+
+            <include layout="@layout/search_layout_one"></include>
+
+            <ImageView
+                android:id="@+id/ivAdvanceSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0.5"
+                android:src="@drawable/ic_baseline_tune_24" />
+
+            <ImageView
+                android:id="@+id/ivShare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0.5"
+                android:src="@drawable/ic_baseline_share_24" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/rvNestedScroll"
+        android:background="#eeeeee"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/llSearch">
+
+        <LinearLayout
+            android:background="#eeeeee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_below="@+id/view1"
+                android:id="@+id/llButton"
+                android:gravity="center"
+                android:background="@color/view_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:elevation="@dimen/dp10"
+                    android:layout_margin="@dimen/dp5"
+                    android:padding="@dimen/dp5"
+                    android:gravity="center"
+                    android:maxLines="3"
+                    style="@android:style/Widget.Button"
+                    android:backgroundTint="@color/theme2"
+                    android:textColor="@color/white"
+                    android:background="@drawable/bg_shape"
+                    android:id="@+id/btnCharcha"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_height="@dimen/dp50"
+                    android:text="@string/discussion"
+
+                    android:textSize="18sp"></TextView>
+
+                <TextView
+                    android:elevation="@dimen/dp10"
+                    android:layout_margin="@dimen/dp5"
+                    android:padding="@dimen/dp5"
+                    android:gravity="center"
+                    android:maxLines="3"
+                    style="@android:style/Widget.Button"
+                    android:backgroundTint="@color/theme2"
+                    android:textColor="@color/white"
+                    android:background="@drawable/bg_shape"
+                    android:id="@+id/btnAdv"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_height="@dimen/dp50"
+                    android:text="@string/ads"
+                    android:textSize="18sp"></TextView>
+            </LinearLayout>
+
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_below="@+id/llButton"
+                android:layout_width="match_parent"
+                android:layout_height="05dp"
+                android:background="#eaece9" />
+
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:id="@+id/view"
+                android:layout_below="@+id/llButton"
+                android:layout_width="match_parent"
+                android:layout_height="05dp"
+                android:background="#eaece9" />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                ></androidx.recyclerview.widget.RecyclerView>
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+</RelativeLayout>

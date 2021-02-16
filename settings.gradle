@@ -1,0 +1,4 @@
+include ':app', ':autoplayvideos'
+rootProject.name = "Garzoo2.0"
+
+
