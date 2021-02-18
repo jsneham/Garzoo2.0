@@ -64,7 +64,7 @@ public class IndividualChatActivity extends AppCompatActivity implements View.On
     private SessionManager sessionManager;
     private Context context = this;
     private String fuid, tuid, to_name, record_id, phone_no;
-    private String user_id = "71";
+    private String user_id;
     private ChatUser chatArrayList;
     private String file_type="t";
     private String message="";

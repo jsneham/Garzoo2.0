@@ -1,4 +1,4 @@
-package com.garzoopvt.garzoo.Rent.Fragment;
+package com.garzoopvt.garzoo.Business.Fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,8 +20,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,25 +29,19 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
-import com.garzoopvt.garzoo.BuySell.Adapter.CategoryAdapter;
-import com.garzoopvt.garzoo.BuySell.Adapter.OnCategoryListener;
-import com.garzoopvt.garzoo.BuySell.Model.Category;
-import com.garzoopvt.garzoo.Dashboard.Activity.DashboardInnerActivity;
+import com.garzoopvt.garzoo.Business.Activity.AddBusinessListingActivity;
+import com.garzoopvt.garzoo.Business.Activity.BusinessInnerActivity;
+import com.garzoopvt.garzoo.Business.Adapter.BusinessAdapter;
+import com.garzoopvt.garzoo.Business.Model.Business;
+import com.garzoopvt.garzoo.Business.ViewModel.BusinessViewModel;
 import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
-import com.garzoopvt.garzoo.Dashboard.Adapter.RecycleAdapter_GridHome;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.R;
-import com.garzoopvt.garzoo.Rent.Activity.AddRentListingActivity;
-import com.garzoopvt.garzoo.Rent.Activity.RentInnerActivity;
-import com.garzoopvt.garzoo.Rent.Adapter.RentAdapter;
-import com.garzoopvt.garzoo.Rent.Model.Rent;
-import com.garzoopvt.garzoo.Rent.ViewModel.RentViewModel;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.MultipartBody;
@@ -63,7 +54,8 @@ import retrofit2.Response;
 import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_EXHAUSTED;
 
 
-public class RentFragment extends Fragment implements NativeAdsManager.Listener, OnDashboardListener, OnCategoryListener, View.OnClickListener {
+public class BusinessFragment extends Fragment implements NativeAdsManager.Listener, OnDashboardListener {
+
 
     //view
     private View view;
@@ -76,14 +68,12 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
     private SessionManager sessionManager;
 
     //instances
-    private RentViewModel mViewModel;
-    private RentAdapter mAdapter;
-    private CategoryAdapter mCatAdapter;
+    private BusinessViewModel mViewModel;
+    private BusinessAdapter mAdapter;
     private NativeAdsManager mNativeAdsManager;
 
 
     //Data
-    private ArrayList<Category> categoryArrayList = new ArrayList<>();
     private String category_id = "";
     private String user_id = "0";
     private String username = "Sneha";
@@ -104,9 +94,10 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_rent, container, false);
+        view = inflater.inflate(R.layout.fragment_bus, container, false);
         context = getContext();
-        mViewModel = ViewModelProviders.of(this).get(RentViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(BusinessViewModel.class);
+
         sessionManager = new SessionManager(context);
         getSessionData();
 
@@ -114,7 +105,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         initView();
         initRecyclerView();
         subscribeObservers();
-        getRentList();
+        getBusinessList();
         initSearchView();
         return view;
     }
@@ -124,36 +115,40 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         if (user_id.isEmpty()) user_id = "0";
     }
 
+
     private void initView() {
         btnRegistartaion = view.findViewById(R.id.btnRegistartaion);
         rvNestedScroll = view.findViewById(R.id.rvNestedScroll);
         rvList = view.findViewById(R.id.rvList);
-        rvTabs = view.findViewById(R.id.rvTabs);
         searchView = view.findViewById(R.id.etSearchBox);
 
         btnRegistartaion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!(user_id.equals("0")|| user_id.isEmpty())) {
-                    Intent in = new Intent(context, AddRentListingActivity.class);
-                    in.putExtra("category", categoryArrayList);
-                    startActivity(in);
-                }
-                else{
-                    Utils.openLogin(context);
-                }
+                openAddSheet();
             }
         });
 
     }
 
+    private void openAddSheet() {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
+            Intent intent = new Intent(context, AddBusinessListingActivity.class);
+            startActivity(intent);
+        } else {
+            Utils.openLogin(context);
+        }
+    }
+
     private void initRecyclerView() {
         ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
-        mAdapter = new RentAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader);
+        mAdapter = new BusinessAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
+
 //        RecyclerViewPreloader<String> preloader = new RecyclerViewPreloader<String>(Glide.with(context), mAdapter, viewPreloader, ITEM_PER_ADV);
 //        rvList.addOnScrollListener(preloader);
+
         rvNestedScroll.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
@@ -164,14 +159,9 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
                 }
             }
         });
+
+
         rvList.setAdapter(mAdapter);
-
-
-        mCatAdapter = new CategoryAdapter(context, this::onCategoryItemClick);
-        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
-        rvTabs.setLayoutManager(mLayoutManager);
-        rvTabs.setItemAnimator(new DefaultItemAnimator());
-        rvTabs.setAdapter(mCatAdapter);
     }
 
 
@@ -184,9 +174,9 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
     private void subscribeObservers() {
 
-        mViewModel.getRent().observe(this, new Observer<Resource<List<Rent>>>() {
+        mViewModel.getBusiness().observe(this, new Observer<Resource<List<Business>>>() {
             @Override
-            public void onChanged(@Nullable Resource<List<Rent>> listResource) {
+            public void onChanged(@Nullable Resource<List<Business>> listResource) {
                 if (listResource != null) {
                     Log.d(TAG, "onChanged: status: " + listResource.status);
 
@@ -232,37 +222,20 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         });
 
 
-        mViewModel.getCategory().observe(this, new Observer<Resource<List<Category>>>() {
-            @Override
-            public void onChanged(@Nullable Resource<List<Category>> listResource) {
-                if (listResource != null) {
-                    Log.d(TAG, "onChanged: status: " + listResource.status);
-
-                    if (listResource.data != null) {
-                        // Testing.printRecipess("data: ", listResource.data);
-
-                        switch (listResource.status) {
-                            case SUCCESS: {
-                                Log.d(TAG, "onChanged: cache has been refreshed.");
-                                Log.d(TAG, "onChanged: status: SUCCESS, #Recipes: " + listResource.data.size());
-                                mCatAdapter.setList(listResource.data);
-                                categoryArrayList.addAll(listResource.data);
-                                break;
-                            }
-
-                        }
-                    }
-
-
-                }
-            }
-
-        });
+//        mViewModel.getDashboard().observe(this, new Observer<List<DashboardList>>() {
+//            @Override
+//            public void onChanged(@Nullable List<DashboardList> list) {
+//                if(list != null){
+//                    //mViewModel.setIsPerformingQuery(true);
+//                    mAdapter.setList(list);
+//                }
+//
+//            }
+//        });
     }
 
-    private void getRentList() {
-        mViewModel.getCategoryListApi();
-        mViewModel.getRentListApi(user_id, page_no, search_name, latitude, longitude, category_id);
+    private void getBusinessList() {
+        mViewModel.getBusinessListApi(user_id, page_no, search_name, latitude, longitude, category_id);
     }
 
     private void initSearchView() {
@@ -278,7 +251,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
             @Override
             public void afterTextChanged(Editable editable) {
                 search_name = editable.toString();
-                mViewModel.getRentListApi(user_id, page_no, search_name, latitude, longitude, category_id);
+                mViewModel.getBusinessListApi(user_id, page_no, search_name, latitude, longitude, category_id);
             }
         });
     }
@@ -301,11 +274,10 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         Log.d(TAG, "onAdError: ");
     }
 
-
     @Override
     public void onCallClick(int position) {
         if (!(user_id.equals("0") || user_id.isEmpty())) {
-            Rent dl = mAdapter.getSelected(position);
+            Business dl = mAdapter.getSelected(position);
             if (!dl.getUser_id().equals(user_id)) {
                 if (dl.getMobile_status().equals("0")) {
                     String number = dl.getMobile();
@@ -336,7 +308,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
     @Override
     public void onLikeClick(int position, Button ivInterested) {
         if (!(user_id.equals("0") || user_id.isEmpty())) {
-            Rent dl = mAdapter.getSelected(position);
+            Business dl = mAdapter.getSelected(position);
             if (!dl.getUser_id().equals(user_id)) {
                 if (dl.getInterest_status().equalsIgnoreCase("yes")) {
                     ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_thumb_up_24, 0, 0, 0);
@@ -345,7 +317,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
                     ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_thumb_up_24, 0, 0, 0);
                     dl.setInterest_status("yes");
                 }
-                interest(dl.getId(), dl.getUser_id(), "L", dl.getTitle());
+                interest(dl.getId(), dl.getUser_id(), "B", dl.getTitle());
             }
         } else {
             Utils.openLogin(context);
@@ -406,25 +378,9 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
     @Override
     public void onItemClick(int position) {
-        Rent dl = mAdapter.getSelected(position);
-        Intent intent = new Intent(context, RentInnerActivity.class);
+        Business dl = mAdapter.getSelected(position);
+        Intent intent = new Intent(context, BusinessInnerActivity.class);
         intent.putExtra("data", dl);
         context.startActivity(intent);
-    }
-
-    @Override
-    public void onCategoryItemClick(int position) {
-        Category ct = mCatAdapter.getSelected(position);
-        mViewModel.getRentListApi(user_id, page_no, search_name, latitude, longitude, ct.getId());
-    }
-
-    @Override
-    public void onClick(View view) {
-//        switch (view.getId()){
-//            case R.id.llButton:
-//
-//                break;
-//
-//        }
     }
 }
