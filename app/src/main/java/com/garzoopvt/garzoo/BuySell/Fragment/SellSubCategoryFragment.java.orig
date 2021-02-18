@@ -54,7 +54,7 @@ public class SellSubCategoryFragment extends Fragment implements OnCategoryListe
     //instances
     private BuyViewModel mViewModel;
     private CategoryAdapter mCatAdapter;
-    private String user_id;
+    private String user_id = "0";
     private SessionManager sessionManager;
 
     @Override
@@ -70,8 +70,8 @@ public class SellSubCategoryFragment extends Fragment implements OnCategoryListe
 
         view = inflater.inflate(R.layout.fragment_sub, container, false);
         context = getContext();
-        sessionManager = new SessionManager(context);
         mViewModel = ViewModelProviders.of(this).get(BuyViewModel.class);
+        sessionManager = new SessionManager(context);
         getSessionData();
         initView();
         subscribeObservers();
@@ -130,14 +130,13 @@ public class SellSubCategoryFragment extends Fragment implements OnCategoryListe
 
     @Override
     public void onCategoryItemClick(int position) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
-        Category ct = mCatAdapter.getSelected(position);
-        Intent in = new Intent(context, AddSellListingActivity.class);
-        in.putExtra("category_id", ct.getId());
-        in.putExtra("category_name", ct.getName());
-        startActivity(in);
-        }
-        else{
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
+            Category ct = mCatAdapter.getSelected(position);
+            Intent in = new Intent(context, AddSellListingActivity.class);
+            in.putExtra("category_id", ct.getId());
+            in.putExtra("category_name", ct.getName());
+            startActivity(in);
+        } else {
             Utils.openLogin(context);
         }
     }
