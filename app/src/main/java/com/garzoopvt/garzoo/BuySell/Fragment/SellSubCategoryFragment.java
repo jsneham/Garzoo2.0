@@ -32,6 +32,8 @@ import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.Rent.ViewModel.RentViewModel;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
+import com.garzoopvt.garzoo.Util.SessionManager;
+import com.garzoopvt.garzoo.Util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +54,8 @@ public class SellSubCategoryFragment extends Fragment implements OnCategoryListe
     //instances
     private BuyViewModel mViewModel;
     private CategoryAdapter mCatAdapter;
-
+    private String user_id;
+    private SessionManager sessionManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,12 +70,18 @@ public class SellSubCategoryFragment extends Fragment implements OnCategoryListe
 
         view = inflater.inflate(R.layout.fragment_sub, container, false);
         context = getContext();
+        sessionManager = new SessionManager(context);
         mViewModel = ViewModelProviders.of(this).get(BuyViewModel.class);
-
+        getSessionData();
         initView();
         subscribeObservers();
         getList();
         return view;
+    }
+
+    private void getSessionData() {
+        user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
+        if (user_id.isEmpty()) user_id = "0";
     }
 
     private void initView() {
@@ -121,10 +130,15 @@ public class SellSubCategoryFragment extends Fragment implements OnCategoryListe
 
     @Override
     public void onCategoryItemClick(int position) {
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
         Category ct = mCatAdapter.getSelected(position);
         Intent in = new Intent(context, AddSellListingActivity.class);
         in.putExtra("category_id", ct.getId());
         in.putExtra("category_name", ct.getName());
         startActivity(in);
+        }
+        else{
+            Utils.openLogin(context);
+        }
     }
 }

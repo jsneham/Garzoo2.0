@@ -133,8 +133,13 @@ public class BusinessFragment extends Fragment implements NativeAdsManager.Liste
 
     }
     private void openAddSheet() {
-        Intent intent= new Intent(context, AddBusinessListingActivity.class);
-        startActivity(intent);
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+            Intent intent = new Intent(context, AddBusinessListingActivity.class);
+            startActivity(intent);
+        }
+        else{
+            Utils.openLogin(context);
+        }
 
     }
     private void initRecyclerView() {

@@ -147,7 +147,7 @@ public class AddSellListingActivity extends BaseActivity implements View.OnClick
     private static final int REQ_CODE_SPEECH_INPUT_PRICE = 300;
     private String imagePath = "";
     private String selectedImagePath = "";
-    private String user_id = "71";
+    private String user_id;
     private String category_id, category_name;
     private String mobile_status = "0";
     private int image_count = 10;

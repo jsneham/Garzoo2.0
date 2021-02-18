@@ -136,9 +136,14 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         btnRegistartaion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!(user_id.equals("0")|| user_id.isEmpty())) {
                 Intent in= new Intent(context, AddRentListingActivity.class);
                 in.putExtra("category", categoryArrayList);
                 startActivity(in);
+                }
+                else{
+                    Utils.openLogin(context);
+                }
             }
         });
 

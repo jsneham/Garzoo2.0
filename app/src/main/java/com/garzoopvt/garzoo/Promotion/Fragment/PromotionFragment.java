@@ -78,7 +78,7 @@ public class PromotionFragment extends Fragment implements NativeAdsManager.List
 
     //Data
     private String category_id = "";
-    private String user_id = "0";
+    private String user_id;
     private String username = "Sneha";
     private String search_name = "";
     private String latitude = "19.108589";
@@ -142,13 +142,24 @@ public class PromotionFragment extends Fragment implements NativeAdsManager.List
     }
 
     private void openAddCharchaSheet() {
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+
         Intent intent = new Intent(context, AddQuestionListingActivity.class);
         startActivity(intent);
+        }
+        else{
+            Utils.openLogin(context);
+        }
     }
 
     private void openAddAdvSheet() {
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
         Intent intent = new Intent(context, AddAdvertisementListingActivity.class);
         startActivity(intent);
+        }
+        else{
+            Utils.openLogin(context);
+        }
     }
 
     private void initRecyclerView() {
