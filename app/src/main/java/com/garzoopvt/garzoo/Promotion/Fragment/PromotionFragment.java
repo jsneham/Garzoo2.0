@@ -142,13 +142,19 @@ public class PromotionFragment extends Fragment implements NativeAdsManager.List
     }
 
     private void openAddCharchaSheet() {
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
         Intent intent = new Intent(context, AddQuestionListingActivity.class);
-        startActivity(intent);
+        startActivity(intent); } else {
+            Utils.openLogin(context);
+        }
     }
 
     private void openAddAdvSheet() {
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
         Intent intent = new Intent(context, AddAdvertisementListingActivity.class);
-        startActivity(intent);
+        startActivity(intent); } else {
+            Utils.openLogin(context);
+        }
     }
 
     private void initRecyclerView() {

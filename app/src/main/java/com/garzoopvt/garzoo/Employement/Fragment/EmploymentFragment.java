@@ -59,11 +59,10 @@ import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_
 public class EmploymentFragment extends Fragment implements NativeAdsManager.Listener, OnDashboardListener {
 
 
-
     //view
     private View view;
     private Context context;
-    private RecyclerView rvList,rvTabs;
+    private RecyclerView rvList, rvTabs;
     private NestedScrollView rvNestedScroll;
     private EditText searchView;
     private TextView btnRegistartaion, btnRequirement;
@@ -77,14 +76,14 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
 
     //Data
-    private String category_id="";
-    private String user_id="0";  private String username="Sneha";
-    private String search_name="";
-    private String latitude="19.108589";
-    private String longitude="72.827072";
-    private int page_no=1;
+    private String category_id = "";
+    private String user_id = "0";
+    private String username = "Sneha";
+    private String search_name = "";
+    private String latitude = "19.108589";
+    private String longitude = "72.827072";
+    private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
-
 
 
     @Override
@@ -97,10 +96,10 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view= inflater.inflate(R.layout.fragment_emp, container, false);
-        context=getContext();
+        view = inflater.inflate(R.layout.fragment_emp, container, false);
+        context = getContext();
         mViewModel = ViewModelProviders.of(this).get(EmploymentViewModel.class);
-        sessionManager =new SessionManager(context);
+        sessionManager = new SessionManager(context);
         getSessionData();
 
         fbNativeAds();
@@ -114,7 +113,7 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
     private void getSessionData() {
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
-        if(user_id.isEmpty()) user_id="0";
+        if (user_id.isEmpty()) user_id = "0";
     }
 
     private void initView() {
@@ -138,20 +137,28 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
     }
 
     private void openAddReqSheet() {
-        Intent intent = new Intent(context, AddEmpReqListingActivity.class);
-        // intent.putExtra("data", filterCategoryArrayList);
-        startActivity(intent);
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
+            Intent intent = new Intent(context, AddEmpReqListingActivity.class);
+            // intent.putExtra("data", filterCategoryArrayList);
+            startActivity(intent);
+        } else {
+            Utils.openLogin(context);
+        }
     }
 
     private void openAddRegisterSheet() {
-        Intent intent = new Intent(context, AddEmpRegisterListingActivity.class);
-        //intent.putExtra("data", filterCategoryArrayList);
-        startActivity(intent);
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
+            Intent intent = new Intent(context, AddEmpRegisterListingActivity.class);
+            //intent.putExtra("data", filterCategoryArrayList);
+            startActivity(intent);
+        } else {
+            Utils.openLogin(context);
+        }
     }
 
     private void initRecyclerView() {
-        ViewPreloadSizeProvider<String> viewPreloader=new ViewPreloadSizeProvider<>();
-        mAdapter = new EmploymentAdapter(this, context,mNativeAdsManager, initGlide(), viewPreloader);
+        ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
+        mAdapter = new EmploymentAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
 
@@ -161,44 +168,42 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
         rvNestedScroll.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if(!v.canScrollVertically(1)){
+                if (!v.canScrollVertically(1)) {
                     // search for the next page
-                    mViewModel.searchNextPage(user_id, search_name, latitude,longitude,category_id);
+                    mViewModel.searchNextPage(user_id, search_name, latitude, longitude, category_id);
 
                 }
             }
         });
 
 
-
         rvList.setAdapter(mAdapter);
     }
 
 
-    private RequestManager initGlide(){
+    private RequestManager initGlide() {
         RequestOptions options = new RequestOptions()
                 .placeholder(R.drawable.white_background);
 
         return Glide.with(this).setDefaultRequestOptions(options);
     }
 
-    private void subscribeObservers(){
+    private void subscribeObservers() {
 
         mViewModel.getEmployment().observe(this, new Observer<Resource<List<Employment>>>() {
             @Override
             public void onChanged(@Nullable Resource<List<Employment>> listResource) {
-                if(listResource != null){
+                if (listResource != null) {
                     Log.d(TAG, "onChanged: status: " + listResource.status);
 
-                    if(listResource.data != null){
+                    if (listResource.data != null) {
                         // Testing.printRecipess("data: ", listResource.data);
 
                         switch (listResource.status) {
                             case LOADING: {
-                                if(mViewModel.getPageNumber() > 1){
+                                if (mViewModel.getPageNumber() > 1) {
                                     mAdapter.displayLoading();
-                                }
-                                else{
+                                } else {
                                     mAdapter.displayOnlyLoading();
                                 }
                                 break;
@@ -212,13 +217,13 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
                             }
                             case ERROR: {
                                 Log.e(TAG, "onChanged: cannot refresh cache.");
-                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message );
+                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message);
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
                                 Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
-                                if(listResource.message.equals(QUERY_EXHAUSTED)){
+                                if (listResource.message.equals(QUERY_EXHAUSTED)) {
                                     mAdapter.setQueryExhausted();
                                 }
                                 break;
@@ -233,8 +238,6 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
         });
 
 
-
-
 //        mViewModel.getDashboard().observe(this, new Observer<List<DashboardList>>() {
 //            @Override
 //            public void onChanged(@Nullable List<DashboardList> list) {
@@ -247,11 +250,11 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 //        });
     }
 
-    private void getEmploymentList(){
-        mViewModel.getEmploymentListApi(user_id, page_no, search_name, latitude,longitude, category_id);
+    private void getEmploymentList() {
+        mViewModel.getEmploymentListApi(user_id, page_no, search_name, latitude, longitude, category_id);
     }
 
-    private void initSearchView(){
+    private void initSearchView() {
         searchView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -263,16 +266,11 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
             @Override
             public void afterTextChanged(Editable editable) {
-                search_name= editable.toString();
-                mViewModel.getEmploymentListApi(user_id, page_no, search_name, latitude,longitude ,category_id);
+                search_name = editable.toString();
+                mViewModel.getEmploymentListApi(user_id, page_no, search_name, latitude, longitude, category_id);
             }
         });
     }
-
-
-
-
-
 
 
     private void fbNativeAds() {
@@ -281,6 +279,7 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
         mNativeAdsManager.loadAds();
         mNativeAdsManager.setListener(this);
     }
+
     @Override
     public void onAdsLoaded() {
         Log.d(TAG, "onAdsLoaded: ");
@@ -294,26 +293,24 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
     @Override
     public void onCallClick(int position) {
-        Employment dl=  mAdapter.getSelected(position);
-        if (!dl.getUser_id().equals(user_id) ){
+        Employment dl = mAdapter.getSelected(position);
+        if (!dl.getUser_id().equals(user_id)) {
             if (dl.getMobile_status().equals("0")) {
                 String number = dl.getMobile();
                 Intent intent = new Intent(Intent.ACTION_DIAL);
                 intent.setData(Uri.parse("tel:" + number));
                 context.startActivity(intent);
             } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
 
     @Override
     public void onChatClick(int position) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
@@ -325,19 +322,17 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
     @Override
     public void onLikeClick(int position, Button ivInterested) {
-        Employment dl=  mAdapter.getSelected(position);
-        if (!dl.getUser_id().equals(user_id) ){
+        Employment dl = mAdapter.getSelected(position);
+        if (!dl.getUser_id().equals(user_id)) {
             if (dl.getInterest_status().equalsIgnoreCase("yes")) {
                 ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_thumb_up_24, 0, 0, 0);
                 dl.setInterest_status("no");
-            }
-            else{
+            } else {
                 ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_thumb_up_24, 0, 0, 0);
                 dl.setInterest_status("yes");
             }
             interest(dl.getId(), dl.getUser_id(), "E", dl.getTitle());
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
@@ -354,8 +349,8 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
         RequestBody rb_listing_title = RequestBody.create(MultipartBody.FORM, title);
 
 
-        Call<ResponseBody> call = mViewModel.interest(unique_id,rb_user_id , rb_to_user_id,
-                rb_full_name,rb_listing_id,rb_type,rb_listing_title);
+        Call<ResponseBody> call = mViewModel.interest(unique_id, rb_user_id, rb_to_user_id,
+                rb_full_name, rb_listing_id, rb_type, rb_listing_title);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -387,10 +382,9 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
     @Override
     public void onEditClick(int position) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }

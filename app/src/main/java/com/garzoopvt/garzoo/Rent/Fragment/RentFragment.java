@@ -68,7 +68,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
     //view
     private View view;
     private Context context;
-    private RecyclerView rvList,rvTabs;
+    private RecyclerView rvList, rvTabs;
     private TextView btnRegistartaion;
     private NestedScrollView rvNestedScroll;
     private EditText searchView;
@@ -83,17 +83,15 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
 
     //Data
-    private ArrayList<Category> categoryArrayList=new ArrayList<>();
-    private String category_id="";
-    private String user_id="0";  private String username="Sneha";
-    private String search_name="";
-    private String latitude="19.108589";
-    private String longitude="72.827072";
-    private int page_no=1;
+    private ArrayList<Category> categoryArrayList = new ArrayList<>();
+    private String category_id = "";
+    private String user_id = "0";
+    private String username = "Sneha";
+    private String search_name = "";
+    private String latitude = "19.108589";
+    private String longitude = "72.827072";
+    private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
-
-
-
 
 
     @Override
@@ -106,10 +104,10 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view= inflater.inflate(R.layout.fragment_rent, container, false);
-        context=getContext();
+        view = inflater.inflate(R.layout.fragment_rent, container, false);
+        context = getContext();
         mViewModel = ViewModelProviders.of(this).get(RentViewModel.class);
-        sessionManager =new SessionManager(context);
+        sessionManager = new SessionManager(context);
         getSessionData();
 
         fbNativeAds();
@@ -123,7 +121,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
     private void getSessionData() {
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
-        if(user_id.isEmpty()) user_id="0";
+        if (user_id.isEmpty()) user_id = "0";
     }
 
     private void initView() {
@@ -136,17 +134,21 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         btnRegistartaion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent in= new Intent(context, AddRentListingActivity.class);
-                in.putExtra("category", categoryArrayList);
-                startActivity(in);
+                if (!(user_id.equals("0") || user_id.isEmpty())) {
+                    Intent in = new Intent(context, AddRentListingActivity.class);
+                    in.putExtra("category", categoryArrayList);
+                    startActivity(in);
+                } else {
+                    Utils.openLogin(context);
+                }
             }
         });
 
     }
 
     private void initRecyclerView() {
-        ViewPreloadSizeProvider<String> viewPreloader=new ViewPreloadSizeProvider<>();
-        mAdapter = new RentAdapter(this, context,mNativeAdsManager, initGlide(), viewPreloader);
+        ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
+        mAdapter = new RentAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
 //        RecyclerViewPreloader<String> preloader = new RecyclerViewPreloader<String>(Glide.with(context), mAdapter, viewPreloader, ITEM_PER_ADV);
@@ -154,9 +156,9 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         rvNestedScroll.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if(!v.canScrollVertically(1)){
+                if (!v.canScrollVertically(1)) {
                     // search for the next page
-                    mViewModel.searchNextPage(user_id, search_name, latitude,longitude,category_id);
+                    mViewModel.searchNextPage(user_id, search_name, latitude, longitude, category_id);
 
                 }
             }
@@ -164,7 +166,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         rvList.setAdapter(mAdapter);
 
 
-        mCatAdapter = new CategoryAdapter(context,this::onCategoryItemClick);
+        mCatAdapter = new CategoryAdapter(context, this::onCategoryItemClick);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
         rvTabs.setLayoutManager(mLayoutManager);
         rvTabs.setItemAnimator(new DefaultItemAnimator());
@@ -172,30 +174,29 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
     }
 
 
-    private RequestManager initGlide(){
+    private RequestManager initGlide() {
         RequestOptions options = new RequestOptions()
                 .placeholder(R.drawable.white_background);
 
         return Glide.with(this).setDefaultRequestOptions(options);
     }
 
-    private void subscribeObservers(){
+    private void subscribeObservers() {
 
         mViewModel.getRent().observe(this, new Observer<Resource<List<Rent>>>() {
             @Override
             public void onChanged(@Nullable Resource<List<Rent>> listResource) {
-                if(listResource != null){
+                if (listResource != null) {
                     Log.d(TAG, "onChanged: status: " + listResource.status);
 
-                    if(listResource.data != null){
+                    if (listResource.data != null) {
                         // Testing.printRecipess("data: ", listResource.data);
 
                         switch (listResource.status) {
                             case LOADING: {
-                                if(mViewModel.getPageNumber() > 1){
+                                if (mViewModel.getPageNumber() > 1) {
                                     mAdapter.displayLoading();
-                                }
-                                else{
+                                } else {
                                     mAdapter.displayOnlyLoading();
                                 }
                                 break;
@@ -209,13 +210,13 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
                             }
                             case ERROR: {
                                 Log.e(TAG, "onChanged: cannot refresh cache.");
-                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message );
+                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message);
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
                                 Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
-                                if(listResource.message.equals(QUERY_EXHAUSTED)){
+                                if (listResource.message.equals(QUERY_EXHAUSTED)) {
                                     mAdapter.setQueryExhausted();
                                 }
                                 break;
@@ -258,12 +259,12 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         });
     }
 
-    private void getRentList(){
+    private void getRentList() {
         mViewModel.getCategoryListApi();
-        mViewModel.getRentListApi(user_id, page_no, search_name, latitude,longitude, category_id);
+        mViewModel.getRentListApi(user_id, page_no, search_name, latitude, longitude, category_id);
     }
 
-    private void initSearchView(){
+    private void initSearchView() {
         searchView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -275,16 +276,11 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
             @Override
             public void afterTextChanged(Editable editable) {
-                search_name= editable.toString();
-                mViewModel.getRentListApi(user_id, page_no, search_name, latitude,longitude ,category_id);
+                search_name = editable.toString();
+                mViewModel.getRentListApi(user_id, page_no, search_name, latitude, longitude, category_id);
             }
         });
     }
-
-
-
-
-
 
 
     private void fbNativeAds() {
@@ -293,6 +289,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         mNativeAdsManager.loadAds();
         mNativeAdsManager.setListener(this);
     }
+
     @Override
     public void onAdsLoaded() {
         Log.d(TAG, "onAdsLoaded: ");
@@ -306,7 +303,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
     @Override
     public void onCallClick(int position) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
             Rent dl = mAdapter.getSelected(position);
             if (!dl.getUser_id().equals(user_id)) {
                 if (dl.getMobile_status().equals("0")) {
@@ -316,19 +313,16 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
                     context.startActivity(intent);
                 } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
             }
-        }
-
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
 
     @Override
     public void onChatClick(int position) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
@@ -340,7 +334,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
     @Override
     public void onLikeClick(int position, Button ivInterested) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
             Rent dl = mAdapter.getSelected(position);
             if (!dl.getUser_id().equals(user_id)) {
                 if (dl.getInterest_status().equalsIgnoreCase("yes")) {
@@ -352,9 +346,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
                 }
                 interest(dl.getId(), dl.getUser_id(), "L", dl.getTitle());
             }
-        }
-
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
@@ -371,8 +363,8 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         RequestBody rb_listing_title = RequestBody.create(MultipartBody.FORM, title);
 
 
-        Call<ResponseBody> call = mViewModel.interest(unique_id,rb_user_id , rb_to_user_id,
-                rb_full_name,rb_listing_id,rb_type,rb_listing_title);
+        Call<ResponseBody> call = mViewModel.interest(unique_id, rb_user_id, rb_to_user_id,
+                rb_full_name, rb_listing_id, rb_type, rb_listing_title);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -404,10 +396,9 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
     @Override
     public void onEditClick(int position) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
