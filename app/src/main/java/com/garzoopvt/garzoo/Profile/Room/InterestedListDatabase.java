@@ -28,6 +28,8 @@ public abstract  class InterestedListDatabase extends RoomDatabase {
                     DATABASE_NAME
             ).build();
         }
+
+
         return instance;
     }
 
