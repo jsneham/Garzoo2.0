@@ -25,20 +25,20 @@ public class URLs {
     public static final String api_get_advertise = "Advertise/api_get_advertise";
 
 
-    // API Login
+    // API Login *
     public static final String user_mobile_check =  "User/user_mobile_check";
     public static final String user_mobile_change = "User/user_mobile_change";
     public static final String user_mobile_update = "User/user_mobile_update";
     public static final String user_register ="User/user_register";
 
-    //API Contact Us
+    //API Contact Us *
+    public static final String add_record =  "Contact_us/add_record";
+    public static final String add_feedback =  "Contact_us/add_record";
 
     //API BUY & SELL
     public static final String api_sell_data_2_0 = "Listing_sell/api_sell_data_2_0";
     public static final String api_get_category_2_0 = "Listing_sell/api_get_category";
     public static final String api_sell_add_record = "Listing_sell/api_add_record_2_0";
-
-
 
 
     //API RENT
@@ -60,8 +60,10 @@ public class URLs {
 
 
 
-    //Interested
+    //Interested *
     public static final String api_add_listing_interest_2_0 = "Listing_interest/api_add_listing_interest_2_0";
+    public static final String api_listing_interest_2_0 = "Listing_interest/api_listing_interest_2_0";
+    public static final String api_my_records_2_0 =  "Listing_interest/api_my_records_2_0";
 
     //Dashboard
     public static final String api_dashboard_data_2_0 = "Dashboard/api_dashboard_data_2_0";
@@ -89,7 +91,7 @@ public class URLs {
     public static final String view_users_api_2_0 = "Chat/view_users_api_2_0";
     public static final String view_group_chat_api_2_0 = "Chat/view_group_chat_api_2_0";
     public static final String view_chats_2_0  = "Chat/view_chats_2_0";
-    public static final String add_chat_2_0  = BASE_URL + "Chat/add_chat_2_0";
+    public static final String add_chat_2_0  = "Chat/add_chat_2_0";
 
     //block
     public static final String add_block_2_0 = BASE_URL + "Listing_interest/add_block_2_0";

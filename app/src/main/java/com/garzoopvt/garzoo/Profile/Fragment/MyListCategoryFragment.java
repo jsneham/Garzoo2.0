@@ -1,4 +1,4 @@
-package com.garzoopvt.garzoo.MyListing.Fragment;
+package com.garzoopvt.garzoo.Profile.Fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -11,19 +11,20 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.garzoopvt.garzoo.Dashboard.Adapter.RecycleAdapter_GridHome;
+
+import com.garzoopvt.garzoo.Dashboard.Model.HomeGridModelClass;
+import com.garzoopvt.garzoo.R;
+import com.garzoopvt.garzoo.Util.RecyclerTouchListener;
+import com.garzoopvt.garzoo.Util.SessionManager;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.garzoopvt.garzoo.Dashboard.Adapter.RecycleAdapter_GridHome;
-import com.garzoopvt.garzoo.Model.HomeGridModelClass;
-import com.garzoopvt.garzoo.R;
-import com.garzoopvt.garzoo.Utility.RecyclerTouchListener;
-import com.garzoopvt.garzoo.Utility.SessionManager;
 
 import java.util.ArrayList;
 
 
-public class MyListCategoryFragment extends Fragment{
+public class MyListCategoryFragment extends Fragment {
 
 
     private Integer image[] = {R.drawable.kharedi,  R.drawable.bhade, R.drawable.rojgar, R.drawable.businessv, R.drawable.charcha};

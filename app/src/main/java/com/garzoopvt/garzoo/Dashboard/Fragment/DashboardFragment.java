@@ -114,10 +114,10 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
     //Data
     private String mLanguageCode = "en";
     private String user_id="0";
-    private String username="Sneha";
+    private String username="";
     private String search_name="";
-    private String latitude="19.108589";
-    private String longitude="72.827072";
+    private String latitude;
+    private String longitude;
     private int page_no=1;
     public final int ITEM_PER_ADV = 8;
     private Integer image[] = {R.drawable.kharedi, R.drawable.vikri, R.drawable.bhade, R.drawable.rojgar, R.drawable.businessv, R.drawable.charcha};
@@ -152,6 +152,9 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
 
     private void getSessionData() {
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
+        username = sessionManager.getFromSessionManager(SessionManager.USERNAME);
+        latitude = sessionManager.getFromSessionManager(SessionManager.LATITUDE);
+        longitude = sessionManager.getFromSessionManager(SessionManager.LONGITUDE);
         if(user_id.isEmpty()) user_id="0";
         mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
         if(mLanguageCode.isEmpty())  updateLanguage();

@@ -9,6 +9,7 @@ import com.garzoopvt.garzoo.Dashboard.Services.DashboardApi;
 import com.garzoopvt.garzoo.Employement.Services.EmploymentApi;
 import com.garzoopvt.garzoo.Login.Services.LoginApi;
 import com.garzoopvt.garzoo.Notification.Services.NotificationApi;
+import com.garzoopvt.garzoo.Profile.Services.ProfileApi;
 import com.garzoopvt.garzoo.Promotion.Services.PromotionApi;
 import com.garzoopvt.garzoo.Rent.Services.RentApi;
 import com.garzoopvt.garzoo.Util.URLs;
@@ -55,6 +56,11 @@ public class ServiceGenerator {
     private static LoginApi loginApi = retrofit.create(LoginApi.class);
     public static LoginApi getLoginApi(){
         return loginApi;
+    }
+
+    private static ProfileApi profileApi = retrofit.create(ProfileApi.class);
+    public static ProfileApi getProfileApi(){
+        return profileApi;
     }
 
     private static NotificationApi notificationApi = retrofit.create(NotificationApi.class);

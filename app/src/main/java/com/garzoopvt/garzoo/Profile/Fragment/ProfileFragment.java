@@ -3,7 +3,9 @@ package com.garzoopvt.garzoo.Profile.Fragment;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
@@ -17,6 +19,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -25,6 +28,11 @@ import com.garzoopvt.garzoo.Home.HomeActivity;
 import com.garzoopvt.garzoo.Profile.ViewModel.ProfileViewModel;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.Util.LocaleHelper;
+import com.garzoopvt.garzoo.Util.SessionManager;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Locale;
@@ -34,10 +42,24 @@ import butterknife.OnClick;
 
 public class ProfileFragment extends Fragment {
 
-    private String mLanguageCode = "en";
+
+    //UI
+    private ImageView ivEditNumber, ivEditBio;
+    private TextView tvLanguage,tvName, tvAge, tvGender, tvMobile, tvLocation, tvMyListing, tvInterested, tvContactUs, tvSignOut, tvblockList,tvFeedback;
+    private LinearLayout tvUpdate;
+    private AdView adView;
+
+    //Instance
+    private Context context;
+    private SessionManager sessionManager;
     private ProfileViewModel mViewModel;
     private View view;
-    private TextView tvLanguage,tvSignOut;
+
+    //variable
+    private String user_id, username, gender, age, loacation, mobile,otp;
+    private String mLanguageCode = "en";
+
+
 
     public static ProfileFragment newInstance() {
         return new ProfileFragment();
@@ -50,12 +72,35 @@ public class ProfileFragment extends Fragment {
         view = inflater.inflate(R.layout.profile_fragment, container, false);
 
         init();
+        getBannerAds();
 
         return view;
     }
 
     private void init() {
+
+        context = getContext();
+        sessionManager = new SessionManager(context);
+        String is_update= sessionManager.getFromSessionManager(SessionManager.IS_UPDATE);
+
         tvLanguage = view.findViewById(R.id.tvLanguage);
+        tvSignOut = view.findViewById(R.id.tvSignOut);
+        tvUpdate = view.findViewById(R.id.tvUpdate);
+        tvContactUs = view.findViewById(R.id.tvContactUs);
+        tvFeedback = view.findViewById(R.id.tvFeedback);
+        tvblockList = view.findViewById(R.id.tvblockList);
+        tvAge = view.findViewById(R.id.tvAge);
+        tvGender = view.findViewById(R.id.tvGender);
+        tvMyListing = view.findViewById(R.id.tvMyListing);
+        tvName = view.findViewById(R.id.tvName);
+        tvInterested = view.findViewById(R.id.tvInterested);
+        tvLocation = view.findViewById(R.id.tvLocation);
+        tvMobile = view.findViewById(R.id.tvMobile);
+        ivEditBio = view.findViewById(R.id.ivEditBio);
+        ivEditNumber = view.findViewById(R.id.ivEditNumber);
+
+
+
         tvLanguage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -66,7 +111,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        tvSignOut = view.findViewById(R.id.tvSignOut);
+
         tvSignOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,8 +119,115 @@ public class ProfileFragment extends Fragment {
 
             }
         });
+
+
+        ivEditBio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+//                Intent intent= new Intent(context, UserProfileEditActivity.class);
+//                startActivity(intent);
+
+            }
+        });
+
+        ivEditNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+//                openChnageNumberPopup();
+
+            }
+        });
+
+        tvContactUs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new ContactUsFragment(), "ContactUsFragment").commit();
+            }
+        });
+
+        tvFeedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new FeedbackFragment(),"FeedbackFragment").commit();
+            }
+        });
+
+        tvMyListing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListCategoryFragment(), "MyListCategoryFragment").commit();
+            }
+        });
+
+        tvInterested.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new InterestedFragment(),"InterestedFragment").commit();
+
+            }
+        });
+
+        tvblockList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new BlockedListFragment(),"InterestedFragment").commit();
+
+            }
+        });
+
     }
 
+
+    private void getBannerAds() {
+        adView = view.findViewById(R.id.adView);
+        adView.loadAd(new AdRequest.Builder().build());
+
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Toast.makeText(context, "Loaded", Toast.LENGTH_SHORT).show();
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
+                // Code to be executed when an ad request fails.
+                //Toast.makeText(context, adError.getCode() + ", "+ adError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAdOpened() {
+                //Toast.makeText(context, "onAdOpened", Toast.LENGTH_SHORT).show();
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Toast.makeText(context, "onAdClicked", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                //Toast.makeText(context, "onAdLeftApplication", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Toast.makeText(context, "onAdClosed", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

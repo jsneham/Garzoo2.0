@@ -1,15 +1,5 @@
 package com.garzoopvt.garzoo.Chat.Activity;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.widget.NestedScrollView;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,18 +11,21 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.util.ViewPreloadSizeProvider;
-import com.garzoopvt.garzoo.Business.Adapter.BusinessAdapter;
-import com.garzoopvt.garzoo.Chat.Adapter.ChatAdapter;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.garzoopvt.garzoo.Chat.Adapter.ChatTextAdapter;
 import com.garzoopvt.garzoo.Chat.Model.ChatIndividual;
 import com.garzoopvt.garzoo.Chat.Model.ChatUser;
 import com.garzoopvt.garzoo.Chat.ViewModel.ChatRoomViewModel;
-import com.garzoopvt.garzoo.Chat.ViewModel.ChatViewModel;
-import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.Util.SessionManager;
@@ -57,7 +50,7 @@ import retrofit2.Response;
 
 import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_EXHAUSTED;
 
-public class IndividualChatActivity extends AppCompatActivity implements View.OnClickListener {
+public class ChatRoomListingActivity extends AppCompatActivity implements View.OnClickListener {
 
     //Data
     private String TAG = "IndividualChatActivity";

@@ -160,6 +160,12 @@
     <string name="rgav">City / Village / Areaर</string>
     <string name="Female">Female</string>
     <string name="male">Male</string>
+    <string name="namee">Name</string>
+    <string name="email">Email</string>
+    <string name="enquiry">Enquiry</string>
+    <string name="enquiry_msg">Message/Query</string>
+    <string name="sucess">"Your response has been recorded! Thank you"</string>
+    <string name="unblock">Unblock</string>
 
     <string name="fb_placement_id">390694838957593_390726152287795</string>
 

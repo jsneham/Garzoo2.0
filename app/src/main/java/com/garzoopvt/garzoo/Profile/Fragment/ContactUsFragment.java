@@ -1,4 +1,4 @@
-package com.garzoopvt.garzoo.ContactUs.Fragment;
+package com.garzoopvt.garzoo.Profile.Fragment;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -20,31 +20,32 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.android.material.snackbar.Snackbar;
-import com.garzoopvt.garzoo.ContactUs.ViewModel.ContactUsViewModel;
+
+import com.garzoopvt.garzoo.Login.ViewModel.LoginViewModel;
+import com.garzoopvt.garzoo.Login.data.LoginResult;
+import com.garzoopvt.garzoo.Profile.ViewModel.ProfileViewModel;
 import com.garzoopvt.garzoo.R;
-import com.garzoopvt.garzoo.Utility.SessionManager;
-import com.garzoopvt.garzoo.Utility.URLs;
-import com.garzoopvt.garzoo.Utility.UsefulIntent;
+import com.garzoopvt.garzoo.Util.SessionManager;
+import com.garzoopvt.garzoo.Util.URLs;
+import com.garzoopvt.garzoo.Util.Utils;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static android.app.Activity.RESULT_OK;
 
 public class ContactUsFragment extends Fragment {
 
-    private ContactUsViewModel mViewModel;
+    private ProfileViewModel mViewModel;
 
     View view;
     private Context context;
@@ -64,7 +65,7 @@ public class ContactUsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.contact_us_fragment, container, false);
-
+        mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         init();
 
         return view;
@@ -72,9 +73,9 @@ public class ContactUsFragment extends Fragment {
 
     private void init() {
         context = getContext();
-        sessionManager=new SessionManager(context);
+        sessionManager = new SessionManager(context);
 
-        rlLayout =  view.findViewById(R.id.rlLayout);
+        rlLayout = view.findViewById(R.id.rlLayout);
         btnSubmit = (Button) view.findViewById(R.id.btnSubmit);
         etName = (EditText) view.findViewById(R.id.etName);
         etEmail = (EditText) view.findViewById(R.id.etEmail);
@@ -84,12 +85,10 @@ public class ContactUsFragment extends Fragment {
         gifEmail = view.findViewById(R.id.gifEmail);
 
 
-
-
         gifEnquiry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UsefulIntent.checkErrorPresent(context, etEnquiry);
+                Utils.checkErrorPresent(context, etEnquiry);
                 startVoiceInput("Enquiry", 2);
             }
         });
@@ -97,11 +96,10 @@ public class ContactUsFragment extends Fragment {
         gifEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                UsefulIntent.checkErrorPresent(context, etEmail);
+                Utils.checkErrorPresent(context, etEmail);
                 startVoiceInput("Email", 1);
             }
         });
-
 
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
@@ -115,27 +113,28 @@ public class ContactUsFragment extends Fragment {
         etName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                etName.setError(null);            }
+                etName.setError(null);
+            }
         });
         etEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                etEmail.setError(null);            }
+                etEmail.setError(null);
+            }
         });
         etEnquiry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                etEnquiry.setError(null);            }
+                etEnquiry.setError(null);
+            }
         });
         etMobile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                etMobile.setError(null);            }
+                etMobile.setError(null);
+            }
         });
     }
-
-
-
 
 
     private void startVoiceInput(String type, int i) {
@@ -169,7 +168,7 @@ public class ContactUsFragment extends Fragment {
 //            return false;
 //        } else
 
-            if (TextUtils.isEmpty(etEnquiry.getText().toString())) {
+        if (TextUtils.isEmpty(etEnquiry.getText().toString())) {
             etEnquiry.setError("कृपया चौकशी संदेश लिहा");
             etEnquiry.requestFocus();
             return false;
@@ -219,68 +218,47 @@ public class ContactUsFragment extends Fragment {
 
     private void addRecord() {
 
-        String URL = URLs.add_record;
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+        Call<ResponseBody> call = mViewModel.contactUs(sessionManager.getFromSessionManager(SessionManager.MOBILE),
+                etEmail.getText().toString(), etEnquiry.getText().toString(),
+                sessionManager.getFromSessionManager(SessionManager.USERNAME));
+        call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(String response) {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+                            if (response.equals("success")) {
+                                etEmail.setText("");
+                                etEnquiry.setText("");
+                                etMobile.setText("");
+                                etName.setText("");
+                                //Toast.makeText(context, response,Toast.LENGTH_SHORT).show();
 
-                try {
+                                Utils.openSnackBar(getString(R.string.sucess), view);
+                            } else Utils.openSnackBar(getString(R.string.err_login), view);
 
-                    if (response.equals("success")) {
-                        etEmail.setText("");
-                        etEnquiry.setText("");
-                        etMobile.setText("");
-                        etName.setText("");
-                        //Toast.makeText(context, response,Toast.LENGTH_SHORT).show();
-
-                        openSnackBar(true);
+                        } catch (Exception e) {
+                            Utils.openSnackBar(getString(R.string.err_login), view);
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Utils.openSnackBar(getString(R.string.err_login), view);
                     }
-                    else openSnackBar(false);
 
 
-                } catch (Exception e) {
-                    Log.e("volley Error", e.getMessage());
                 }
+
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                if (volleyError instanceof TimeoutError) {
-                }
-            }
-        }) {
 
             @Override
-            public Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("mobile", sessionManager.getFromSessionManager(SessionManager.MOBILE));
-                params.put("email", etEmail.getText().toString());
-                params.put("message", etEnquiry.getText().toString());
-                params.put("name", sessionManager.getFromSessionManager(SessionManager.USERNAME));
-                return params;
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
             }
-
-        };
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
-        stringRequest.setShouldCache(false);
-        stringRequest.setRetryPolicy(new
-                DefaultRetryPolicy(60000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        requestQueue.add(stringRequest);
+        });
 
 
     }
 
 
-    private void openSnackBar(boolean response) {
-        Snackbar snackbar;
-        if(response)
-            snackbar = Snackbar.make(rlLayout, "तुमचा प्रतिसाद नोंदविण्यात आला आहे ! धन्यवाद", Snackbar.LENGTH_SHORT);
-        else
-            snackbar = Snackbar.make(rlLayout, "काहीतरी चुकीचं घडलं. पुन्हा प्रयत्न करा", Snackbar.LENGTH_SHORT);
-
-        snackbar.show();
-    }
 }

@@ -1,6 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/llRow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:gravity="center"
+        android:weightSum="2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp">
+
+
+        <TextView
+            android:id="@+id/tvImage"
+            android:layout_width="@dimen/dp60"
+            android:layout_height="@dimen/dp60"
+            android:background="@drawable/name_bg"
+            android:gravity="center"
+            android:text="FL"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="@dimen/dp10"
+            android:text="@string/app_name"
+            android:textColor="@color/text_color"
+            android:textSize="15dp" />
+
+        <TextView
+            android:id="@+id/submit"  android:gravity="center"
+            android:layout_weight="1"
+            android:background="@color/theme2"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp40"
+            android:text="@string/unblock"
+            android:textColor="@color/white"
+            android:textSize="15dp" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linear"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:background="@color/view_line"
+        android:orientation="vertical"
+        android:visibility="visible" />
+
+
+</LinearLayout>

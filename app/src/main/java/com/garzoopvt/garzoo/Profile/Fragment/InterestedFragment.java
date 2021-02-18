@@ -1,4 +1,4 @@
-package com.garzoopvt.garzoo.Interested.Fragment;
+package com.garzoopvt.garzoo.Profile.Fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,7 +6,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -24,33 +26,38 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+
+import com.allattentionhere.autoplayvideos.AAH_CustomRecyclerView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.util.ViewPreloadSizeProvider;
+import com.facebook.ads.Ad;
+import com.facebook.ads.AdError;
+import com.facebook.ads.NativeAdsManager;
 import com.garzoopvt.garzoo.Chat.Activity.ChatRoomListingActivity;
+import com.garzoopvt.garzoo.Dashboard.Activity.DashboardInnerActivity;
+import com.garzoopvt.garzoo.Dashboard.Adapter.DashboardAdapter;
+import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
-import com.garzoopvt.garzoo.Interested.Activity.InterestedInnerActivity;
-import com.garzoopvt.garzoo.Interested.Adapter.InterestedAdapter;
-import com.garzoopvt.garzoo.Interested.ViewModel.InterestedViewModel;
-import com.garzoopvt.garzoo.Model.FilterCategory;
-import com.garzoopvt.garzoo.Model.Product;
-import com.garzoopvt.garzoo.Pagination.PaginationScrollListener;
+
+import com.garzoopvt.garzoo.Profile.Adapter.InterestedAdapter;
+import com.garzoopvt.garzoo.Profile.ViewModel.ProfileViewModel;
+import com.garzoopvt.garzoo.Promotion.ViewModel.PromotionViewModel;
 import com.garzoopvt.garzoo.R;
-import com.garzoopvt.garzoo.Utility.SessionManager;
-import com.garzoopvt.garzoo.Utility.URLs;
-import com.garzoopvt.garzoo.Utility.UsefulIntent;
-import com.garzoopvt.garzoo.Utility.Utils;
+import com.garzoopvt.garzoo.RetrofitService.Resource;
+import com.garzoopvt.garzoo.Util.SessionManager;
+import com.garzoopvt.garzoo.Util.URLs;
+import com.garzoopvt.garzoo.Util.Utils;
+
 
 import org.json.JSONArray;
 
@@ -59,40 +66,52 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InterestedFragment extends Fragment implements View.OnClickListener {
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_EXHAUSTED;
+
+public class InterestedFragment extends Fragment implements OnDashboardListener, NativeAdsManager.Listener {
+
+    private ProfileViewModel mViewModel;
 
 
-    private ArrayList<Object> recyclerItems;
-    private RecyclerView recyclerView;
+    private RecyclerView rvList;
     private Context context;
-    private InterestedAdapter interestedAdapter;
-    private ArrayList<Product> productArrayList;
-    private ArrayList<FilterCategory> filterCategoryArrayList;
+    private InterestedAdapter mAdapter;
+
+
     private SessionManager sessionManager;
-    private String user_name,user_id,latitude, longitude;
-    private SearchView searchView;
-    View root;
-    private InterestedViewModel mViewModel;
-    RelativeLayout body;
-    FrameLayout noConnectionLayout;
-    Button btnRetry;
-    LinearLayoutManager layoutManager;
+    private View view;
+
+    private RelativeLayout body;
+    private FrameLayout noConnectionLayout;
+    private Button btnRetry;
 
 
-    ProgressBar progressBar;
+
     private static final int PAGE_START = 1;
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private int TOTAL_PAGES = 100;
     private int currentPage = PAGE_START;
     private static final String TAG = "MyListingFragment";
-    int currentOffset = 0;
-    int mMaxDisplay_Size = 6;
-    int mTotal_Size = 0;
-    String type;
-    LinearLayout llNodata;
+    private LinearLayout llNodata;
 
 
+
+    private NativeAdsManager mNativeAdsManager;
+    private String user_id="0";
+    private String username="";
+    private String search_name="";
+    private String latitude;
+    private String longitude;
+    private int page_no=1;
+    public final int ITEM_PER_ADV = 8;
 
     public InterestedFragment(){
        // this.setHasOptionsMenu(true);
@@ -103,35 +122,173 @@ public class InterestedFragment extends Fragment implements View.OnClickListener
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        root= inflater.inflate(R.layout.fragment_interested, container, false);
+        view= inflater.inflate(R.layout.fragment_interested, container, false);
+        mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         init();
+        fbNativeAds();
+        initRecyclerView();
+        subscribeObservers();
 
-        return root;
+        return view;
     }
 
     private void init() {
         context=getContext();
-        recyclerView = root.findViewById(R.id.rv_main);
+        rvList = view.findViewById(R.id.rv_main);
         sessionManager = new SessionManager(context);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
-        user_name = sessionManager.getFromSessionManager(SessionManager.USERNAME);
+        username = sessionManager.getFromSessionManager(SessionManager.USERNAME);
         latitude = sessionManager.getFromSessionManager(SessionManager.LATITUDE);
         longitude = sessionManager.getFromSessionManager(SessionManager.LONGITUDE);
-        progressBar = (ProgressBar) root.findViewById(R.id.main_progress);
-        llNodata = root.findViewById(R.id.llNodata);
-        body = root.findViewById(R.id.body);
-        noConnectionLayout = root.findViewById(R.id.fl_retry_internet);
-        btnRetry = root.findViewById(R.id.btn_retry);
+
+        llNodata = view.findViewById(R.id.llNodata);
+        body = view.findViewById(R.id.body);
+        noConnectionLayout = view.findViewById(R.id.fl_retry_internet);
+        btnRetry = view.findViewById(R.id.btn_retry);
         btnRetry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 checkInternet(context);
             }
         });
-        mViewModel = ViewModelProviders.of(this).get(InterestedViewModel.class);
-        mViewModel.init(user_id);
+
+
     }
 
+    private void fbNativeAds() {
+        String placement_id = context.getString(R.string.fb_placement_id);
+        mNativeAdsManager = new NativeAdsManager(getActivity(), placement_id, ITEM_PER_ADV);
+        mNativeAdsManager.loadAds();
+        mNativeAdsManager.setListener(this);
+    }
+
+    private RequestManager initGlide(){
+        RequestOptions options = new RequestOptions()
+                .placeholder(R.drawable.white_background);
+
+        return Glide.with(this).setDefaultRequestOptions(options);
+    }
+
+
+    private void initRecyclerView() {
+        ViewPreloadSizeProvider<String> viewPreloader=new ViewPreloadSizeProvider<>();
+        mAdapter = new InterestedAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader);
+        rvList.setNestedScrollingEnabled(false);
+        rvList.setLayoutManager(new LinearLayoutManager(context));
+
+
+
+        rvList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if(!rvList.canScrollVertically(1)){
+                    // search for the next page
+                    mViewModel.searchNextPage(user_id, search_name, latitude,longitude);
+
+                }
+            }
+        });
+
+       // autoplayVideoRVWork();
+        rvList.setAdapter(mAdapter);
+    }
+
+    private void autoplayVideoRVWork() {
+//        //todo before setAdapter
+//        rvList.setActivity(getActivity());
+//        //optional - to play only first visible video
+//        rvList.setPlayOnlyFirstVideo(true); // false by default
+//        //optional - by default we check if url ends with ".mp4". If your urls do not end with mp4, you can set this param to false and implement your own check to see if video points to url
+//        rvList.setCheckForMp4(false); //true by default
+//        rvList.setDownloadVideos(false); // false by default
+
+    }
+
+
+
+
+    private void subscribeObservers(){
+
+        mViewModel.getInterested().observe(this, new Observer<Resource<List<DashboardList>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<DashboardList>> listResource) {
+                if(listResource != null){
+                    Log.d(TAG, "onChanged: status: " + listResource.status);
+
+                    if(listResource.data != null){
+                        // Testing.printRecipess("data: ", listResource.data);
+
+                        switch (listResource.status) {
+                            case LOADING: {
+                                if(mViewModel.getPageNumber() > 1){
+                                    mAdapter.displayLoading();
+                                }
+                                else{
+                                    mAdapter.displayOnlyLoading();
+                                }
+                                break;
+                            }
+                            case SUCCESS: {
+                                Log.d(TAG, "onChanged: cache has been refreshed.");
+                                Log.d(TAG, "onChanged: status: SUCCESS, #Recipes: " + listResource.data.size());
+                                mAdapter.hideLoading();
+                                mAdapter.setList(listResource.data);
+                                break;
+                            }
+                            case ERROR: {
+                                Log.e(TAG, "onChanged: cannot refresh cache.");
+                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message );
+                                Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
+                                mAdapter.hideLoading();
+                                mAdapter.setList(listResource.data);
+                                Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
+
+                                if(listResource.message.equals(QUERY_EXHAUSTED)){
+                                    mAdapter.setQueryExhausted();
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+
+                }
+            }
+
+        });
+
+
+
+
+//        mViewModel.getDashboard().observe(this, new Observer<List<DashboardList>>() {
+//            @Override
+//            public void onChanged(@Nullable List<DashboardList> list) {
+//                if(list != null){
+//                    //mViewModel.setIsPerformingQuery(true);
+//                    mAdapter.setList(list);
+//                }
+//
+//            }
+//        });
+    }
+
+    private void getDashboardList(){
+        mViewModel.getInterestedListApi(user_id, 1, search_name, latitude,longitude );
+    }
+
+
+
+
+
+    @Override
+    public void onDestroy() {
+        mViewModel.cancelSearchRequest(true);
+        super.onDestroy();
+
+    }
 
     @Override
     public void onResume() {
@@ -140,306 +297,10 @@ public class InterestedFragment extends Fragment implements View.OnClickListener
     }
 
 
-
-
-    private void populateList() {
-        String URL = URLs.api_listing_interest;
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                productArrayList = new ArrayList<>();
-                try {
-
-
-                    // JSONObject jsonObject = new JSONObject(response);
-
-
-                    JSONArray jsonArray = new JSONArray(response);
-
-                    for (int i = 0; i < jsonArray.length(); i++) {
-
-                        String id = jsonArray.getJSONObject(i).getString("id");
-                        String admin_id = jsonArray.getJSONObject(i).getString("admin_id");
-                        String category_id = jsonArray.getJSONObject(i).getString("category_id");
-                        String user_id = jsonArray.getJSONObject(i).getString("user_id");
-                        String title = jsonArray.getJSONObject(i).getString("title");
-                        String description = jsonArray.getJSONObject(i).getString("description");
-                        String price = jsonArray.getJSONObject(i).getString("price");
-                        String image = URLs.BASE_URL + jsonArray.getJSONObject(i).getString("image");
-                        String latitude = jsonArray.getJSONObject(i).getString("latitude");
-                        String longitude = jsonArray.getJSONObject(i).getString("longitude");
-                        String listing_status = jsonArray.getJSONObject(i).getString("listing_status");
-                        String status = jsonArray.getJSONObject(i).getString("status");
-                        String last_modified = jsonArray.getJSONObject(i).getString("last_modified");
-                        String dt = jsonArray.getJSONObject(i).getString("dt");
-                        String fname = jsonArray.getJSONObject(i).getString("fname");
-                        String lname = jsonArray.getJSONObject(i).getString("lname");
-                        String category = jsonArray.getJSONObject(i).getString("category");
-                        Product product = new Product(id, admin_id, category_id, user_id, title, description, price, image, latitude, longitude, listing_status, status, last_modified, dt, fname, lname, category,"","","images");
-                        productArrayList.add(product);
-
-                    }
-                    setAdapter();
-                } catch (Exception e) {
-                    Log.e("volley Error", e.getMessage());
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                if (volleyError instanceof TimeoutError) {
-                }
-            }
-        }) {
-
-            @Override
-            public Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("unique_id", URLs.unique_id);
-                params.put("user_id", user_id);
-                return params;
-            }
-
-        };
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
-        stringRequest.setShouldCache(false);
-        stringRequest.setRetryPolicy(new
-                DefaultRetryPolicy(60000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        requestQueue.add(stringRequest);
-    }
-
-    private void setAdapter() {
-        interestedAdapter = new InterestedAdapter(context, user_id, user_name);
-        RecyclerView.LayoutManager mLayoutManager =new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setAdapter(interestedAdapter);
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-//            case R.id.ivReport:
-//                final int position = (int) v.getTag(R.string.btn_view_position);
-//                String id = productArrayList.get(position).getId();
-//                openReportPopup(id);
-//                break;
-            case R.id.ivEdit:
-                final int position = (int) v.getTag(R.string.btn_view_position);
-                String id = productArrayList.get(position).getId();
-                showMenuOption(v.findViewById(R.id.ivEdit), id, position);
-                break;
-
-
-            case R.id.image:
-                final int pos = (int) v.getTag(R.string.btn_view_position);
-               // openInnerActivity(pos);
-                break;
-
-            case R.id.ivInterested:
-                final int po = (int) v.getTag(R.string.btn_view_position);
-                String id_ = productArrayList.get(po).getId();
-                removeinterest(id_);
-                break;
-
-            case R.id.ivCall:
-                final int posi = (int) v.getTag(R.string.btn_view_position);
-                String number = productArrayList.get(posi).getMobile();
-                UsefulIntent.openCallFunction(number,context);
-                break;
-
-            case R.id.ivShare:
-                final int share = (int) v.getTag(R.string.btn_view_position);
-                String imagurl = productArrayList.get(share).getImage();
-                String text = String.format("Details: %1$s, Description: %2$s Mobile: %3$s", productArrayList.get(share).getTitle(),
-                        productArrayList.get(share).getDescription(),productArrayList.get(share).getMobile() );
-//                String text = productArrayList.get(share).getTitle() + "\n" +  productArrayList.get(share).getDescription() ;
-                UsefulIntent.shareIntent(context,imagurl,text);
-                break;
-
-            case R.id.ivChat:
-                final int pot = (int) v.getTag(R.string.btn_view_position);
-                String ids = productArrayList.get(pot).getUser_id();
-                String name_ = String.format("%1$s %2$s", productArrayList.get(pot).getFname(),
-                        productArrayList.get(pot).getLname());
-                openChatActivity(ids,name_);
-                break;
-
-        }
-    }
-
-    private void openChatActivity(String id, String name) {
-        Intent intent= new Intent(context, ChatRoomListingActivity.class);
-        intent.putExtra("to_id" , id);
-        intent.putExtra("to_name" , name);
-        startActivity(intent);
-    }
-
-    private void showMenuOption(View v, final String id, final int position) {
-
-        PopupMenu popup = new PopupMenu(context, v);
-        //Inflating the Popup using xml file
-        popup.getMenuInflater().inflate(R.menu.submenu_pop_up, popup.getMenu());
-
-        //registering popup with OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getTitle().equals("Report")) {
-
-                    openReportPopup(id);
-                } else {
-
-//                    ContactUsPopup(id, position);
-
-                }
-                return true;
-            }
-        });
-
-        popup.show();
-    }
-
-    private void openCallFunction(String number) {
-        Intent intent = new Intent(Intent.ACTION_DIAL);
-        intent.setData(Uri.parse("tel:" + number));
-        startActivity(intent);
-    }
-
-
-    private void removeinterest(String listing_id) {
-        String URL = URLs.api_add_listing_interest;
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try{
-                    Toast.makeText(context,response,Toast.LENGTH_SHORT).show();
-                    populateList();
-                } catch (Exception e) {
-                    Log.e("volley Error", e.getMessage());
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                if (volleyError instanceof TimeoutError) {
-                }
-            }
-        }) {
-
-            @Override
-            public Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("unique_id", URLs.unique_id);
-                params.put("user_id", user_id);
-                params.put("listing_id", listing_id);
-                return params;
-            }
-
-        };
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
-        stringRequest.setShouldCache(false);
-        stringRequest.setRetryPolicy(new
-                DefaultRetryPolicy(60000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        requestQueue.add(stringRequest);
-    }
-
-
-
-    private void openInnerActivity(int pos) {
-        Intent intent= new Intent(context, InterestedInnerActivity.class);
-        intent.putExtra("data" , productArrayList.get(pos));
-        startActivity(intent);
-    }
-
-    private void openReportPopup(String id) {
-        View view = getLayoutInflater().inflate(R.layout.report_view, null);
-        Button btnSubmit = (Button) view.findViewById(R.id.btnSubmit);
-        Button btnCancel = (Button) view.findViewById(R.id.btnCancel);
-        EditText etEnquiry = (EditText) view.findViewById(R.id.etEnquiry);
-        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
-        builder.setView(view);
-        final android.app.AlertDialog alertDialog = builder.create();
-        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        alertDialog.setCancelable(true);
-        alertDialog.show();
-
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.dismiss();
-            }
-        });
-
-        btnSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (!TextUtils.isEmpty(etEnquiry.getText().toString())) {
-                    alertDialog.dismiss();
-                    ReportPost(id,etEnquiry.getText().toString() );
-
-                } else {
-                    etEnquiry.setError("give reason/ write something");
-                    etEnquiry.setFocusable(true);
-                }
-
-            }
-        });
-    }
-
-
-
-    private void ReportPost(String business_id,String report) {
-        String URL = URLs.report_post;
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                try{
-                    Toast.makeText(context,response,Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Log.e("volley Error", e.getMessage());
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                if (volleyError instanceof TimeoutError) {
-                }
-            }
-        }) {
-
-            @Override
-            public Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("unique_id", URLs.unique_id);
-                params.put("user_id", user_id);
-                params.put("listing_id", "0");
-                params.put("employment_id", "0");
-                params.put("business_id", "business_id");
-                params.put("report", report);
-                return params;
-            }
-
-        };
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
-        stringRequest.setShouldCache(false);
-        stringRequest.setRetryPolicy(new
-                DefaultRetryPolicy(60000,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-        requestQueue.add(stringRequest);
-    }
-
     private void checkInternet(Context context) {
         if (Utils.isConnectedToInternet(context)) {
             Utils.connectionAvailable(body, noConnectionLayout);
-            setupRecyclerView();
+            getDashboardList();
 
         } else {
             Utils.showToast(context, "Please Enabled internet");
@@ -448,172 +309,134 @@ public class InterestedFragment extends Fragment implements View.OnClickListener
     }
 
 
-    private void setupRecyclerView() {
-
-        if (interestedAdapter == null) {
-            interestedAdapter = new InterestedAdapter(context,  user_id, user_name);
-            layoutManager = new LinearLayoutManager(context);
-            recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setItemAnimator(new DefaultItemAnimator());
-            recyclerView.setAdapter(interestedAdapter);
 
 
-            recyclerViewScroolListner();
 
-        } else {
-            interestedAdapter.notifyDataSetChanged();
+
+    @Override
+    public void onCallClick(int position) {
+
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+            DashboardList dl = mAdapter.getSelected(position);
+            if (!dl.getUser_id().equals(user_id)) {
+                if (dl.getMobile_status().equals("0")) {
+                    String number = dl.getMobile();
+                    Intent intent = new Intent(Intent.ACTION_DIAL);
+                    intent.setData(Uri.parse("tel:" + number));
+                    context.startActivity(intent);
+                } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
+            }
         }
-
-
+        else{
+            Utils.openLogin(context);
+        }
     }
 
-    private void recyclerViewScroolListner() {
-        recyclerView.addOnScrollListener(new PaginationScrollListener(layoutManager) {
-            @Override
-            protected void loadMoreItems() {
-                isLoading = true;
+    @Override
+    public void onChatClick(int position) {
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
 
-                currentPage += 1;
-                Log.d(TAG, "currentPage count: " + currentPage);
-
-
-                // mocking network delay for API call
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadNextPage();
-                    }
-                }, 10000);
-            }
-
-            @Override
-            public int getTotalPageCount() {
-                return 0;
-            }
-
-//            @Override
-//            public int getTotalPageCount() {
-//                return TOTAL_PAGES;
-//            }
-
-            @Override
-            public boolean isLastPage() {
-                return isLastPage;
-            }
-
-            @Override
-            public boolean isLoading() {
-                return isLoading;
-            }
-        });
-
-
-        // mocking network delay for API call
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setViewModel();
-            }
-        }, 1000);
-
+        }
+        else{
+            Utils.openLogin(context);
+        }
     }
 
+    @Override
+    public void onShareClick(int position) {
+        Utils.shareIntent(context);
+    }
 
-    private void setViewModel() {
-        try {
-            recyclerItems=new ArrayList<>();
-            mViewModel.getDataRepository(user_id, String.valueOf(PAGE_START),latitude, longitude).observe(this, dataResponse -> {
-                if(dataResponse!=null) {
-                    List<DashboardList> dataArticles = dataResponse.getInterest();
-                    if (dataArticles.size() > 0) {
-                        recyclerItems.addAll(dataArticles);
-                        Log.d(TAG, "Dash board Product Count: 1STPAGE" + dataArticles.size());
-                        //                getBannerAds();
-                        //                LoadBannerAds();
-                        // dashboardListAdapter.notifyDataSetChanged();
+    @Override
+    public void onLikeClick(int position, Button ivInterested) {
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
 
-                        progressBar.setVisibility(View.GONE);
-                        interestedAdapter.addAll(recyclerItems);
+            DashboardList dl = mAdapter.getSelected(position);
+            if (!dl.getUser_id().equals(user_id)) {
+                if (dl.getInterest_status().equalsIgnoreCase("yes")) {
+                    ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_thumb_up_24, 0, 0, 0);
+                    dl.setInterest_status("no");
+                } else {
+                    ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_thumb_up_24, 0, 0, 0);
+                    dl.setInterest_status("yes");
+                }
+
+                interest(dl.getId(), dl.getUser_id(), dl.getData_type(), dl.getTitle());
+            }
+        }
+        else{
+            Utils.openLogin(context);
+        }
+    }
+
+    private void interest(String id, String to_user_id, String data_type, String title) {
 
 
-                        llNodata.setVisibility(View.GONE);
+        RequestBody unique_id = RequestBody.create(MultipartBody.FORM, URLs.unique_id);
+        RequestBody rb_user_id = RequestBody.create(MultipartBody.FORM, user_id);
+        RequestBody rb_to_user_id = RequestBody.create(MultipartBody.FORM, to_user_id);
+        RequestBody rb_full_name = RequestBody.create(MultipartBody.FORM, username);
+        RequestBody rb_listing_id = RequestBody.create(MultipartBody.FORM, id);
+        RequestBody rb_type = RequestBody.create(MultipartBody.FORM, data_type);
+        RequestBody rb_listing_title = RequestBody.create(MultipartBody.FORM, title);
 
-                        if (dataArticles.size() < 10) {
-                            TOTAL_PAGES = currentPage;
-                            isLastPage = true;
-                        } else {
-                            if (currentPage <= TOTAL_PAGES) interestedAdapter.addLoadingFooter();
-                            else isLastPage = true;
 
+        Call<ResponseBody> call = mViewModel.interest(unique_id,rb_user_id , rb_to_user_id,
+                rb_full_name,rb_listing_id,rb_type,rb_listing_title);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+                            String result = response.body().string();
+                            Utils.openSnackBar(result, view);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
-                    else {
-                        progressBar.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.GONE);
-                        llNodata.setVisibility(View.VISIBLE);
 
-                    }
 
                 }
-                else {
-                    progressBar.setVisibility(View.GONE);
-                    recyclerView.setVisibility(View.GONE);
-                    llNodata.setVisibility(View.VISIBLE);
 
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            }
 
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
 
+            }
+        });
     }
 
+    @Override
+    public void onEditClick(int position) {
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
 
+        }
+        else{
+            Utils.openLogin(context);
+        }
+    }
 
-    private void loadNextPage() {
-        Log.d(TAG, "loadNextPage: " + currentPage);
-        recyclerItems=new ArrayList<>();
-        mViewModel.getDataRepository(user_id, String.valueOf(currentPage),latitude, longitude).observe(this, dataResponse -> {
-            List<DashboardList> dataArticles = dataResponse.getInterest();
-            if(dataArticles.size()>0) {
-
-                recyclerItems.addAll(dataArticles);
-                Log.d(TAG, "Dash board Product Count: " + dataArticles.size());
-
-                //  getBannerAds();
-                //  LoadBannerAds();
-                isLoading = false;
-                interestedAdapter.removeLoadingFooter();
-                interestedAdapter.addAll(recyclerItems);
-
-
-                if(dataArticles.size()!=10)TOTAL_PAGES=currentPage;
-
-                if (currentPage != TOTAL_PAGES)
-                    interestedAdapter.addLoadingFooter();
-                else
-                    isLastPage = true;
-            }
-            else{
-                // rentAdapter.removeLoadingFooter();
-                // isLastPage = true;
-            }
-
-
-        });
-
-
+    @Override
+    public void onItemClick(int position) {
+        DashboardList dl = mAdapter.getSelected(position);
+        Intent intent = new Intent(context, DashboardInnerActivity.class);
+        intent.putExtra("data", dl);
+        context.startActivity(intent);
     }
 
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mViewModel=null;
-        interestedAdapter=null;
-        recyclerItems=null;
+    public void onAdsLoaded() {
+
     }
 
+    @Override
+    public void onAdError(AdError adError) {
 
+    }
 }

@@ -1,19 +1,19 @@
-package com.garzoopvt.garzoo.Dashboard.Services;
+package com.garzoopvt.garzoo.Profile.Services;
 
 import androidx.annotation.Nullable;
 
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
-import com.garzoopvt.garzoo.Notification.Model.Notification;
+import com.garzoopvt.garzoo.Profile.Model.BlockedPeople;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class DashboardResponse {
+public class BlockedPeopleResponse {
 
-    @SerializedName("dashboard")
+    @SerializedName("blockedpeople")
     @Expose()
-    private List<DashboardList> dashboard;
+    private List<BlockedPeople> blocked;
 
     @SerializedName("error")
     @Expose()
@@ -24,8 +24,8 @@ public class DashboardResponse {
     }
 
     @Nullable
-    public List<DashboardList> getDashboard(){
-        return dashboard;
+    public List<BlockedPeople> getBlocked(){
+        return blocked;
     }
 
 

@@ -32,7 +32,6 @@ public class DashboardRepository {
 
     private static DashboardRepository instance;
     private  DashboardApiClient mDashboardApiClient;
-    private String mQuery;
     private int mPageNumber;
 
 

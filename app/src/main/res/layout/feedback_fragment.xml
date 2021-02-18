@@ -32,7 +32,6 @@
                     android:src="@drawable/mic" />
 
                 <EditText
-
                     android:id="@+id/etName"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/dp50"
@@ -47,7 +46,8 @@
                     android:textColorHint="@color/sub_text_color"></EditText>
             </RelativeLayout>
 
-            <RelativeLayout  android:visibility="gone"
+            <RelativeLayout
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp50"
                 android:layout_margin="@dimen/dp5"
@@ -131,7 +131,7 @@
                     android:layout_height="match_parent"
                     android:layout_margin="@dimen/dp5"
                     android:padding="@dimen/dp5"
-                    android:hint="@string/enquiry"
+                    android:hint="@string/feedback"
                     android:textColor="@color/black"
                     android:textColorHint="@color/sub_text_color"
                     android:inputType="textMultiLine"

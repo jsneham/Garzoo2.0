@@ -8,6 +8,7 @@
     <string name="app_info_2">बॉक्स मधिल माईकला टच करा आणि आपली नोंदणी करा</string>
     <string name="no_internet_msg">No internet connection!</string>
     <string name="err_login">"अयशस्वी, कृपया नंतर प्रयत्न करा !!"</string>
+    <string name="sucess">"तुमचा प्रतिसाद नोंदविण्यात आला आहे ! धन्यवाद"</string>
     <string name="entno">"प्रविष्ट केलेला मोबाइल नंबर: "</string>
     <string name="app_info_3">Connecting Needy People</string>
     <string name="MyListings">माझी यादी</string>
@@ -160,6 +161,11 @@
     <string name="rgav">शहर/गाव/क्षेत्र</string>
     <string name="Female">स्त्री</string>
     <string name="male">पुरूष</string>
+    <string name="namee">नाव</string>
+    <string name="email">ईमेल</string>
+    <string name="enquiry">चौकशी</string>
+    <string name="enquiry_msg">Message/Query</string>
+    <string name="unblock">अनब्लॉक करा</string>
 
     <string name="fb_placement_id">390694838957593_390726152287795</string>
 

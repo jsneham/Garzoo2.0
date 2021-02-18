@@ -9,27 +9,27 @@ import androidx.room.TypeConverters;
 
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.Dashboard.Persistence.Converters;
-import com.garzoopvt.garzoo.Dashboard.Persistence.DashboardListDao;
+import com.garzoopvt.garzoo.Profile.Model.BlockedPeople;
 
 
-@Database(entities = { DashboardList.class}, version = 1)
+@Database(entities = { BlockedPeople.class}, version = 1)
 @TypeConverters({Converters.class})
-public abstract  class InterestedListDatabase extends RoomDatabase {
+public abstract  class BlockedListDatabase extends RoomDatabase {
 
-    public static final String DATABASE_NAME = "interestedlist_db";
+    public static final String DATABASE_NAME = "blockedpeople_db";
 
-    private static InterestedListDatabase instance;
+    private static BlockedListDatabase instance;
 
-    public static InterestedListDatabase getInstance(final Context context){
+    public static BlockedListDatabase getInstance(final Context context){
         if(instance == null){
             instance = Room.databaseBuilder(
                     context.getApplicationContext(),
-                    InterestedListDatabase.class,
+                    BlockedListDatabase.class,
                     DATABASE_NAME
             ).build();
         }
         return instance;
     }
 
-    public abstract InterestedListDao getDashboardListDao();
+    public abstract BlockedListDao getListDao();
 }

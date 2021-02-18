@@ -1,4 +1,4 @@
-package com.garzoopvt.garzoo.Dashboard.Adapter;
+package com.garzoopvt.garzoo.Profile.Adapter;
 
 import android.content.Context;
 import android.util.Log;
@@ -10,7 +10,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.allattentionhere.autoplayvideos.AAH_CustomViewHolder;
 import com.allattentionhere.autoplayvideos.AAH_VideosAdapter;
@@ -24,15 +23,15 @@ import com.facebook.ads.NativeAdsManager;
 import com.garzoopvt.garzoo.Adapter.EndListViewHolder;
 import com.garzoopvt.garzoo.Adapter.LoadingViewHolder;
 import com.garzoopvt.garzoo.Adapter.SearchExhaustedViewHolder;
-import com.garzoopvt.garzoo.BuySell.Model.Buy;
+import com.garzoopvt.garzoo.Dashboard.Adapter.DashboardViewHolder;
+import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.R;
-
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DashboardAdapter extends AAH_VideosAdapter {
+public class InterestedAdapter extends AAH_VideosAdapter {
 
 
     private static final int LIST_TYPE = 1;
@@ -51,9 +50,9 @@ public class DashboardAdapter extends AAH_VideosAdapter {
     private RequestManager requestManager;
     private ViewPreloadSizeProvider<String> preloadSizeProvider;
 
-    public DashboardAdapter(OnDashboardListener mOnDashboardListener, Context mContext,
-                            NativeAdsManager mNativeAdsManager,
-                            RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider) {
+    public InterestedAdapter(OnDashboardListener mOnDashboardListener, Context mContext,
+                             NativeAdsManager mNativeAdsManager,
+                             RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider) {
         this.mOnDashboardListener = mOnDashboardListener;
         this.mContext = mContext;
         this.mNativeAdsManager = mNativeAdsManager;
