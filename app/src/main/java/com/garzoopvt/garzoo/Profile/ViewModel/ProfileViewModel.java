@@ -55,6 +55,7 @@ public class ProfileViewModel extends AndroidViewModel {
     private boolean isPerformingQuery;
     public static final String QUERY_EXHAUSTED = "Query is exhausted.";
     private MediatorLiveData<Resource<List<DashboardList>>> dashbordlist = new MediatorLiveData<>();
+    private MediatorLiveData<Resource<List<DashboardList>>> mylist = new MediatorLiveData<>();
     private MediatorLiveData<Resource<List<BlockedPeople>>> blockedlist = new MediatorLiveData<>();
 
     public int getPageNumber() {
@@ -219,4 +220,86 @@ public class ProfileViewModel extends AndroidViewModel {
 
     }
     //End Block
+
+
+
+    //Start My List
+    public LiveData<Resource<List<DashboardList>>> getMyList() {
+        return mylist;
+    }
+
+    public void getMyListApi(String user_id, int page_no, String search_name, String latitude, String longitude) {
+        if (!isPerformingQuery) {
+            if (pageNumber == 0) {
+                pageNumber = 1;
+            }
+            this.pageNumber = page_no;
+            this.query = search_name;
+            isQueryExhausted = false;
+            executeListMyList(user_id, pageNumber, query, latitude, longitude);
+        }
+    }
+
+    public void searchMyListNextPage(String user_id, String search_name, String latitude, String longitude) {
+        if (!isQueryExhausted && !isPerformingQuery) {
+            pageNumber++;
+            executeListMyList(user_id, pageNumber, search_name, latitude, longitude);
+        }
+    }
+
+    private void executeListMyList(String user_id, int page_no, String search_name, String latitude, String longitude) {
+        requestStartTime = System.currentTimeMillis();
+        isPerformingQuery = true;
+        cancelRequest = false;
+
+        final LiveData<Resource<List<DashboardList>>> repositorySource = repository.getMyListApi(user_id, page_no, search_name, latitude, longitude);
+        mylist.addSource(repositorySource, new Observer<Resource<List<DashboardList>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<DashboardList>> listResource) {
+                if (!cancelRequest) {
+                    if (listResource != null) {
+                        mylist.setValue(listResource);
+                        if (listResource.status == Resource.Status.SUCCESS) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            if (listResource.data != null) {
+                                if (listResource.data.size() == 0) {
+                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+                                    mylist.setValue(new Resource<List<DashboardList>>(
+                                            Resource.Status.ERROR,
+                                            listResource.data,
+                                            QUERY_EXHAUSTED
+                                    ));
+                                    isPerformingQuery = true;
+                                }
+                            }
+                            // must remove or it will keep listening to repository
+                            mylist.removeSource(repositorySource);
+                        } else if (listResource.status == Resource.Status.ERROR) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            mylist.removeSource(repositorySource);
+                        }
+                    } else {
+                        mylist.removeSource(repositorySource);
+                    }
+                } else {
+                    mylist.removeSource(repositorySource);
+                }
+            }
+        });
+
+    }
+
+    // End My List
+
+
+
+
+
+
+
+
+
+
 }

@@ -20,6 +20,8 @@ import com.garzoopvt.garzoo.Profile.Room.BlockedListDao;
 import com.garzoopvt.garzoo.Profile.Room.BlockedListDatabase;
 import com.garzoopvt.garzoo.Profile.Room.InterestedListDao;
 import com.garzoopvt.garzoo.Profile.Room.InterestedListDatabase;
+import com.garzoopvt.garzoo.Profile.Room.MyListDao;
+import com.garzoopvt.garzoo.Profile.Room.MyListDatabase;
 import com.garzoopvt.garzoo.RetrofitService.ApiResponse;
 import com.garzoopvt.garzoo.RetrofitService.AppExecutors;
 import com.garzoopvt.garzoo.RetrofitService.NetworkBoundResource;
@@ -41,6 +43,7 @@ public class ProfileRepository {
 
     private InterestedListDao dashboardListDao;
     private BlockedListDao blockedListDao;
+    private MyListDao myListDao;
 
     public static ProfileRepository getInstance(Context context){
         if(instance == null){
@@ -52,6 +55,7 @@ public class ProfileRepository {
     private ProfileRepository(Context context) {
         dashboardListDao = InterestedListDatabase.getInstance(context).getDashboardListDao();
         blockedListDao = BlockedListDatabase.getInstance(context).getListDao();
+        myListDao = MyListDatabase.getInstance(context).getDashboardListDao();
     }
 
     public Call<ResponseBody> contactUs(String mobile, String email, String message,String name ){
@@ -202,6 +206,63 @@ public class ProfileRepository {
 
         }.getAsLiveData();
     }
+
+
+    public LiveData<Resource<List<DashboardList>>> getMyListApi(final String user_id , final int pageNumber, final String search_name, final String latitude, final String longitude){
+        return new NetworkBoundResource<List<DashboardList>, DashboardResponse>(AppExecutors.getInstance() ){
+
+            @Override
+            public void saveCallResult(@NonNull DashboardResponse item) {
+
+                if(item.getDashboard() != null){ //  list will be null if api key is expired
+                    DashboardList[] recipes = new DashboardList[item.getDashboard().size()];
+
+                    int index = 0;
+                    for(long rowId: myListDao.insertRecipes((DashboardList[])(item.getDashboard().toArray(recipes)))){
+                        if(rowId == -1){ // conflict detected
+                            Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
+                            // if already exists, I don't want to set the values  or timestamp b/c they will be erased
+                            myListDao.updateList(
+                                    recipes[index].getId(),
+                                    recipes[index].getTitle(),
+                                    recipes[index].getDescription(),
+                                    recipes[index].getPrice(),
+                                    recipes[index].getAddress()
+                            );
+                        }
+                        index++;
+                    }
+                }
+
+            }
+
+            @Override
+            public boolean shouldFetch(@Nullable List<DashboardList> data) {
+                return true; // always query the network since the queries can be anything
+            }
+
+            @NonNull
+            @Override
+            public LiveData<List<DashboardList>> loadFromDb() {
+                return dashboardListDao.searchList(search_name, pageNumber);
+            }
+
+            @NonNull
+            @Override
+            public LiveData<ApiResponse<DashboardResponse>> createCall() {
+                return ServiceGenerator.getProfileApi().getInterested(
+                        URLs.unique_id,
+                        user_id,
+                        String.valueOf(pageNumber),
+                        search_name,
+                        latitude,
+                        longitude
+                );
+            }
+
+        }.getAsLiveData();
+    }
+
 
 
 }

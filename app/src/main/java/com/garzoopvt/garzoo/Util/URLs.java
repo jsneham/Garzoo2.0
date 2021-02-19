@@ -93,8 +93,9 @@ public class URLs {
     public static final String view_chats_2_0  = "Chat/view_chats_2_0";
     public static final String add_chat_2_0  = "Chat/add_chat_2_0";
 
-    //block
-    public static final String add_block_2_0 = BASE_URL + "Listing_interest/add_block_2_0";
+    //block *
+    public static final String add_block_2_0 =  "Listing_interest/add_block_2_0";
+    public static final String get_blocked_user_list_2_0 = "Listing_interest/get_blocked_user_list_2_0";
 
     //public static final int NOTIFICATION_ID = 235;
 

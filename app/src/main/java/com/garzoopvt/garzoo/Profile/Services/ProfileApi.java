@@ -62,8 +62,8 @@ public interface ProfileApi {
     );
 
 
-    // GET Interested REQUEST
-    @GET(URLs.api_my_records_2_0)
+    // GET Blocked REQUEST
+    @GET(URLs.get_blocked_user_list_2_0)
     LiveData<ApiResponse<BlockedPeopleResponse>> getBlocked(
             @Query("unique_id") String unique_id,
             @Query("user_id") String user_id,
