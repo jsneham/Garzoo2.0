@@ -297,9 +297,23 @@ public class ProfileViewModel extends AndroidViewModel {
 
 
 
+    public Call<ResponseBody> register(String user_id, String fname, String lname,
+                                       String gender, String age,
+                                       String state, String area,
+                                       String taluka, String district,
+                                       String latitude, String longitude) {
+        return  repository.register(user_id, fname,lname,gender,age,state,area, taluka,district,
+                latitude, longitude);
+    }
 
 
-
-
+    public Call<ResponseBody> user_mobile_change(String mobile,
+                                       String latitude, String longitude, String user_id) {
+        return  repository.user_mobile_change(mobile,  latitude, longitude, user_id);
+    }
+public Call<ResponseBody> user_mobile_update(String mobile,
+                                       String user_id) {
+        return  repository.user_mobile_update(mobile,  user_id);
+    }
 
 }

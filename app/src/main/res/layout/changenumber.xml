@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/dp20">
+
+    <ScrollView
+        android:layout_above="@+id/keyboardview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:text="तुमचा मोबाईल नंबर बदला"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp10"
+                android:hint="@string/rphone"
+                android:textColorHint="@color/theme2"
+                app:boxStrokeColor="@color/theme2"
+                app:startIconDrawable="@drawable/ic_baseline_call_24"
+                app:startIconTint="@color/theme2">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etMobile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="10" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/btnNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_margin="@dimen/dp5"
+                android:layout_weight="1"
+                android:background="@color/theme2"
+                android:backgroundTint="@color/theme2"
+                android:text="@string/Submit"
+                android:textColor="@color/white"
+                android:textSize="13sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/gray"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:text="ओटीपी प्रविष्ट करा"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:id="@+id/layout_otp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp60"
+                android:layout_below="@+id/layout_header"
+                android:layout_margin="@dimen/dp10"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:weightSum="4">
+
+                <EditText
+                    android:background="@drawable/btn_shape"
+                    android:id="@+id/editTextone"
+                    android:layout_width="@dimen/dp50"
+                    android:layout_height="@dimen/dp50"
+                    android:layout_margin="@dimen/dp5"
+
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="1"
+                    android:nextFocusRight="@+id/editText_two">
+
+                    <requestFocus />
+                </EditText>
+
+                <EditText android:background="@drawable/btn_shape"
+                    android:id="@+id/editTexttwo"
+                    android:layout_width="@dimen/dp50"
+                    android:layout_height="@dimen/dp50"
+                    android:layout_margin="@dimen/dp5"
+
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="1" />
+
+                <EditText android:background="@drawable/btn_shape"
+                    android:id="@+id/editTextthree"
+                    android:layout_width="@dimen/dp50"
+                    android:layout_height="@dimen/dp50"
+                    android:layout_margin="@dimen/dp5"
+
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="1" />
+
+                <EditText android:background="@drawable/btn_shape"
+                    android:id="@+id/editTextfour"
+                    android:layout_width="@dimen/dp50"
+                    android:layout_height="@dimen/dp50"
+                    android:layout_margin="@dimen/dp5"
+
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="1" />
+
+            </LinearLayout>
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_margin="@dimen/dp5"
+                android:layout_weight="1"
+                android:background="@color/theme2"
+                android:backgroundTint="@color/theme2"
+                android:text="@string/Submit"
+                android:textColor="@color/white"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

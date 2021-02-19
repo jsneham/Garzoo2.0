@@ -45,8 +45,8 @@ public class ProfileRepository {
     private BlockedListDao blockedListDao;
     private MyListDao myListDao;
 
-    public static ProfileRepository getInstance(Context context){
-        if(instance == null){
+    public static ProfileRepository getInstance(Context context) {
+        if (instance == null) {
             instance = new ProfileRepository(context);
         }
         return instance;
@@ -58,40 +58,35 @@ public class ProfileRepository {
         myListDao = MyListDatabase.getInstance(context).getDashboardListDao();
     }
 
-    public Call<ResponseBody> contactUs(String mobile, String email, String message,String name ){
+    public Call<ResponseBody> contactUs(String mobile, String email, String message, String name) {
 
-        return  ServiceGenerator.getProfileApi().contactUs(
-                mobile,email, message,name
+        return ServiceGenerator.getProfileApi().contactUs(
+                mobile, email, message, name
         );
 
     }
 
-    public Call<ResponseBody> feedback(String mobile, String email, String message,String name ){
+    public Call<ResponseBody> feedback(String mobile, String email, String message, String name) {
 
-        return  ServiceGenerator.getProfileApi().feedback(
-                mobile,email, message,name
+        return ServiceGenerator.getProfileApi().feedback(
+                mobile, email, message, name
         );
 
     }
 
 
-
-
-
-
-
-    public LiveData<Resource<List<DashboardList>>> getInterestedListApi(final String user_id , final int pageNumber, final String search_name, final String latitude, final String longitude){
-        return new NetworkBoundResource<List<DashboardList>, DashboardResponse>(AppExecutors.getInstance() ){
+    public LiveData<Resource<List<DashboardList>>> getInterestedListApi(final String user_id, final int pageNumber, final String search_name, final String latitude, final String longitude) {
+        return new NetworkBoundResource<List<DashboardList>, DashboardResponse>(AppExecutors.getInstance()) {
 
             @Override
             public void saveCallResult(@NonNull DashboardResponse item) {
 
-                if(item.getDashboard() != null){ //  list will be null if api key is expired
+                if (item.getDashboard() != null) { //  list will be null if api key is expired
                     DashboardList[] recipes = new DashboardList[item.getDashboard().size()];
 
                     int index = 0;
-                    for(long rowId: dashboardListDao.insertRecipes((DashboardList[])(item.getDashboard().toArray(recipes)))){
-                        if(rowId == -1){ // conflict detected
+                    for (long rowId : dashboardListDao.insertRecipes((DashboardList[]) (item.getDashboard().toArray(recipes)))) {
+                        if (rowId == -1) { // conflict detected
                             Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
                             // if already exists, I don't want to set the values  or timestamp b/c they will be erased
                             dashboardListDao.updateList(
@@ -137,9 +132,9 @@ public class ProfileRepository {
 
 
     public Call<ResponseBody> interest(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
-                                       RequestBody listing_id, RequestBody type, RequestBody listing_title){
+                                       RequestBody listing_id, RequestBody type, RequestBody listing_title) {
 
-        return  ServiceGenerator.getDashboardApi().interest(
+        return ServiceGenerator.getDashboardApi().interest(
                 unique_id,
                 user_id,
                 to_user_id,
@@ -152,18 +147,18 @@ public class ProfileRepository {
     }
 
 
-    public LiveData<Resource<List<BlockedPeople>>> getBlokedListApi(final String user_id , final int pageNumber,final String query){
-        return new NetworkBoundResource<List<BlockedPeople>, BlockedPeopleResponse>(AppExecutors.getInstance() ){
+    public LiveData<Resource<List<BlockedPeople>>> getBlokedListApi(final String user_id, final int pageNumber, final String query) {
+        return new NetworkBoundResource<List<BlockedPeople>, BlockedPeopleResponse>(AppExecutors.getInstance()) {
 
             @Override
             public void saveCallResult(@NonNull BlockedPeopleResponse item) {
 
-                if(item.getBlocked() != null){ //  list will be null if api key is expired
+                if (item.getBlocked() != null) { //  list will be null if api key is expired
                     BlockedPeople[] recipes = new BlockedPeople[item.getBlocked().size()];
 
                     int index = 0;
-                    for(long rowId: blockedListDao.insertRecipes((BlockedPeople[])(item.getBlocked().toArray(recipes)))){
-                        if(rowId == -1){ // conflict detected
+                    for (long rowId : blockedListDao.insertRecipes((BlockedPeople[]) (item.getBlocked().toArray(recipes)))) {
+                        if (rowId == -1) { // conflict detected
                             Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
                             // if already exists, I don't want to set the values  or timestamp b/c they will be erased
                             blockedListDao.updateList(
@@ -191,7 +186,7 @@ public class ProfileRepository {
             @NonNull
             @Override
             public LiveData<List<BlockedPeople>> loadFromDb() {
-                return blockedListDao.searchList(query,pageNumber);
+                return blockedListDao.searchList(query, pageNumber);
             }
 
             @NonNull
@@ -208,18 +203,18 @@ public class ProfileRepository {
     }
 
 
-    public LiveData<Resource<List<DashboardList>>> getMyListApi(final String user_id , final int pageNumber, final String search_name, final String latitude, final String longitude){
-        return new NetworkBoundResource<List<DashboardList>, DashboardResponse>(AppExecutors.getInstance() ){
+    public LiveData<Resource<List<DashboardList>>> getMyListApi(final String user_id, final int pageNumber, final String search_name, final String latitude, final String longitude) {
+        return new NetworkBoundResource<List<DashboardList>, DashboardResponse>(AppExecutors.getInstance()) {
 
             @Override
             public void saveCallResult(@NonNull DashboardResponse item) {
 
-                if(item.getDashboard() != null){ //  list will be null if api key is expired
+                if (item.getDashboard() != null) { //  list will be null if api key is expired
                     DashboardList[] recipes = new DashboardList[item.getDashboard().size()];
 
                     int index = 0;
-                    for(long rowId: myListDao.insertRecipes((DashboardList[])(item.getDashboard().toArray(recipes)))){
-                        if(rowId == -1){ // conflict detected
+                    for (long rowId : myListDao.insertRecipes((DashboardList[]) (item.getDashboard().toArray(recipes)))) {
+                        if (rowId == -1) { // conflict detected
                             Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
                             // if already exists, I don't want to set the values  or timestamp b/c they will be erased
                             myListDao.updateList(
@@ -263,6 +258,42 @@ public class ProfileRepository {
         }.getAsLiveData();
     }
 
+    public Call<ResponseBody> register(String user_id, String fname, String lname,
+                                       String gender, String age,
+                                       String state, String area,
+                                       String taluka, String district,
+                                       String latitude, String longitude) {
 
+        return ServiceGenerator.getProfileApi().getRegister(
+                user_id,
+                fname,
+                lname,
+                gender,
+                age,
+                state,
+                area,
+                taluka,
+                district,
+                latitude,
+                longitude
+        );
+
+    }
+
+    public Call<ResponseBody> user_mobile_change(String mobileno, String latitude, String longitude, String user_id) {
+
+        return ServiceGenerator.getProfileApi().user_mobile_change(
+                mobileno, latitude, longitude, user_id
+        );
+
+    }
+
+    public Call<ResponseBody> user_mobile_update(String mobileno, String user_id) {
+
+        return ServiceGenerator.getProfileApi().user_mobile_update(
+                mobileno, user_id
+        );
+
+    }
 
 }

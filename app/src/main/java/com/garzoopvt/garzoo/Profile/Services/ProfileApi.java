@@ -69,4 +69,20 @@ public interface ProfileApi {
             @Query("user_id") String user_id,
             @Query("page_no") String page_no
     );
+
+
+    @POST(URLs.user_register)
+    @FormUrlEncoded
+    Call<ResponseBody> getRegister(
+            @Field("user_id") String user_id,
+            @Field("fname") String fname,
+            @Field("lname") String lname,
+            @Field("gender") String gender,
+            @Field("age") String age,
+            @Field("state") String state,
+            @Field("city_area_gav") String city_area_gav,
+            @Field("taluka") String taluka,
+            @Field("district") String district,
+            @Field("latitude") String latitude,
+            @Field("longitude") String longitude);
 }

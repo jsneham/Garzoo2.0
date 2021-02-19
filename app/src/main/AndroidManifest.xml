@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.garzoopvt.garzoo">
-
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -29,7 +28,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
+        <activity android:name=".Profile.Activity.UserProfileEditActivity"></activity>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -44,21 +43,25 @@
 
         <activity
             android:name=".Business.Activity.PathMapsActivity"
-            android:label="@string/title_activity_path_maps"></activity>
-        <activity android:name=".Business.Activity.BusinessInnerActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
-        <activity android:name=".Dashboard.Activity.DashboardInnerActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".BuySell.Activity.BuyInnerActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".Rent.Activity.RentInnerActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-         <activity android:name=".Employement.Activity.EmpInnerActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-         <activity android:name=".Promotion.Activity.PDInnerActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-
+            android:label="@string/title_activity_path_maps" />
+        <activity
+            android:name=".Business.Activity.BusinessInnerActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Dashboard.Activity.DashboardInnerActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".BuySell.Activity.BuyInnerActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Rent.Activity.RentInnerActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Employement.Activity.EmpInnerActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Promotion.Activity.PDInnerActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Chat.Activity.IndividualChatActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -84,9 +87,9 @@
             android:name=".Promotion.Activity.AddAdvertisementListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:theme="@style/LoginTheme"
             android:name=".Login.Activity.LoginActivity"
-            android:label="@string/title_activity_login" />
+            android:label="@string/title_activity_login"
+            android:theme="@style/LoginTheme" />
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
