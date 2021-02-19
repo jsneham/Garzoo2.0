@@ -175,6 +175,8 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="btn_view_position">btn_view_position</string>
 
+    <string name="fcm_message">FCM Message</string>
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
 </resources>
 
 

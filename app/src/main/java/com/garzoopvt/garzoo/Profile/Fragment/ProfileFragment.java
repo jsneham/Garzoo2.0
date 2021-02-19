@@ -140,9 +140,14 @@ public class ProfileFragment extends Fragment {
         ivEditBio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!(user_id.equals("0")|| user_id.isEmpty())) {
+                    Intent intent= new Intent(context, UserProfileEditActivity.class);
+                    startActivity(intent);
 
-                Intent intent= new Intent(context, UserProfileEditActivity.class);
-                startActivity(intent);
+                }
+                else{
+                    Utils.openLogin(context);
+                }
 
             }
         });
@@ -150,9 +155,12 @@ public class ProfileFragment extends Fragment {
         ivEditNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                openChnageNumberPopup();
-
+                if(!(user_id.equals("0")|| user_id.isEmpty())) {
+                    openChnageNumberPopup();
+                }
+                else{
+                    Utils.openLogin(context);
+                }
             }
         });
 
@@ -175,24 +183,34 @@ public class ProfileFragment extends Fragment {
         tvMyListing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!(user_id.equals("0")|| user_id.isEmpty())) {
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListCategoryFragment(), "MyListCategoryFragment").commit();
+                } else{
+                    Utils.openLogin(context);
+                }
 
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListCategoryFragment(), "MyListCategoryFragment").commit();
             }
         });
 
         tvInterested.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new InterestedFragment(),"InterestedFragment").commit();
-
+                if(!(user_id.equals("0")|| user_id.isEmpty())) {
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new InterestedFragment(), "InterestedFragment").commit();
+                }else{
+                    Utils.openLogin(context);
+                }
             }
         });
 
         tvblockList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new BlockedListFragment(),"InterestedFragment").commit();
-
+                if(!(user_id.equals("0")|| user_id.isEmpty())) {
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new BlockedListFragment(), "InterestedFragment").commit();
+                }else{
+                    Utils.openLogin(context);
+                }
             }
         });
 
