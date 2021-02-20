@@ -13,6 +13,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -44,6 +45,17 @@ public interface DashboardApi {
             @Part("listing_id") RequestBody  listing_id,
             @Part("type") RequestBody  type,
             @Part("listing_title") RequestBody  listing_title
+
+    );
+
+
+    @FormUrlEncoded
+    @POST(URLs.api_add_listing_interest_2_0)
+    Call<ResponseBody> uploadToken(
+            @Field("user_id") String user_id,
+            @Field("name") String  name,
+            @Field("token") String  token,
+            @Field("imei") String  imei
 
     );
 

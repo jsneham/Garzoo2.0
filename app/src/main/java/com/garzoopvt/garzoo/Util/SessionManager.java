@@ -17,6 +17,7 @@ public class SessionManager {
     Context context;
     private String TAG = "SessionManager";
 
+    public static final String TOKEN = "TOKEN";
     public static final String APKVERSIONNUMBER = "ApkVersionNumber";
     public static final String LANGUAGE = "LANGUAGE";
     public static final String IS_UPDATE = "IS_UPDATE";

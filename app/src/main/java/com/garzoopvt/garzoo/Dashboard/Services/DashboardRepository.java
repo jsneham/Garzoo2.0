@@ -160,6 +160,16 @@ public class DashboardRepository {
         );
 
     }
+
+    public Call<ResponseBody> uploadToken(String user_id, String username, String token, String IMEINumber){
+
+        return  ServiceGenerator.getDashboardApi().uploadToken(
+                 user_id,
+                username,
+                token,IMEINumber
+        );
+
+    }
    
 }
 

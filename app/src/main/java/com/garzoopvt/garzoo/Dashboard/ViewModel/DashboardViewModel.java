@@ -204,4 +204,11 @@ public class DashboardViewModel extends AndroidViewModel {
 
     }
 
+
+    public Call<ResponseBody> uploadToken(String user_id, String username, String token, String IMEINumber){
+
+        return dashboardRepository.uploadToken( user_id,username,token,IMEINumber);
+
+    }
+
 }

@@ -1,9 +1,365 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Profile.Activity.UserProfileEditActivity">
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:weightSum="2"
+   >
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/llName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/dp15"
+            android:layout_weight="3"
+            android:orientation="vertical"
+            >
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:visibility="gone"
+                style="@style/TextViewTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp10"
+                android:text="@string/welcomeTo"
+                android:textSize="18sp"></TextView>
+
+
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp60">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@+id/giffName"
+
+                            android:hint="@string/rfname"
+                            android:textColorHint="@color/theme2"
+                            app:boxStrokeColor="@color/theme2"
+                            app:hintTextColor="@color/theme2"
+                            app:startIconDrawable="@drawable/ic_baseline_account_circle_24">
+                            <!--                            app:startIconTint="@color/theme2"-->
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etFname"
+                                android:textCursorDrawable="@color/theme2"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/giffName"
+                            android:layout_width="@dimen/dp25"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentRight="true"
+                            android:src="@drawable/mic" />
+                    </RelativeLayout>
+
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp60">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@+id/giflName"
+                            android:layout_weight="1"
+                            android:hint="@string/rlname"
+                            android:textColorHint="@color/theme2"
+                            app:boxStrokeColor="@color/theme2"
+                            app:hintTextColor="@color/theme2"
+                            app:startIconDrawable="@drawable/ic_baseline_account_circle_24">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etLname"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/giflName"
+                            android:layout_width="@dimen/dp25"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentRight="true"
+
+                            android:src="@drawable/mic" />
+                    </RelativeLayout>
+
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp60">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@+id/gifAge"
+
+                            android:layout_weight="1"
+                            android:hint="@string/rage"
+                            android:textColorHint="@color/theme2"
+                            app:boxStrokeColor="@color/theme2"
+                            app:hintTextColor="@color/theme2"
+                            app:startIconDrawable="@drawable/ic_baseline_cake_24">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etAge"
+                                android:layout_width="match_parent"
+
+                                android:layout_height="wrap_content"
+                                android:inputType="number" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <pl.droidsonroids.gif.GifImageView
+
+                            android:id="@+id/gifAge"
+                            android:layout_width="@dimen/dp25"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentRight="true"
+                            android:src="@drawable/mic" />
+                    </RelativeLayout>
+
+
+                    <RadioGroup
+                        android:id="@+id/rbGender"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp50"
+                        android:layout_marginTop="@dimen/dp10"
+                        android:background="@drawable/btn_shape"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/rbmale"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="@dimen/dp5"
+                            android:checked="true"
+                            android:text="@string/male"></com.google.android.material.radiobutton.MaterialRadioButton>
+
+                        <com.google.android.material.radiobutton.MaterialRadioButton
+                            android:id="@+id/rbfemale"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="@dimen/dp5"
+                            android:text="@string/Female"></com.google.android.material.radiobutton.MaterialRadioButton>
+
+
+                    </RadioGroup>
+
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp60">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@+id/gifState"
+
+                            android:layout_weight="1"
+                            android:hint="@string/rstate"
+                            android:textColorHint="@color/theme2"
+                            app:boxStrokeColor="@color/theme2"
+                            app:hintTextColor="@color/theme2"
+                            app:startIconDrawable="@drawable/ic_baseline_location_on_24">
+
+                            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                                android:id="@+id/etState"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/gifState"
+                            android:layout_width="@dimen/dp25"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentRight="true"
+
+                            android:src="@drawable/mic" />
+
+                    </RelativeLayout>
+
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp60">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+
+                            android:layout_toLeftOf="@+id/gifDist"
+                            android:layout_weight="1"
+                            android:hint="@string/rcity"
+                            android:textColorHint="@color/theme2"
+                            app:boxStrokeColor="@color/theme2"
+                            app:hintTextColor="@color/theme2"
+                            app:startIconDrawable="@drawable/ic_baseline_location_on_24">
+
+                            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                                android:id="@+id/etDistrict"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/gifDist"
+                            android:layout_width="@dimen/dp25"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentRight="true"
+                            android:src="@drawable/mic" />
+                    </RelativeLayout>
+
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp60">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@+id/gifTalk"
+                            android:layout_weight="1"
+                            android:hint="@string/rtaluka"
+                            android:textColorHint="@color/theme2"
+                            app:boxStrokeColor="@color/theme2"
+                            app:hintTextColor="@color/theme2"
+                            app:startIconDrawable="@drawable/ic_baseline_location_on_24">
+
+                            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                                android:id="@+id/etTaluka"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/gifTalk"
+                            android:layout_width="@dimen/dp25"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentRight="true"
+                            android:src="@drawable/mic" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp60">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@+id/gifArea"
+                            android:layout_weight="1"
+                            android:hint="@string/rgav"
+                            android:textColorHint="@color/theme2"
+                            app:boxStrokeColor="@color/theme2"
+                            app:hintTextColor="@color/theme2"
+                            app:startIconDrawable="@drawable/ic_baseline_location_city_24">
+
+                            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                                android:id="@+id/etArea"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:focusable="true"
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/gifArea"
+                            android:layout_width="@dimen/dp25"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentRight="true"
+
+                            android:src="@drawable/mic" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp60">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@+id/gifAddress"
+                            android:layout_weight="1"
+                            android:hint="@string/raddress"
+                            android:textColorHint="@color/theme2"
+                            app:boxStrokeColor="@color/theme2"
+                            app:hintTextColor="@color/theme2"
+                            app:startIconDrawable="@drawable/ic_baseline_my_location_24">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etLoation"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/gifAddress"
+                            android:layout_width="@dimen/dp25"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentRight="true"
+                            android:src="@drawable/mic" />
+                    </RelativeLayout>
+
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:background="@color/theme2"
+                        android:backgroundTint="@color/theme2"
+                        android:onClick="WelcomeLayout"
+                        android:text="@string/Submit"
+                        android:textColor="@color/white"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+
+
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</RelativeLayout>

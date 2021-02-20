@@ -61,7 +61,7 @@ public class ProfileFragment extends Fragment {
     //UI
     private ImageView ivEditNumber, ivEditBio;
     private TextView tvLanguage,tvName, tvAge, tvGender, tvMobile, tvLocation, tvMyListing, tvInterested, tvContactUs, tvSignOut, tvblockList,tvFeedback;
-    private LinearLayout tvUpdate;
+    private LinearLayout tvUpdate,llName;
     private AdView adView;
     private EditText otp1, otp2, otp3, otp4;
 
@@ -99,6 +99,7 @@ public class ProfileFragment extends Fragment {
         sessionManager = new SessionManager(context);
         String is_update= sessionManager.getFromSessionManager(SessionManager.IS_UPDATE);
 
+        llName = view.findViewById(R.id.llName);
         tvLanguage = view.findViewById(R.id.tvLanguage);
         tvSignOut = view.findViewById(R.id.tvSignOut);
         tvUpdate = view.findViewById(R.id.tvUpdate);
@@ -116,6 +117,9 @@ public class ProfileFragment extends Fragment {
         ivEditNumber = view.findViewById(R.id.ivEditNumber);
 
 
+        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+            llName.setVisibility(View.GONE);
+        }
 
         tvLanguage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,7 +147,6 @@ public class ProfileFragment extends Fragment {
                 if(!(user_id.equals("0")|| user_id.isEmpty())) {
                     Intent intent= new Intent(context, UserProfileEditActivity.class);
                     startActivity(intent);
-
                 }
                 else{
                     Utils.openLogin(context);

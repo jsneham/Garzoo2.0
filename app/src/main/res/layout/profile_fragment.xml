@@ -23,6 +23,7 @@
                 android:background="#eaece9" />
 
             <LinearLayout
+               android:id="@+id/llName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">

@@ -1,5 +1,6 @@
 package com.garzoopvt.garzoo.Dashboard.Fragment;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +10,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -66,6 +68,11 @@ import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
 import com.garzoopvt.garzoo.services.GpsUtils;
 import com.garzoopvt.garzoo.services.LocationService;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +93,7 @@ import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_EXHAUSTED;
 
-public class DashboardFragment extends Fragment implements OnDashboardListener,NativeAdsManager.Listener,com.facebook.ads.AdListener {
+public class DashboardFragment extends Fragment implements OnDashboardListener, NativeAdsManager.Listener, com.facebook.ads.AdListener {
 
     //view
     private View view;
@@ -109,16 +116,16 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
     private NativeAdsManager mNativeAdsManager;
     private @Nullable
     com.facebook.ads.AdView bannerAdView;
-    private ArrayList<HomeGridModelClass> homeGridModelClasses= new ArrayList<>();
+    private ArrayList<HomeGridModelClass> homeGridModelClasses = new ArrayList<>();
 
     //Data
     private String mLanguageCode = "en";
-    private String user_id="0";
-    private String username="";
-    private String search_name="";
+    private String user_id = "0";
+    private String username = "";
+    private String search_name = "";
     private String latitude;
     private String longitude;
-    private int page_no=1;
+    private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
     private Integer image[] = {R.drawable.kharedi, R.drawable.vikri, R.drawable.bhade, R.drawable.rojgar, R.drawable.businessv, R.drawable.charcha};
     private Integer name[] = {R.string.buy, R.string.sell, R.string.rent, R.string.employement, R.string.buisness, R.string.promotion};
@@ -130,13 +137,12 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        view= inflater.inflate(R.layout.dashboard_fragment, container, false);
-        context=getContext();
+        view = inflater.inflate(R.layout.dashboard_fragment, container, false);
+        context = getContext();
         mViewModel = ViewModelProviders.of(this).get(DashboardViewModel.class);
-        sessionManager =new SessionManager(context);
+        sessionManager = new SessionManager(context);
         getSessionData();
         fbNativeAds();
-
         checkPermissions();
         CheckGPSIsON();
         initView();
@@ -145,9 +151,77 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
         getDashboardList();
         initSearchView();
         getFbAd();
-
+        registerDeviceToken();
 
         return view;
+    }
+
+
+    public void registerDeviceToken() {
+
+        FirebaseApp.initializeApp(context);
+        //String token = FirebaseInstanceId.getInstance().getToken();
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("Token", "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        sessionManager.setToSessionManager(SessionManager.TOKEN, token);
+                        sendTokenToServer();
+                        Log.d("Token", token);
+
+                    }
+                });
+
+
+    }
+
+
+    private void sendTokenToServer() {
+
+
+        String token = sessionManager.getFromSessionManager(SessionManager.TOKEN);
+        String IMEINumber = "0";
+
+//        if (user_id.isEmpty() || user_id.equals("0")) {
+//            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+//            IMEINumber = telephonyManager.getDeviceId();
+//
+//        }
+
+        Call<ResponseBody> call = mViewModel.uploadToken(user_id, username, token, IMEINumber); //.get(0)
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+
+                            Log.d(TAG, "onResponse:" + response.message());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
+
     }
 
     private void getSessionData() {
@@ -155,9 +229,9 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
         username = sessionManager.getFromSessionManager(SessionManager.USERNAME);
         latitude = sessionManager.getFromSessionManager(SessionManager.LATITUDE);
         longitude = sessionManager.getFromSessionManager(SessionManager.LONGITUDE);
-        if(user_id.isEmpty()) user_id="0";
+        if (user_id.isEmpty()) user_id = "0";
         mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
-        if(mLanguageCode.isEmpty())  updateLanguage();
+        if (mLanguageCode.isEmpty()) updateLanguage();
     }
 
     private void fbNativeAds() {
@@ -166,6 +240,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
         mNativeAdsManager.loadAds();
         mNativeAdsManager.setListener(this);
     }
+
     private void initView() {
         rvNestedScroll = view.findViewById(R.id.rvNestedScroll);
         rvList = view.findViewById(R.id.rvList);
@@ -192,7 +267,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
 
     }
 
-    private RequestManager initGlide(){
+    private RequestManager initGlide() {
         RequestOptions options = new RequestOptions()
                 .placeholder(R.drawable.white_background);
 
@@ -200,8 +275,8 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
     }
 
     private void initRecyclerView() {
-        ViewPreloadSizeProvider<String> viewPreloader=new ViewPreloadSizeProvider<>();
-        mAdapter = new DashboardAdapter(this, context,mNativeAdsManager, initGlide(), viewPreloader);
+        ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
+        mAdapter = new DashboardAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
 
@@ -212,9 +287,9 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
         rvNestedScroll.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if(!v.canScrollVertically(1)){
+                if (!v.canScrollVertically(1)) {
                     // search for the next page
-                    mViewModel.searchNextPage(user_id, search_name, latitude,longitude);
+                    mViewModel.searchNextPage(user_id, search_name, latitude, longitude);
 
                 }
             }
@@ -255,7 +330,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
             @Override
             public void onClick(View view, final int position) {
 
-               // ((HomeActivity) getActivity()).highLightSection();
+                // ((HomeActivity) getActivity()).highLightSection();
 
                 switch (position) {
                     case 0:
@@ -292,23 +367,22 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
     }
 
 
-    private void subscribeObservers(){
+    private void subscribeObservers() {
 
         mViewModel.getDashboard().observe(this, new Observer<Resource<List<DashboardList>>>() {
             @Override
             public void onChanged(@Nullable Resource<List<DashboardList>> listResource) {
-                if(listResource != null){
+                if (listResource != null) {
                     Log.d(TAG, "onChanged: status: " + listResource.status);
 
-                    if(listResource.data != null){
-                       // Testing.printRecipess("data: ", listResource.data);
+                    if (listResource.data != null) {
+                        // Testing.printRecipess("data: ", listResource.data);
 
                         switch (listResource.status) {
                             case LOADING: {
-                                if(mViewModel.getPageNumber() > 1){
+                                if (mViewModel.getPageNumber() > 1) {
                                     mAdapter.displayLoading();
-                                }
-                                else{
+                                } else {
                                     mAdapter.displayOnlyLoading();
                                 }
                                 break;
@@ -322,13 +396,13 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
                             }
                             case ERROR: {
                                 Log.e(TAG, "onChanged: cannot refresh cache.");
-                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message );
+                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message);
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
                                 Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
-                                if(listResource.message.equals(QUERY_EXHAUSTED)){
+                                if (listResource.message.equals(QUERY_EXHAUSTED)) {
                                     mAdapter.setQueryExhausted();
                                 }
                                 break;
@@ -337,12 +411,10 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
                     }
 
 
-                    }
                 }
+            }
 
         });
-
-
 
 
 //        mViewModel.getDashboard().observe(this, new Observer<List<DashboardList>>() {
@@ -357,11 +429,11 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
 //        });
     }
 
-    private void getDashboardList(){
-        mViewModel.getDashboardListApi(user_id, 1, search_name, latitude,longitude );
+    private void getDashboardList() {
+        mViewModel.getDashboardListApi(user_id, 1, search_name, latitude, longitude);
     }
 
-    private void initSearchView(){
+    private void initSearchView() {
         searchView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -373,12 +445,11 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
 
             @Override
             public void afterTextChanged(Editable editable) {
-                search_name= editable.toString();
-                mViewModel.getDashboardListApi(user_id, 1, search_name, latitude,longitude );
+                search_name = editable.toString();
+                mViewModel.getDashboardListApi(user_id, 1, search_name, latitude, longitude);
             }
         });
     }
-
 
 
     @Override
@@ -386,8 +457,8 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
         mViewModel.cancelSearchRequest(true);
         stopLocationService();
         super.onDestroy();
-       // unregisterReceiver(myReceiver);
-       // unregisterReceiver(ChatReceiver);
+        // unregisterReceiver(myReceiver);
+        // unregisterReceiver(ChatReceiver);
 
 
     }
@@ -450,6 +521,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
         }
         return false;
     }
+
     private void checkPermissions() {
         if (!checkPermission()) {
             requestPermission();
@@ -551,7 +623,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
 
     @Override
     public void onAdError(AdError adError) {
-        Log.d(TAG, "onError:- " +  adError.getErrorCode());
+        Log.d(TAG, "onError:- " + adError.getErrorCode());
     }
 
     private void getFbAd() {
@@ -579,7 +651,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
 
     @Override
     public void onError(Ad ad, AdError adError) {
-        Log.d(TAG, "onError:- " +  adError.getErrorCode());
+        Log.d(TAG, "onError:- " + adError.getErrorCode());
     }
 
     @Override
@@ -602,7 +674,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
     @Override
     public void onCallClick(int position) {
 
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
             DashboardList dl = mAdapter.getSelected(position);
             if (!dl.getUser_id().equals(user_id)) {
                 if (dl.getMobile_status().equals("0")) {
@@ -612,18 +684,16 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
                     context.startActivity(intent);
                 } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
             }
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
 
     @Override
     public void onChatClick(int position) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
@@ -635,7 +705,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
 
     @Override
     public void onLikeClick(int position, Button ivInterested) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
             DashboardList dl = mAdapter.getSelected(position);
             if (!dl.getUser_id().equals(user_id)) {
@@ -649,8 +719,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
 
                 interest(dl.getId(), dl.getUser_id(), dl.getData_type(), dl.getTitle());
             }
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
@@ -667,8 +736,8 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
         RequestBody rb_listing_title = RequestBody.create(MultipartBody.FORM, title);
 
 
-        Call<ResponseBody> call = mViewModel.interest(unique_id,rb_user_id , rb_to_user_id,
-                rb_full_name,rb_listing_id,rb_type,rb_listing_title);
+        Call<ResponseBody> call = mViewModel.interest(unique_id, rb_user_id, rb_to_user_id,
+                rb_full_name, rb_listing_id, rb_type, rb_listing_title);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -699,10 +768,9 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
 
     @Override
     public void onEditClick(int position) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
@@ -716,11 +784,9 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
     }
 
 
-
-
     public void updateLanguage() {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),R.style.Theme_AppCompat_Light_Dialog);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog);
         builder.setTitle(R.string.lang);
 
 
@@ -731,15 +797,15 @@ public class DashboardFragment extends Fragment implements OnDashboardListener,N
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
-                        switch(which){
+                        switch (which) {
                             case 0:
-                                mLanguageCode="en";
+                                mLanguageCode = "en";
                                 break;
                             case 1:
-                                mLanguageCode="mr";
+                                mLanguageCode = "mr";
                                 break;
                             case 2:
-                                mLanguageCode="hi";
+                                mLanguageCode = "hi";
                                 break;
                         }
                         sessionManager.setToSessionManager(SessionManager.LANGUAGE, mLanguageCode);
