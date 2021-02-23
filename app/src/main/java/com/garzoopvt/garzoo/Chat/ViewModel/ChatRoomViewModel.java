@@ -13,11 +13,13 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.Observer;
 
 import com.garzoopvt.garzoo.Chat.Model.ChatIndividual;
+import com.garzoopvt.garzoo.Chat.Services.ChatIndividualResponse;
 import com.garzoopvt.garzoo.Chat.Services.ChatMessagesRepository;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -137,10 +139,10 @@ public class ChatRoomViewModel extends AndroidViewModel {
 
     }
 
-    public Call<ResponseBody> addChat( RequestBody unique_id, RequestBody from_uid, RequestBody to_uid, RequestBody message,
-                                        RequestBody file_type){
+    public Call<ChatIndividualResponse> addChat(RequestBody unique_id, RequestBody from_uid, RequestBody to_uid, RequestBody message,
+                                                RequestBody file_type, MultipartBody.Part list[]){
 
-        return chatRepository.addChat(unique_id, from_uid,to_uid,message,file_type);
+        return chatRepository.addChat(unique_id, from_uid,to_uid,message,file_type,list);
 
     }
 

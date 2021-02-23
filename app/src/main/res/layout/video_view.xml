@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout android:layout_width="match_parent"
     android:id="@+id/flVideo"
+    android:visibility="gone"
     android:layout_height="@dimen/dp250"
     xmlns:android="http://schemas.android.com/apk/res/android">
 

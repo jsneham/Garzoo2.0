@@ -217,10 +217,24 @@ public class BuyViewModel extends AndroidViewModel {
 
     }
 
+    public Call<ResponseBody> editData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody category_id, RequestBody title,
+                                            RequestBody description, RequestBody price, RequestBody latitude, RequestBody longitude, RequestBody address,
+                                       MultipartBody.Part video_file, RequestBody product_id){
+
+       return buyRepository.editData(list, user_id,mobile_status,category_id,title,description,price,latitude,longitude,address,video_file,product_id);
+
+    }
+
     public Call<ResponseBody> interest( RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
                                         RequestBody listing_id, RequestBody type, RequestBody listing_title){
 
         return buyRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title);
+
+    }
+
+    public Call<ResponseBody> deleteImage( String image_id, String path){
+
+        return buyRepository.deleteImage(image_id, path);
 
     }
 }

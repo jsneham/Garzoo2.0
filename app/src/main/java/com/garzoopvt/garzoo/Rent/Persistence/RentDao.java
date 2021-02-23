@@ -29,8 +29,8 @@ public interface RentDao {
 
     // NOTE: The SQL query sometimes won't return EXACTLY what the api does since the API might use a different query
     // or even a different database. But they are very very close.
-    @Query("SELECT * FROM rent WHERE title LIKE '%' || :query || '%' LIMIT (:pageNumber * 8)")
-    LiveData<List<Rent>> searchList(String query, int pageNumber);
+    @Query("SELECT * FROM rent WHERE title LIKE '%' || :query || '%'AND category_id=:category_id  LIMIT (:pageNumber * 8)")
+    LiveData<List<Rent>> searchList(String query, int pageNumber,String category_id);
 
     @Query("SELECT * FROM rent WHERE id = :id")
     LiveData<Rent> getLIst(String id);

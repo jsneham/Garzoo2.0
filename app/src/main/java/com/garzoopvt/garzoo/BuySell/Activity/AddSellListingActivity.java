@@ -2,6 +2,7 @@ package com.garzoopvt.garzoo.BuySell.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -174,6 +175,7 @@ public class AddSellListingActivity extends BaseActivity implements View.OnClick
     private void getSessionData() {
         category_id = getIntent().getStringExtra("category_id");
         category_name = getIntent().getStringExtra("category_name");
+        user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
         Lat = sessionManager.getFromSessionManager(SessionManager.LATITUDE_FIXED);
         Long = sessionManager.getFromSessionManager(SessionManager.LONGITUDE_FIXED);
         Area = sessionManager.getFromSessionManager(SessionManager.Login_CITY);
@@ -218,18 +220,13 @@ public class AddSellListingActivity extends BaseActivity implements View.OnClick
             MultipartBody.Part videos = null;
             if (videoList.size() > 0) {
                 MultipartBody.Part videoRequest = prepareFilePart("video_file", Uri.parse(videoList.get(0)), videoList.get(0));
-                videos= videoRequest;
+                videos = videoRequest;
             }
-
 
             MultipartBody.Part list[] = new MultipartBody.Part[flat_images.size()];
 
-//            for (String uri : flat_images) {
             for (int j = 0; j < flat_images.size(); j++) {
-                // MultipartBody.Part imageRequest = prepareFilePart("file[]", Uri.parse(uri), uri);
-                // MultipartBody.Part imageRequest = prepareFilePart("picture", Uri.parse(uri), uri);
                 MultipartBody.Part imageRequest = prepareFilePart("image[]", Uri.parse(flat_images.get(j)), flat_images.get(j));
-                //list.add(imageRequest);
                 list[j] = imageRequest;
             }
 
@@ -292,9 +289,9 @@ public class AddSellListingActivity extends BaseActivity implements View.OnClick
         File file = new File("" + fileUri);
         file.getName();
 
-//        MediaType m=   MediaType.parse(getContentResolver().getType(fileUri));
-//        Log.d(TAG, "prepareFilePart: "+ m);
-        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), filename);
+
+//      RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), filename);
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), filename);
 
         // MultipartBody.Part is used to send also the actual file name
         return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
@@ -566,6 +563,7 @@ public class AddSellListingActivity extends BaseActivity implements View.OnClick
                 images.add(ImagePath);
                 fillImageList(ImagePath, "image", "");
                 flat_images.add(ImagePath);
+
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -923,7 +921,7 @@ public class AddSellListingActivity extends BaseActivity implements View.OnClick
                     dest = new File(moviesDir, filePrefix + fileNo + fileExtn);
                 }
                 String filePath = dest.getAbsolutePath();
-                 compressTrimVideo(scrPath, filePath);
+                compressTrimVideo(scrPath, filePath);
             } else {
                 finalFile = scrPath;
                 runOnUiThread(() -> {

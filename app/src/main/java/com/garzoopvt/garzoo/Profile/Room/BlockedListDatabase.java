@@ -7,7 +7,6 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.Dashboard.Persistence.Converters;
 import com.garzoopvt.garzoo.Profile.Model.BlockedPeople;
 

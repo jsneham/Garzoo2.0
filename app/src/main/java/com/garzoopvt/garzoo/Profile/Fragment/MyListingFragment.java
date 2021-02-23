@@ -100,6 +100,7 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
     private String search_name="";
     private String latitude;
     private String longitude;
+    private String type;
     private int page_no=1;
     public final int ITEM_PER_ADV = 8;
 
@@ -107,7 +108,8 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
 
 
     public MyListingFragment(String type){
-        //this.type=type;
+        this.type=type;
+        this.search_name=type;
        // this.setHasOptionsMenu(true);
     }
 
@@ -117,6 +119,7 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         view= inflater.inflate(R.layout.fragment_interested, container, false);
+        mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         init();
         fbNativeAds();
         initRecyclerView();
@@ -178,7 +181,7 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
 
                 if(!rvList.canScrollVertically(1)){
                     // search for the next page
-                    mViewModel.searchNextPage(user_id, search_name, latitude,longitude);
+                    mViewModel.searchMyListNextPage(user_id, search_name, latitude,longitude,type);
 
                 }
             }
@@ -256,7 +259,7 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
     }
 
     private void getDashboardList(){
-        mViewModel.getMyListApi(user_id, 1, search_name, latitude,longitude );
+        mViewModel.getMyListApi(user_id, 1, search_name, latitude,longitude,type );
     }
 
 

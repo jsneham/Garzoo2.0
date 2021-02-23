@@ -96,7 +96,7 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 RecyclerViewViewHolder viewHolder = (RecyclerViewViewHolder) holder;
                 BlockedPeople user = (BlockedPeople) mBlockedPeople.get(i);
 
-                viewHolder.name.setText(String.format("%1$s %2$s", user.getName()));
+                viewHolder.name.setText(String.format("%1$s %2$s", user.getFname() , user.getLname()));
 
                 viewHolder.submit.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -122,10 +122,10 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     @Override
     public int getItemViewType(int position) {
         int type = 1;
-        if (mBlockedPeople.size() > position) {
-            if (mBlockedPeople.get(position).getName().equals("LOADING...")) {
+        if (mBlockedPeople.size() > position && mBlockedPeople.get(position).getFname()!= null) {
+            if (mBlockedPeople.get(position).getFname().equals("LOADING...")) {
                 return LOADING_TYPE;
-            } else if (mBlockedPeople.get(position).getName().equals("EXHAUSTED...")) {
+            } else if (mBlockedPeople.get(position).getFname().equals("EXHAUSTED...")) {
                 return EXHAUSTED_TYPE;
             } else {
                 return LIST_TYPE;
@@ -150,19 +150,19 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void setQueryExhausted() {
         hideLoading();
         BlockedPeople exhausted = new BlockedPeople();
-        exhausted.setName("EXHAUSTED...");
+        exhausted.setFname("EXHAUSTED...");
         mBlockedPeople.add(exhausted);
         notifyDataSetChanged();
     }
 
     public void hideLoading() {
         if (isLoading()) {
-            if (mBlockedPeople.get(0).getName().equals("LOADING...")) {
+            if (mBlockedPeople.get(0).getFname().equals("LOADING...")) {
                 mBlockedPeople.remove(mBlockedPeople.size() - 1);
             }
         }
         if (isLoading()) {
-            if (mBlockedPeople.get(mBlockedPeople.size() - 1).getName().equals("LOADING...")) {
+            if (mBlockedPeople.get(mBlockedPeople.size() - 1).getFname().equals("LOADING...")) {
                 mBlockedPeople.remove(mBlockedPeople.size() - 1);
             }
         }
@@ -172,7 +172,7 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void displayOnlyLoading() {
         clearRecipesList();
         BlockedPeople recipe = new BlockedPeople();
-        recipe.setName("LOADING...");
+        recipe.setFname("LOADING...");
         mBlockedPeople.add(recipe);
         notifyDataSetChanged();
     }
@@ -193,7 +193,7 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
         if (!isLoading()) {
             BlockedPeople recipe = new BlockedPeople();
-            recipe.setName("LOADING...");
+            recipe.setFname("LOADING...");
             mBlockedPeople.add(recipe); // loading at bottom of screen
             notifyDataSetChanged();
         }
@@ -202,7 +202,7 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private boolean isLoading() {
         if (mBlockedPeople != null) {
             if (mBlockedPeople.size() > 0) {
-                if (mBlockedPeople.get(mBlockedPeople.size() - 1).getName().equals("LOADING...")) {
+                if (mBlockedPeople.get(mBlockedPeople.size() - 1).getFname().equals("LOADING...")) {
                     return true;
                 }
             }

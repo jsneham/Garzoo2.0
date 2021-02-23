@@ -98,6 +98,8 @@ public class ProfileFragment extends Fragment {
         context = getContext();
         sessionManager = new SessionManager(context);
         String is_update= sessionManager.getFromSessionManager(SessionManager.IS_UPDATE);
+        user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
+        if(user_id.isEmpty()) user_id="0";
 
         llName = view.findViewById(R.id.llName);
         tvLanguage = view.findViewById(R.id.tvLanguage);
@@ -117,7 +119,7 @@ public class ProfileFragment extends Fragment {
         ivEditNumber = view.findViewById(R.id.ivEditNumber);
 
 
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if((user_id.equals("0")|| user_id.isEmpty())) {
             llName.setVisibility(View.GONE);
         }
 

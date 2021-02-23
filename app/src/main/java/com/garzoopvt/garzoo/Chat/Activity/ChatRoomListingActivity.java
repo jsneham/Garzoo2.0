@@ -1,9 +1,17 @@
 package com.garzoopvt.garzoo.Chat.Activity;
 
+import android.content.ClipData;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,8 +21,10 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
@@ -22,13 +32,18 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.garzoopvt.garzoo.Adapter.ImageVideo;
+import com.garzoopvt.garzoo.Business.Activity.AddBusinessListingActivity;
 import com.garzoopvt.garzoo.Chat.Adapter.ChatTextAdapter;
 import com.garzoopvt.garzoo.Chat.Model.ChatIndividual;
 import com.garzoopvt.garzoo.Chat.Model.ChatUser;
+import com.garzoopvt.garzoo.Chat.Services.ChatIndividualResponse;
 import com.garzoopvt.garzoo.Chat.ViewModel.ChatRoomViewModel;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
+import com.garzoopvt.garzoo.Util.ImageCompression;
 import com.garzoopvt.garzoo.Util.SessionManager;
+import com.garzoopvt.garzoo.Util.Transaltion;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
 import com.google.android.gms.ads.AdListener;
@@ -36,11 +51,16 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.LoadAdError;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -53,7 +73,7 @@ import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_
 public class ChatRoomListingActivity extends AppCompatActivity implements View.OnClickListener {
 
     //Data
-    private String TAG = "IndividualChatActivity";
+    private String TAG = "ChatRoomListingActivity";
     private SessionManager sessionManager;
     private Context context = this;
     private String fuid, tuid, to_name, record_id, phone_no;
@@ -67,7 +87,7 @@ public class ChatRoomListingActivity extends AppCompatActivity implements View.O
     private RecyclerView rvList;
     private EditText edittext;
     private RelativeLayout rlLayout;
-    private ImageView ivImage, ivCall, btnSend, btnMic;
+    private ImageView ivImage, btnAttach, btnSend, btnMic;
 
     //instances
     private ChatRoomViewModel mViewModel;
@@ -79,7 +99,7 @@ public class ChatRoomListingActivity extends AppCompatActivity implements View.O
         setContentView(R.layout.activity_individual_chat);
         mViewModel = ViewModelProviders.of(this).get(ChatRoomViewModel.class);
         sessionManager = new SessionManager(context);
-        // user_id=sessionManager.getFromSessionManager(SessionManager.USER_ID);
+        user_id=sessionManager.getFromSessionManager(SessionManager.USER_ID);
         chatArrayList = (ChatUser) getIntent().getParcelableExtra("data");
         fuid = user_id;
         tuid = chatArrayList.getTo_uid();
@@ -121,7 +141,7 @@ public class ChatRoomListingActivity extends AppCompatActivity implements View.O
         btnMic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // startVoiceInput();
+                // startVoiceInput();
             }
         });
 
@@ -131,8 +151,17 @@ public class ChatRoomListingActivity extends AppCompatActivity implements View.O
             public void onClick(View v) {
                 file_type="t";
                 message= edittext.getText().toString();
-               // messageText.delete(0, messageText.length());
+                // messageText.delete(0, messageText.length());
                 addChat();
+            }
+        });
+
+        btnAttach = findViewById(R.id.btnAttach);
+        btnAttach.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                file_type="i";
+                ivImageClicked();
             }
         });
 
@@ -218,7 +247,7 @@ public class ChatRoomListingActivity extends AppCompatActivity implements View.O
                                 mAdapter.setList(listResource.data);
                                 Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
-                                if (listResource.message.equals(QUERY_EXHAUSTED)) {
+                                if (listResource.message.equals(ChatRoomViewModel.QUERY_EXHAUSTED)) {
                                     //  mAdapter.setQueryExhausted();
                                 }
                                 break;
@@ -246,7 +275,7 @@ public class ChatRoomListingActivity extends AppCompatActivity implements View.O
         switch (id) {
 
             case R.id.action_block:
-                 blockUser();
+                blockUser();
                 break;
 
             case R.id.action_call:
@@ -312,53 +341,74 @@ public class ChatRoomListingActivity extends AppCompatActivity implements View.O
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return format.format(new Date());
     }
-        private void addChat() {
 
-        if(message.isEmpty())return;
+    @NonNull
+    private MultipartBody.Part prepareFilePart(String partName, Uri fileUri, String filename) {
+        // create RequestBody instance from file
+        File file = new File("" + fileUri);
+        file.getName();
 
-            String sentAt = getTimeStamp();
-            RequestBody unique_id = RequestBody.create(MultipartBody.FORM, URLs.unique_id);
-            RequestBody rb_user_id = RequestBody.create(MultipartBody.FORM, user_id);
-            RequestBody rb_to_user_id = RequestBody.create(MultipartBody.FORM, tuid);
-            RequestBody rb_message = RequestBody.create(MultipartBody.FORM, message);
-            RequestBody rb_file_type = RequestBody.create(MultipartBody.FORM, file_type);
+        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), filename);
 
-            Call<ResponseBody> call = mViewModel.addChat(unique_id,rb_user_id , rb_to_user_id,
-                    rb_message,rb_file_type);
+        // MultipartBody.Part is used to send also the actual file name
+        return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
+    }
 
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    if (response != null) {
-                        if (response.isSuccessful()) {
-                            try {
-                                String result = response.body().string();
-                                if(result.equals("success")){
-                                    ChatIndividual messagObject = new ChatIndividual("0", tuid, fuid, message, "t", "0", sentAt, to_name ,"","","",0);
-                                    chatIndividualsList.add(messagObject);
-                                    mAdapter.updateList(chatIndividualsList);
-                                   // Utils.openSnackBar(result, rlLayout);
-                                }
+    private void addChat() {
+
+        if(message.isEmpty()){
+            if(images.size()==0) return;
+        }
+
+        MultipartBody.Part list[] = new MultipartBody.Part[images.size()];
+        for (int j = 0; j < images.size(); j++) {
+            MultipartBody.Part imageRequest = prepareFilePart("image[]", Uri.parse(images.get(j)), images.get(j));
+            list[j] = imageRequest;
+            file_type="i";
+        }
+
+        String sentAt = getTimeStamp();
+        RequestBody unique_id = RequestBody.create(MultipartBody.FORM, URLs.unique_id);
+        RequestBody rb_user_id = RequestBody.create(MultipartBody.FORM, user_id);
+        RequestBody rb_to_user_id = RequestBody.create(MultipartBody.FORM, tuid);
+        RequestBody rb_message = RequestBody.create(MultipartBody.FORM, message);
+        RequestBody rb_file_type = RequestBody.create(MultipartBody.FORM, file_type);
+
+        Call<ChatIndividualResponse> call = mViewModel.addChat(unique_id,rb_user_id , rb_to_user_id,
+                rb_message,rb_file_type,list);
+
+        call.enqueue(new Callback<ChatIndividualResponse>() {
+            @Override
+            public void onResponse(Call<ChatIndividualResponse> call, Response<ChatIndividualResponse> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
 
 
 
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+//                                    ChatIndividual messagObject = new ChatIndividual("0", tuid, fuid, message, "t", "0", sentAt, to_name ,"","","",0);
+//                                    chatIndividualsList.add(messagObject);
+                            mAdapter.updateList(response.body().getChat());
+
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-
-
                     }
 
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                    Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
 
                 }
-            });
-        }
+
+            }
+
+            @Override
+            public void onFailure(Call<ChatIndividualResponse> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
+    }
 
 
 
@@ -374,4 +424,167 @@ public class ChatRoomListingActivity extends AppCompatActivity implements View.O
     public void onClick(View view) {
 
     }
+
+    private boolean requestCamera = true;
+    private ArrayList<String> images = new ArrayList<>();
+    private int image_count = 10;
+    private String imagePath = "";
+    private String selectedImagePath = "";
+
+
+    public void ivImageClicked() {
+        if (requestCamera && images.size() < image_count) {
+            actionDialogBox(context);
+        } else {
+            Utils.openSnackBar(context.getString(R.string.image_error), rlLayout);
+        }
+    }
+
+    public void actionDialogBox(final Context context) {
+        final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
+        final CharSequence[] options1 = {"फोटो घ्या", "गॅलरीमधून निवडा", "रद्द करा"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(ChatRoomListingActivity.this);
+        builder.setTitle("फोटो जोडा!");
+        builder.setItems(options1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                if (options[item].equals("Take Photo")) {
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    File f = new File(Environment.getExternalStorageDirectory() + "/DCIM/", "image" + new Date().getTime() + ".jpg");
+                    imagePath = f.getAbsolutePath();
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+                    startActivityForResult(intent, 1);
+                } else if (options[item].equals("Choose from Gallery")) {
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(intent, context.getString(R.string.image_selection)), 2);
+
+                } else if (options[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1) {
+            try {
+                selectedImagePath = getImagePath();
+                String ImagePath = ImageCompression.compressImage(selectedImagePath, context);
+                images.add(ImagePath);
+
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (requestCode == 2) {
+            getMultipleImagesfromGallery(data);
+
+        }
+
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+
+
+
+    private void getMultipleImagesfromGallery(Intent data) {
+
+        int no_of_image = 0;
+        ClipData clipData = data.getClipData();
+        if (clipData != null) {
+            //multiple images selecetd
+            no_of_image = clipData.getItemCount() > 10 ? 10 : clipData.getItemCount();
+
+            for (int i = 0; i < no_of_image; i++) {
+                Uri imageUri = clipData.getItemAt(i).getUri();
+                Log.d("URI", imageUri.toString());
+                try {
+                    selectedImagePath = getRealPathFromURI(imageUri);
+                    String ImagePath = ImageCompression.compressImage(selectedImagePath, context);
+                    images.add(ImagePath);
+
+
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+        } else {
+            //single image selected
+            Uri imageUri = data.getData();
+            Log.d("URI", imageUri.toString());
+            try {
+                selectedImagePath = getRealPathFromURI(imageUri);
+                String ImagePath = ImageCompression.compressImage(selectedImagePath, context);
+                images.add(ImagePath);
+
+
+
+                Path path = null;
+                long bytes = 0;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    path = Paths.get(ImagePath);
+                    bytes = Files.size(path);
+                }
+
+                Log.d(TAG, "Filesize: " + bytes);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+
+    public String getRealPathFromURI(Uri contentUri) {
+        String filePath = "";
+        String path = contentUri.toString();
+        try {
+
+            if (path.contains("com.android.providers")) {
+                String wholeID = DocumentsContract.getDocumentId(contentUri);
+                // Split at colon, use second item in the array
+                String id = wholeID.split(":")[1];
+                String[] column = {MediaStore.Images.Media.DATA};
+                // where id is equal to
+                String sel = MediaStore.Images.Media._ID + "=?";
+                Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        column, sel, new String[]{id}, null);
+                int columnIndex = cursor.getColumnIndex(column[0]);
+                if (cursor.moveToFirst()) {
+                    filePath = cursor.getString(columnIndex);
+                }
+                cursor.close();
+            } else {
+                String[] filePath1 = {MediaStore.Images.Media.DATA};
+                Cursor c = getContentResolver().query(contentUri, filePath1, null, null, null);
+                c.moveToFirst();
+                int columnIndex = c.getColumnIndex(filePath1[0]);
+                filePath = c.getString(columnIndex);
+                c.close();
+
+            }
+
+        } catch (Exception e) {
+
+            return filePath;
+        }
+        return filePath;
+    }
+
+
 }

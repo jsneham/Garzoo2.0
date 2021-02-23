@@ -39,6 +39,8 @@ public class URLs {
     public static final String api_sell_data_2_0 = "Listing_sell/api_sell_data_2_0";
     public static final String api_get_category_2_0 = "Listing_sell/api_get_category";
     public static final String api_sell_add_record = "Listing_sell/api_add_record_2_0";
+    public static final String api_edit_record_2_0 = "Listing_sell/api_edit_record_2_0";
+    public static final String api_sell_delete_image = BASE_URL + "Listing_sell/api_delete_image";
 
 
     //API RENT

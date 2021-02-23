@@ -19,6 +19,7 @@ import com.garzoopvt.garzoo.Util.URLs;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -115,15 +116,16 @@ public class ChatMessagesRepository {
 
     }
 
-    public Call<ResponseBody> addChat(RequestBody unique_id,RequestBody from_uid, RequestBody to_uid, RequestBody message,
-                                       RequestBody file_type){
+    public Call<ChatIndividualResponse> addChat(RequestBody unique_id,RequestBody from_uid, RequestBody to_uid, RequestBody message,
+                                       RequestBody file_type,MultipartBody.Part list[]){
 
         return  ServiceGenerator.getChatApi().addChat(
              unique_id,
                 from_uid,
                 to_uid,
                 message,
-                file_type
+                file_type,
+                list
         );
 
     }

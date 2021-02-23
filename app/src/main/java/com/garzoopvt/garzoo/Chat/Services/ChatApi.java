@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import com.garzoopvt.garzoo.RetrofitService.ApiResponse;
 import com.garzoopvt.garzoo.Util.URLs;
 
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -52,11 +53,12 @@ public interface ChatApi {
 
     @Multipart
     @POST(URLs.add_chat_2_0)
-    Call<ResponseBody> addChat(
+    Call<ChatIndividualResponse> addChat(
             @Part("unique_id") RequestBody unique_id,
             @Part("from_uid") RequestBody from_uid,
             @Part("to_uid") RequestBody to_uid,
             @Part("message") RequestBody message,
-            @Part("file_type") RequestBody file_type
+            @Part("file_type") RequestBody file_type,
+            @Part MultipartBody.Part image[]
     );
 }

@@ -23,12 +23,12 @@ public interface MyListDao {
 
     // Custom update statement so ingredients and timestamp don't get removed
     @Query("UPDATE dashboardlists SET title = :title, description = :description, price = :price, " +
-            "address = :address WHERE id = :id")
-    void updateList(String id, String title, String description, String price, String address);
+            "address = :address,data_type = :type WHERE id = :id")
+    void updateList(String id, String title, String description, String price, String address, String type);
 
     // NOTE: The SQL query sometimes won't return EXACTLY what the api does since the API might use a different query
     // or even a different database. But they are very very close.
-    @Query("SELECT * FROM dashboardlists WHERE title LIKE '%' || :query || '%' LIMIT (:pageNumber * 8)")
+    @Query("SELECT * FROM dashboardlists WHERE data_type LIKE '%' || :query || '%' LIMIT (:pageNumber * 8)")
     LiveData<List<DashboardList>> searchList(String query, int pageNumber);
 
     @Query("SELECT * FROM dashboardlists WHERE id = :id")

@@ -171,6 +171,7 @@ public class AddQuestionListingActivity extends BaseActivity implements View.OnC
         Long = sessionManager.getFromSessionManager(SessionManager.LONGITUDE_FIXED);
         Area = sessionManager.getFromSessionManager(SessionManager.Login_CITY);
         Taluka = sessionManager.getFromSessionManager(SessionManager.Login_TALUKA);
+        user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
 
         tvArea.setText(Area);
         tvTaluka.setText(Taluka);

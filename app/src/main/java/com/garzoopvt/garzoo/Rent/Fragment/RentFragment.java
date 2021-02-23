@@ -415,6 +415,8 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
     @Override
     public void onCategoryItemClick(int position) {
         Category ct = mCatAdapter.getSelected(position);
+        mViewModel.setPageNumber(1);
+        mAdapter.clearList();
         mViewModel.getRentListApi(user_id, page_no, search_name, latitude, longitude, ct.getId());
     }
 

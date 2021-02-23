@@ -76,10 +76,10 @@ public class ProfileRepository {
 
 
     public LiveData<Resource<List<DashboardList>>> getInterestedListApi(final String user_id, final int pageNumber, final String search_name, final String latitude, final String longitude) {
-        return new NetworkBoundResource<List<DashboardList>, DashboardResponse>(AppExecutors.getInstance()) {
+        return new NetworkBoundResource<List<DashboardList>, InterestedResponse>(AppExecutors.getInstance()) {
 
             @Override
-            public void saveCallResult(@NonNull DashboardResponse item) {
+            public void saveCallResult(@NonNull InterestedResponse item) {
 
                 if (item.getDashboard() != null) { //  list will be null if api key is expired
                     DashboardList[] recipes = new DashboardList[item.getDashboard().size()];
@@ -116,7 +116,7 @@ public class ProfileRepository {
 
             @NonNull
             @Override
-            public LiveData<ApiResponse<DashboardResponse>> createCall() {
+            public LiveData<ApiResponse<InterestedResponse>> createCall() {
                 return ServiceGenerator.getProfileApi().getInterested(
                         URLs.unique_id,
                         user_id,
@@ -164,7 +164,8 @@ public class ProfileRepository {
                             blockedListDao.updateList(
                                     recipes[index].getId(),
                                     recipes[index].getBlock_record_id(),
-                                    recipes[index].getName(),
+                                    recipes[index].getFname(),
+                                    recipes[index].getLname(),
                                     recipes[index].getStatus(),
                                     recipes[index].isFlag(),
                                     recipes[index].getLast_modified(),
@@ -186,7 +187,7 @@ public class ProfileRepository {
             @NonNull
             @Override
             public LiveData<List<BlockedPeople>> loadFromDb() {
-                return blockedListDao.searchList(query, pageNumber);
+                return blockedListDao.getLIst();
             }
 
             @NonNull
@@ -194,8 +195,9 @@ public class ProfileRepository {
             public LiveData<ApiResponse<BlockedPeopleResponse>> createCall() {
                 return ServiceGenerator.getProfileApi().getBlocked(
                         URLs.unique_id,
-                        user_id,
-                        String.valueOf(pageNumber)
+                        user_id
+//                        ,
+//                        String.valueOf(pageNumber)
                 );
             }
 
@@ -203,11 +205,11 @@ public class ProfileRepository {
     }
 
 
-    public LiveData<Resource<List<DashboardList>>> getMyListApi(final String user_id, final int pageNumber, final String search_name, final String latitude, final String longitude) {
-        return new NetworkBoundResource<List<DashboardList>, DashboardResponse>(AppExecutors.getInstance()) {
+    public LiveData<Resource<List<DashboardList>>> getMyListApi(final String user_id, final int pageNumber, final String search_name, final String latitude, final String longitude, final String type) {
+        return new NetworkBoundResource<List<DashboardList>, MyListResponse>(AppExecutors.getInstance()) {
 
             @Override
-            public void saveCallResult(@NonNull DashboardResponse item) {
+            public void saveCallResult(@NonNull MyListResponse item) {
 
                 if (item.getDashboard() != null) { //  list will be null if api key is expired
                     DashboardList[] recipes = new DashboardList[item.getDashboard().size()];
@@ -222,7 +224,9 @@ public class ProfileRepository {
                                     recipes[index].getTitle(),
                                     recipes[index].getDescription(),
                                     recipes[index].getPrice(),
-                                    recipes[index].getAddress()
+                                    recipes[index].getAddress(),
+                                    recipes[index].getData_type()
+
                             );
                         }
                         index++;
@@ -239,19 +243,20 @@ public class ProfileRepository {
             @NonNull
             @Override
             public LiveData<List<DashboardList>> loadFromDb() {
-                return dashboardListDao.searchList(search_name, pageNumber);
+                return myListDao.searchList(search_name, pageNumber);
             }
 
             @NonNull
             @Override
-            public LiveData<ApiResponse<DashboardResponse>> createCall() {
-                return ServiceGenerator.getProfileApi().getInterested(
+            public LiveData<ApiResponse<MyListResponse>> createCall() {
+                return ServiceGenerator.getProfileApi().getMyRecords(
                         URLs.unique_id,
                         user_id,
                         String.valueOf(pageNumber),
                         search_name,
                         latitude,
-                        longitude
+                        longitude,
+                        type
                 );
             }
 

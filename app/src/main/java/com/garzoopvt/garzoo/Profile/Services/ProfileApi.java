@@ -52,7 +52,7 @@ public interface ProfileApi {
 
     // GET Interested REQUEST
     @GET(URLs.api_listing_interest_2_0)
-    LiveData<ApiResponse<DashboardResponse>> getInterested(
+    LiveData<ApiResponse<InterestedResponse>> getInterested(
             @Query("unique_id") String unique_id,
             @Query("user_id") String user_id,
             @Query("page_no") String page_no,
@@ -62,12 +62,24 @@ public interface ProfileApi {
     );
 
 
+    // GET Interested REQUEST
+    @GET(URLs.api_my_records_2_0)
+    LiveData<ApiResponse<MyListResponse>> getMyRecords(
+            @Query("unique_id") String unique_id,
+            @Query("user_id") String user_id,
+            @Query("page_no") String page_no,
+            @Query("search_name") String search_name,
+            @Query("latitude") String latitude,
+            @Query("longitude") String longitude,
+            @Query("type") String type
+    );
+
     // GET Blocked REQUEST
     @GET(URLs.get_blocked_user_list_2_0)
     LiveData<ApiResponse<BlockedPeopleResponse>> getBlocked(
             @Query("unique_id") String unique_id,
-            @Query("user_id") String user_id,
-            @Query("page_no") String page_no
+            @Query("user_id") String user_id
+//            @Query("page_no") String page_no
     );
 
 

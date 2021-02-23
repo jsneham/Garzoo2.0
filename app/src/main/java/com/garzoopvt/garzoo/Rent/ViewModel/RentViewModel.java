@@ -72,7 +72,9 @@ public class RentViewModel extends AndroidViewModel {
     public int getPageNumber() {
         return pageNumber;
     }
-
+    public void setPageNumber(int page) {
+        pageNumber= page;
+    }
 
 
     public LiveData<Resource<List<Rent>>> getRent(){

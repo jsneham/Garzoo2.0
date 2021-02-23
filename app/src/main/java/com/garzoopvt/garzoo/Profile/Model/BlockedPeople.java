@@ -23,8 +23,11 @@ public class BlockedPeople implements Parcelable {
     @ColumnInfo(name = "block_record_id")
     public String block_record_id;
 
-    @ColumnInfo(name = "name")
-    private String name;
+    @ColumnInfo(name = "fname")
+    private String fname;
+
+    @ColumnInfo(name = "lname")
+    private String lname;
 
     @ColumnInfo(name = "flag")
     private  boolean flag;
@@ -50,10 +53,11 @@ public class BlockedPeople implements Parcelable {
     public BlockedPeople() {
     }
 
-    public BlockedPeople(@NonNull String id, String block_record_id,String name, boolean flag, String status, String last_modified, String dt, String image, int timestamp) {
+    public BlockedPeople(@NonNull String id, String block_record_id, String fname, String lname, boolean flag, String status, String last_modified, String dt, String image, int timestamp) {
         this.id = id;
         this.block_record_id = block_record_id;
-        this.name = name;
+        this.fname = fname;
+        this.lname = lname;
         this.flag = flag;
         this.status = status;
         this.last_modified = last_modified;
@@ -62,6 +66,49 @@ public class BlockedPeople implements Parcelable {
         this.timestamp = timestamp;
     }
 
+    protected BlockedPeople(Parcel in) {
+        id = in.readString();
+        block_record_id = in.readString();
+        fname = in.readString();
+        lname = in.readString();
+        flag = in.readByte() != 0;
+        status = in.readString();
+        last_modified = in.readString();
+        dt = in.readString();
+        image = in.readString();
+        timestamp = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(block_record_id);
+        dest.writeString(fname);
+        dest.writeString(lname);
+        dest.writeByte((byte) (flag ? 1 : 0));
+        dest.writeString(status);
+        dest.writeString(last_modified);
+        dest.writeString(dt);
+        dest.writeString(image);
+        dest.writeInt(timestamp);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<BlockedPeople> CREATOR = new Creator<BlockedPeople>() {
+        @Override
+        public BlockedPeople createFromParcel(Parcel in) {
+            return new BlockedPeople(in);
+        }
+
+        @Override
+        public BlockedPeople[] newArray(int size) {
+            return new BlockedPeople[size];
+        }
+    };
 
     @NonNull
     public String getId() {
@@ -72,10 +119,6 @@ public class BlockedPeople implements Parcelable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public String getBlock_record_id() {
         return block_record_id;
     }
@@ -84,8 +127,20 @@ public class BlockedPeople implements Parcelable {
         this.block_record_id = block_record_id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getFname() {
+        return fname;
+    }
+
+    public void setFname(String fname) {
+        this.fname = fname;
+    }
+
+    public String getLname() {
+        return lname;
+    }
+
+    public void setLname(String lname) {
+        this.lname = lname;
     }
 
     public boolean isFlag() {
@@ -136,54 +191,14 @@ public class BlockedPeople implements Parcelable {
         this.timestamp = timestamp;
     }
 
-    protected BlockedPeople(Parcel in) {
-        id = in.readString();
-        block_record_id = in.readString();
-        name = in.readString();
-        flag = in.readByte() != 0;
-        status = in.readString();
-        last_modified = in.readString();
-        dt = in.readString();
-        image = in.readString();
-        timestamp = in.readInt();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(block_record_id);
-        dest.writeString(name);
-        dest.writeByte((byte) (flag ? 1 : 0));
-        dest.writeString(status);
-        dest.writeString(last_modified);
-        dest.writeString(dt);
-        dest.writeString(image);
-        dest.writeInt(timestamp);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<BlockedPeople> CREATOR = new Creator<BlockedPeople>() {
-        @Override
-        public BlockedPeople createFromParcel(Parcel in) {
-            return new BlockedPeople(in);
-        }
-
-        @Override
-        public BlockedPeople[] newArray(int size) {
-            return new BlockedPeople[size];
-        }
-    };
 
     @Override
     public String toString() {
         return "BlockedPeople{" +
                 "id='" + id + '\'' +
                 ", block_record_id='" + block_record_id + '\'' +
-                ", name='" + name + '\'' +
+                ", fname='" + fname + '\'' +
+                ", lname='" + lname + '\'' +
                 ", flag=" + flag +
                 ", status='" + status + '\'' +
                 ", last_modified='" + last_modified + '\'' +

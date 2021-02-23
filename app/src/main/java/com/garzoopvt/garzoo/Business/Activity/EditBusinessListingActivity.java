@@ -1,4 +1,4 @@
-package com.garzoopvt.garzoo.Employement.Activity;
+package com.garzoopvt.garzoo.Business.Activity;
 
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
@@ -21,16 +21,13 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,12 +42,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.Rotation;
 import com.daasuu.mp4compose.composer.Mp4Composer;
-import com.garzoopvt.garzoo.Adapter.FilterAdapter;
 import com.garzoopvt.garzoo.Adapter.ImageListAdapter;
 import com.garzoopvt.garzoo.Adapter.ImageVideo;
 import com.garzoopvt.garzoo.BaseActivity;
-import com.garzoopvt.garzoo.BuySell.Model.Category;
-import com.garzoopvt.garzoo.Employement.ViewModel.EmploymentViewModel;
+import com.garzoopvt.garzoo.Business.ViewModel.BusinessViewModel;
 import com.garzoopvt.garzoo.MapsActivity;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.Util.ImageCompression;
@@ -58,7 +53,6 @@ import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.Transaltion;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -79,17 +73,19 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AddEmpReqListingActivity extends BaseActivity implements View.OnClickListener, View.OnKeyListener {
+public class EditBusinessListingActivity extends BaseActivity implements View.OnClickListener, View.OnKeyListener {
 
-    private String TAG = "AddEmpRegisterListingActivity";
+    private String TAG = "AddSellListingActivity";
 
     //View
     @BindView(R.id.etTitle)
     EditText etTitle;
+    @BindView(R.id.etBusinessType)
+    EditText etBusinessType;
     @BindView(R.id.etDescription)
     EditText etDescription;
-    @BindView(R.id.etPrice)
-    EditText etPrice;
+//    @BindView(R.id.etPrice)
+//    EditText etPrice;
     @BindView(R.id.btnSubmit)
     Button btnSubmit;
     @BindView(R.id.ivImage)
@@ -100,16 +96,14 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
     RelativeLayout rlLayout;
     @BindView(R.id.rbMobile)
     RadioGroup rbMobile;
-//    @BindView(R.id.rbGroup)
-//    RadioGroup rbGroup;
     @BindView(R.id.rbLocation)
     RadioGroup rbLocation;
     @BindView(R.id.list)
     RecyclerView list;
     @BindView(R.id.gifDescription)
     ImageView gifDescription;
-    @BindView(R.id.gifPrice)
-    ImageView gifPrice;
+//    @BindView(R.id.gifPrice)
+//    ImageView gifPrice;
     @BindView(R.id.gifTitle)
     ImageView gifTitle;
     @BindView(R.id.gifTaluka)
@@ -120,8 +114,7 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
     EditText tvTaluka;
     @BindView(R.id.tvArea)
     EditText tvArea;
-//    @BindView(R.id.etCategory)
-//    TextView etCategory;
+
     @BindView(R.id.llHomeAddress)
     LinearLayout llHomeAddress;
     @BindView(R.id.llAddress)
@@ -130,10 +123,9 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
 
     //class
     private ImageListAdapter adapter;
-    private EmploymentViewModel mViewModel;
+    private BusinessViewModel mViewModel;
 
     //Data
-    private ArrayList<Category> categoryArrayList=new ArrayList<>();
     private ArrayList<ImageVideo> imageList = new ArrayList<>();
     private ArrayList<String> images = new ArrayList<>();
     private ArrayList<String> videoList = new ArrayList<>();
@@ -141,7 +133,7 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
     private Context context = this;
     private StringBuffer description = new StringBuffer("");
     private StringBuffer title = new StringBuffer("");
-    private StringBuffer price = new StringBuffer("");
+    private StringBuffer business = new StringBuffer("");
     private ProgressDialog progressDialog;
 
     //constant
@@ -151,9 +143,8 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
     private String imagePath = "";
     private String selectedImagePath = "";
     private String user_id;
-    private String category_id="0";
+    private String category_id, category_name;
     private String mobile_status = "0";
-    private String emp_status = "1";
     private int image_count = 10;
     private String Lat, Long;
     private String Taluka = "", Area = "";
@@ -164,10 +155,10 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_emp_req_listing);
+        setContentView(R.layout.activity_add_bus_listing);
         sessionManager = new SessionManager(this);
-        mViewModel = ViewModelProviders.of(this).get(EmploymentViewModel.class);
-        categoryArrayList= getIntent().getParcelableArrayListExtra("category");
+        mViewModel = ViewModelProviders.of(this).get(BusinessViewModel.class);
+
         ButterKnife.bind(this);
         getSessionData();
         getToolBar();
@@ -180,7 +171,6 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
         Long = sessionManager.getFromSessionManager(SessionManager.LONGITUDE_FIXED);
         Area = sessionManager.getFromSessionManager(SessionManager.Login_CITY);
         Taluka = sessionManager.getFromSessionManager(SessionManager.Login_TALUKA);
-        user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
 
         tvArea.setText(Area);
         tvTaluka.setText(Taluka);
@@ -191,7 +181,7 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(R.string.empRequirement_);
+        actionBar.setTitle(R.string.bus);
 
     }
 
@@ -202,7 +192,7 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         list.setLayoutManager(mLayoutManager);
         // Getting adapter by passing xml data ArrayList
-        adapter = new ImageListAdapter(this, imageList, AddEmpReqListingActivity.this);
+        adapter = new ImageListAdapter(this, imageList, EditBusinessListingActivity.this);
         list.setAdapter(adapter);
     }
 
@@ -238,17 +228,16 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
 
             RequestBody rb_user_id = RequestBody.create(MultipartBody.FORM, user_id);
             RequestBody rb_mobile_status = RequestBody.create(MultipartBody.FORM, mobile_status);
-            RequestBody rb_emp_status = RequestBody.create(MultipartBody.FORM, emp_status);
-            RequestBody rb_category_id = RequestBody.create(MultipartBody.FORM, category_id);
+            RequestBody rb_category_id = RequestBody.create(MultipartBody.FORM, etBusinessType.getText().toString());
             RequestBody title = RequestBody.create(MultipartBody.FORM, etTitle.getText().toString());
             RequestBody description = RequestBody.create(MultipartBody.FORM, etDescription.getText().toString());
-            RequestBody price = RequestBody.create(MultipartBody.FORM, etPrice.getText().toString());
+//            RequestBody price = RequestBody.create(MultipartBody.FORM, etPrice.getText().toString());
             RequestBody address = RequestBody.create(MultipartBody.FORM, Area + " ," + Taluka);
             RequestBody rb_Lat = RequestBody.create(MultipartBody.FORM, Lat);
             RequestBody rb_Long = RequestBody.create(MultipartBody.FORM, Long);
 
             Call<ResponseBody> call = mViewModel.uploadData(list, rb_user_id, rb_mobile_status, rb_category_id, title,
-                    description, price, rb_Lat, rb_Long, address, videos, rb_emp_status); //.get(0)
+                    description, rb_Lat, rb_Long, address, videos); //.get(0)
 
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
@@ -305,9 +294,6 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
     }
 
 
-
-
-
     @OnClick(R.id.gifTitle)
     public void gifTitleOnclick() {
         Utils.checkErrorPresent(context, etTitle);
@@ -320,10 +306,12 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
         startVoiceInput("etDescription", REQ_CODE_SPEECH_INPUT_Description);
     }
 
-    @OnClick(R.id.gifPrice)
-    public void gifPriceOnclick() {
-        Utils.checkErrorPresent(context, etPrice);
-        startVoiceInput("etPrice", REQ_CODE_SPEECH_INPUT_PRICE);
+
+
+    @OnClick(R.id.gifBusinessType)
+    public void gifBusinessTypeOnclick() {
+        Utils.checkErrorPresent(context, etBusinessType);
+        startVoiceInput("etBusinessType", REQ_CODE_SPEECH_INPUT_PRICE);
     }
 
     @OnClick(R.id.gifArea)
@@ -365,9 +353,9 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
     }
 
 
-    @OnTextChanged(value = R.id.etPrice, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void etPriceChange(CharSequence text) {
-        SoftKeyMethod((AppCompatEditText) etPrice);
+    @OnTextChanged(value = R.id.etBusinessType, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
+    public void etBusinessTypeChange(CharSequence text) {
+        SoftKeyMethod((AppCompatEditText) etBusinessType);
     }
 
     @OnClick(R.id.ivImage)
@@ -382,7 +370,7 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
     public void actionDialogBox(final Context context) {
         final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
         final CharSequence[] options1 = {"फोटो घ्या", "गॅलरीमधून निवडा", "रद्द करा"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(AddEmpReqListingActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditBusinessListingActivity.this);
         builder.setTitle("फोटो जोडा!");
         builder.setItems(options1, new DialogInterface.OnClickListener() {
             @Override
@@ -421,7 +409,7 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
     public void actionDialogBoxForVideo(final Context context) {
         final CharSequence[] options1 = {"व्हिडिओ घ्या", "गॅलरीमधून निवडा", "रद्द करा"};
         final CharSequence[] options = {"Take Video", "Choose from Gallery", "Cancel"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(AddEmpReqListingActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditBusinessListingActivity.this);
         builder.setTitle("हिडिओ जोडा!");
         builder.setItems(options1, new DialogInterface.OnClickListener() {
             @Override
@@ -441,8 +429,6 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
         });
         builder.show();
     }
-
-
 
 
     @OnClick({R.id.rbShow, R.id.rbHide})
@@ -493,7 +479,7 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
                     tvArea.setText("");
                     llHomeAddress.setVisibility(View.GONE);
                     llAddress.setVisibility(View.VISIBLE);
-                    Intent in = new Intent(AddEmpReqListingActivity.this, MapsActivity.class);
+                    Intent in = new Intent(EditBusinessListingActivity.this, MapsActivity.class);
                     in.putExtra("latitude", sessionManager.getFromSessionManager(SessionManager.LATITUDE));
                     in.putExtra("longitude", sessionManager.getFromSessionManager(SessionManager.LONGITUDE));
                     startActivityForResult(in, 777);
@@ -532,13 +518,13 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
 
         } else if (requestCode == REQ_CODE_SPEECH_INPUT_PRICE) {
             if (resultCode == RESULT_OK && null != data) {
-                int pos = etPrice.getSelectionStart();
+                int pos = etBusinessType.getSelectionStart();
                 ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                price.insert(pos, result.get(0));
-                price.append(" ");
-                etPrice.setText(price);
-                etPrice.setSelection(etPrice.getText().toString().length());
-                etPrice.requestFocus();
+                business.insert(pos, result.get(0));
+                business.append(" ");
+                etBusinessType.setText(business);
+                etBusinessType.setSelection(etBusinessType.getText().toString().length());
+                etBusinessType.requestFocus();
             }
 
         } else if (requestCode == 555) {
@@ -808,10 +794,10 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
                 description.append("");
                 break;
 
-            case R.id.etPrice:
-                price.delete(0, price.length());
-                price.append(editTextData);
-                price.append("");
+            case R.id.etBusinessType:
+                business.delete(0, business.length());
+                business.append(editTextData);
+                business.append("");
                 break;
         }
 
@@ -828,8 +814,8 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
             case R.id.etDescription:
                 description.delete(0, description.length());
                 break;
-            case R.id.etPrice:
-                price.delete(0, price.length());
+            case R.id.etBusinessType:
+                business.delete(0, business.length());
                 break;
 
         }
@@ -838,7 +824,12 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
 
 
     private boolean Validation() {
-        if (TextUtils.isEmpty(etTitle.getText().toString()) || etTitle.getText().toString().trim().equals("")) {
+        if (TextUtils.isEmpty(etBusinessType.getText().toString())) {
+            etBusinessType.setError(getString(R.string.err_busi_type));
+            etBusinessType.requestFocus();
+            return false;
+        }
+        else if (TextUtils.isEmpty(etTitle.getText().toString()) || etTitle.getText().toString().trim().equals("")) {
             etTitle.setError(getString(R.string.err_title));
             etTitle.requestFocus();
             return false;
@@ -849,8 +840,7 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
         } else if (flat_images.size() == 0) {
             Utils.openSnackBar("कृपया किमान एक फोटो अपलोड करा", rlLayout);
             return false;
-        }
-        else if (tvArea.getText().toString().equals("unnamed") || tvArea.getText().toString().equals("")) {
+        } else if (tvArea.getText().toString().equals("unnamed") || tvArea.getText().toString().equals("")) {
             Utils.openSnackBar(getString(R.string.err_address), rlLayout);
             return false;
         } else if (tvTaluka.getText().toString().equals("unnamed") || tvTaluka.getText().toString().equals("")) {

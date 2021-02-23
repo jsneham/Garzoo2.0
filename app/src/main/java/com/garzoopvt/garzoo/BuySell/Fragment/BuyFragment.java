@@ -34,6 +34,7 @@ import com.facebook.ads.NativeAdsManager;
 import com.garzoopvt.garzoo.Business.Activity.BusinessInnerActivity;
 import com.garzoopvt.garzoo.Business.Model.Business;
 import com.garzoopvt.garzoo.BuySell.Activity.BuyInnerActivity;
+import com.garzoopvt.garzoo.BuySell.Activity.EditSellListingActivity;
 import com.garzoopvt.garzoo.BuySell.Adapter.BuyAdapter;
 import com.garzoopvt.garzoo.BuySell.Adapter.CategoryAdapter;
 import com.garzoopvt.garzoo.BuySell.Adapter.OnCategoryListener;
@@ -108,7 +109,6 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         mViewModel = ViewModelProviders.of(this).get(BuyViewModel.class);
         sessionManager =new SessionManager(context);
         getSessionData();
-
         fbNativeAds();
         initView();
         initRecyclerView();
@@ -118,6 +118,17 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        mViewModel.cancelSearchRequest(true);
+        super.onDestroy();
+    }
 
     private void getSessionData() {
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
@@ -384,6 +395,11 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
     @Override
     public void onEditClick(int position) {
         if(!(user_id.equals("0")|| user_id.isEmpty())) {
+
+            Buy dl = mAdapter.getSelected(position);
+            Intent intent = new Intent(context, EditSellListingActivity.class);
+            intent.putExtra("data", dl);
+            context.startActivity(intent);
 
         }
         else{

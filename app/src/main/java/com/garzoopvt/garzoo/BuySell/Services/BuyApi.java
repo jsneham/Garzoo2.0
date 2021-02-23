@@ -15,6 +15,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -58,6 +59,25 @@ public interface BuyApi {
 
     );
 
+
+    @Multipart
+    @POST(URLs.api_edit_record_2_0)
+    Call<ResponseBody> editData(
+            @Part("user_id") RequestBody  user_id,
+            @Part("category_id") RequestBody  category_id,
+            @Part("mobile_status") RequestBody  mobile_status,
+            @Part("title") RequestBody  title,
+            @Part("description") RequestBody  description,
+            @Part("price") RequestBody  price,
+            @Part("latitude") RequestBody  latitude,
+            @Part("longitude") RequestBody  longitude,
+            @Part("address") RequestBody  address,
+            @Part MultipartBody.Part image[],
+            @Part MultipartBody.Part video_file,
+            @Part("p") RequestBody  product_id
+
+    );
+
     @Multipart
     @POST(URLs.api_add_listing_interest_2_0)
     Call<ResponseBody> interest(
@@ -70,4 +90,10 @@ public interface BuyApi {
             @Part("listing_title") RequestBody  listing_title
 
     );
+
+    @POST(URLs.api_sell_delete_image)
+    @FormUrlEncoded
+    Call<ResponseBody> deleteImage(@Field("image_id") String image_id,
+                                   @Field("image") String image);
+
 }

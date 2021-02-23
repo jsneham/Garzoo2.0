@@ -71,7 +71,10 @@ public class BuyRepository {
                                     recipes[index].getTitle(),
                                     recipes[index].getDescription(),
                                     recipes[index].getPrice(),
-                                    recipes[index].getAddress()
+                                    recipes[index].getAddress(),
+                                    recipes[index].getImages(),
+                                    recipes[index].getImage_id()
+
                             );
                         }
                         index++;
@@ -88,7 +91,7 @@ public class BuyRepository {
             @NonNull
             @Override
             public LiveData<List<Buy>> loadFromDb() {
-                return buyDao.searchList(search_name, pageNumber);
+                return buyDao.searchList(search_name, pageNumber, category_id);
             }
 
             @NonNull
@@ -181,6 +184,27 @@ public class BuyRepository {
 
     }
 
+    public Call<ResponseBody> editData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody category_id, RequestBody title,
+                                            RequestBody description, RequestBody price, RequestBody latitude, RequestBody longitude,
+                                       RequestBody address, MultipartBody.Part video_file,RequestBody product_id){
+
+      return  ServiceGenerator.getBuyApi().editData(
+                user_id,
+                category_id,
+                mobile_status,
+                title,
+                description,
+                price,
+                latitude,
+                longitude,
+                address,
+               list,
+              video_file,
+              product_id
+        );
+
+    }
+
 
     public Call<ResponseBody> interest(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
                                        RequestBody listing_id, RequestBody type, RequestBody listing_title){
@@ -193,6 +217,15 @@ public class BuyRepository {
                 listing_id,
                 type,
                 listing_title
+        );
+
+    }
+
+    public Call<ResponseBody> deleteImage(String image_id, String path){
+
+        return  ServiceGenerator.getBuyApi().deleteImage(
+                image_id,
+                path
         );
 
     }

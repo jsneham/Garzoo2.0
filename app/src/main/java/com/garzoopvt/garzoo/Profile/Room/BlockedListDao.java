@@ -23,16 +23,19 @@ public interface BlockedListDao {
     void insertRecipe(BlockedPeople dashboardList);
 
     // Custom update statement so ingredients and timestamp don't get removed
-    @Query("UPDATE blockedpeople SET block_record_id = :block_record_id,name = :name, status = :status, flag = :flag, " +
+    @Query("UPDATE blockedpeople SET block_record_id = :block_record_id,fname = :fname,lname = :lname, status = :status, flag = :flag, " +
             "last_modified = :last_modified, dt = :dt, image = :image  WHERE id = :id")
-    void updateList(String id, String block_record_id,String name, String status, boolean flag, String last_modified, String dt, String image);
+    void updateList(String id, String block_record_id,String fname,String lname, String status, boolean flag, String last_modified, String dt, String image);
 
     // NOTE: The SQL query sometimes won't return EXACTLY what the api does since the API might use a different query
     // or even a different database. But they are very very close.
-    @Query("SELECT * FROM blockedpeople WHERE name LIKE '%' || :query || '%' LIMIT (:pageNumber * 8)")
+    @Query("SELECT * FROM blockedpeople WHERE fname LIKE '%' || :query || '%' LIMIT (:pageNumber * 8)")
     LiveData<List<BlockedPeople>> searchList(String query, int pageNumber);
 
     @Query("SELECT * FROM blockedpeople WHERE id = :id")
-    LiveData<DashboardList> getLIst(String id);
+    LiveData<BlockedPeople> getLIst(String id);
+
+    @Query("SELECT * FROM blockedpeople")
+    LiveData<List<BlockedPeople>> getLIst();
 
 }

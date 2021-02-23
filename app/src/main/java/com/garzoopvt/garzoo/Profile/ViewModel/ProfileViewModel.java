@@ -228,31 +228,31 @@ public class ProfileViewModel extends AndroidViewModel {
         return mylist;
     }
 
-    public void getMyListApi(String user_id, int page_no, String search_name, String latitude, String longitude) {
+    public void getMyListApi(String user_id, int page_no, String search_name, String latitude, String longitude, String type) {
         if (!isPerformingQuery) {
             if (pageNumber == 0) {
                 pageNumber = 1;
             }
             this.pageNumber = page_no;
-            this.query = search_name;
+            this.query = type;
             isQueryExhausted = false;
-            executeListMyList(user_id, pageNumber, query, latitude, longitude);
+            executeListMyList(user_id, pageNumber, query, latitude, longitude,type);
         }
     }
 
-    public void searchMyListNextPage(String user_id, String search_name, String latitude, String longitude) {
+    public void searchMyListNextPage(String user_id, String search_name, String latitude, String longitude, String type) {
         if (!isQueryExhausted && !isPerformingQuery) {
             pageNumber++;
-            executeListMyList(user_id, pageNumber, search_name, latitude, longitude);
+            executeListMyList(user_id, pageNumber, search_name, latitude, longitude,type);
         }
     }
 
-    private void executeListMyList(String user_id, int page_no, String search_name, String latitude, String longitude) {
+    private void executeListMyList(String user_id, int page_no, String search_name, String latitude, String longitude, String type) {
         requestStartTime = System.currentTimeMillis();
         isPerformingQuery = true;
         cancelRequest = false;
 
-        final LiveData<Resource<List<DashboardList>>> repositorySource = repository.getMyListApi(user_id, page_no, search_name, latitude, longitude);
+        final LiveData<Resource<List<DashboardList>>> repositorySource = repository.getMyListApi(user_id, page_no, search_name, latitude, longitude,type);
         mylist.addSource(repositorySource, new Observer<Resource<List<DashboardList>>>() {
             @Override
             public void onChanged(@Nullable Resource<List<DashboardList>> listResource) {

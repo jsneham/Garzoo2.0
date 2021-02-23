@@ -95,6 +95,10 @@
             android:name=".BuySell.Activity.AddSellListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".BuySell.Activity.EditSellListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
             android:name=".Rent.Activity.AddRentListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -105,6 +109,9 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Business.Activity.AddBusinessListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Business.Activity.EditBusinessListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Promotion.Activity.AddQuestionListingActivity"

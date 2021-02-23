@@ -290,6 +290,11 @@ public class RentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         return null;
     }
 
+    public void clearList(){
+        mRentList = new ArrayList<>();
+        notifyDataSetChanged();
+    }
+
     public class BannerViewViewHolder extends RecyclerView.ViewHolder {
 
         NativeAdLayout nativeAdLayout;

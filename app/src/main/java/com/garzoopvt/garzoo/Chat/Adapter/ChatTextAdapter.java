@@ -81,7 +81,7 @@ public class ChatTextAdapter extends RecyclerView.Adapter<ChatTextAdapter.ViewHo
             case "i":
                 holder.textViewMessage.setVisibility(View.GONE);
                 holder.android_gridview_image.setVisibility(View.VISIBLE);
-                Glide.with(context).load(URLs.IMAGE_URL+message.getMessage()).into(holder.android_gridview_image);
+                Glide.with(context).load(message.getMessage()).into(holder.android_gridview_image);
                 break;
         }
 

@@ -87,7 +87,7 @@ public class RentRepository {
             @NonNull
             @Override
             public LiveData<List<Rent>> loadFromDb() {
-                return rentDao.searchList(search_name, pageNumber);
+                return rentDao.searchList(search_name, pageNumber,category_id);
             }
 
             @NonNull

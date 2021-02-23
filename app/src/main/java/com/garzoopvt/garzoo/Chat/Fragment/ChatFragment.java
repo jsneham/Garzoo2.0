@@ -28,6 +28,7 @@ import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
+import com.garzoopvt.garzoo.Util.SessionManager;
 
 import java.util.List;
 
@@ -44,9 +45,10 @@ public class ChatFragment extends Fragment implements OnItemListener {
     //instances
     private ChatViewModel mViewModel;
     private ChatAdapter mAdapter;
+    private SessionManager sessionManager;
 
     //Data
-    private String user_id = "71";
+    private String user_id = "0";
     private String search_name = "";
     private int page_no = 1;
 
@@ -77,7 +79,9 @@ public class ChatFragment extends Fragment implements OnItemListener {
 
     private void setSessionData() {
         context = getContext();
-
+        sessionManager = new SessionManager(context);
+        user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
+        if (user_id.isEmpty()) user_id = "0";
     }
 
     private void init() {
