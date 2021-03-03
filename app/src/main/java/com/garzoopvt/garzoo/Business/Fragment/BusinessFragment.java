@@ -171,7 +171,7 @@ public class BusinessFragment extends Fragment implements NativeAdsManager.Liste
     }
     private void initRecyclerView() {
         ViewPreloadSizeProvider<String> viewPreloader=new ViewPreloadSizeProvider<>();
-        mAdapter = new BusinessAdapter(this, context,mNativeAdsManager, initGlide(), viewPreloader);
+        mAdapter = new BusinessAdapter(this, context,mNativeAdsManager, initGlide(), viewPreloader,user_id);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
 

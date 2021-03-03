@@ -185,7 +185,7 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
     private void initRecyclerView() {
         ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
-        mAdapter = new EmploymentAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader);
+        mAdapter = new EmploymentAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader,user_id);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
 

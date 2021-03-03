@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.allattentionhere.autoplayvideos.AAH_CustomViewHolder;
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.garzoopvt.garzoo.Adapter.MultipleImagesAdapter;
@@ -109,7 +110,22 @@ public class DashboardViewHolder extends AAH_CustomViewHolder implements View.On
     }
 
 
-    public void onBind(DashboardList mDashboardList, Context mContext, int i) {
+    public void onBind(DashboardList mDashboardList, Context mContext, int i, String user_id) {
+
+        if (mDashboardList.getMobile_status().equals("1"))
+            Glide.with(mContext).load(R.drawable.ic_baseline_call_hide).into(ivCall);
+
+        if (mDashboardList.getUser_id().equals(user_id)) {
+            ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_like_own, 0, 0, 0);
+            if(!mDashboardList.getData_type().equals("P")) ivChat.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_message_own, 0, 0, 0);
+            Glide.with(mContext).load(R.drawable.ic_baseline_call_hide).into(ivCall);
+        } else {
+            if (mDashboardList.getInterest_status().equalsIgnoreCase("yes"))
+                ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_thumb_up_24, 0, 0, 0);
+            if (mDashboardList.getInterest_status().equalsIgnoreCase("no"))
+                ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_thumb_up_24, 0, 0, 0);
+
+        }
 
         username.setText(i + ") " + mDashboardList.getFname() + " " + mDashboardList.getLname());
         txtView_title.setText(mDashboardList.getTitle());

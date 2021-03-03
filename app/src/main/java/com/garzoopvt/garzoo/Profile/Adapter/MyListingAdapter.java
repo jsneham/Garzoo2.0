@@ -40,6 +40,7 @@ public class MyListingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int EndList_TYPE = 5;
 
     public final int ITEM_PER_ADV = 8;
+    public  String user_id;
 
     private List<DashboardList> mDashboardList;
     private List<NativeAd> mAdItems;
@@ -51,12 +52,13 @@ public class MyListingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public MyListingAdapter(OnDashboardListener mOnDashboardListener, Context mContext,
                             NativeAdsManager mNativeAdsManager,
-                            RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider) {
+                            RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider, String user_id) {
         this.mOnDashboardListener = mOnDashboardListener;
         this.mContext = mContext;
         this.mNativeAdsManager = mNativeAdsManager;
         this.requestManager = requestManager;
         this.preloadSizeProvider = preloadSizeProvider;
+        this.user_id = user_id;
         mDashboardList = new ArrayList<>();
         mAdItems = new ArrayList<>();
     }
@@ -105,7 +107,7 @@ public class MyListingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 //                    ((DashboardViewHolder) viewHolder).item_container.setLayoutParams(((DashboardViewHolder) viewHolder).params);
 //                }else {
 
-                ((DashboardViewHolder)viewHolder).onBind(mDashboardList.get(i), mContext,i);
+                ((DashboardViewHolder)viewHolder).onBind(mDashboardList.get(i), mContext,i,user_id);
 
 //                }
             }

@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.garzoopvt.garzoo.Adapter.MultipleImagesAdapter;
@@ -109,7 +110,21 @@ public class BusinessViewHolder extends RecyclerView.ViewHolder implements View.
     }
 
 
-    public void onBind(Business mList, Context mContext, int i) {
+    public void onBind(Business mList, Context mContext, int i, String user_id) {
+
+        if(mList.getMobile_status().equals("1"))
+            Glide.with(mContext).load(R.drawable.ic_baseline_call_hide).into(ivCall);
+        if(mList.getUser_id().equals(user_id)) {
+            ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_like_own, 0, 0, 0);
+            ivChat.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_message_own, 0, 0, 0);
+            Glide.with(mContext).load(R.drawable.ic_baseline_call_hide).into(ivCall);
+        } else{
+            if (mList.getInterest_status().equalsIgnoreCase("yes"))
+                ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_thumb_up_24, 0, 0, 0);
+            if (mList.getInterest_status().equalsIgnoreCase("no"))
+                ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_thumb_up_24, 0, 0, 0);
+
+        }
 
         username.setText(i + ") " + mList.getFname() + " " + mList.getLname());
         txtView_title.setText(mList.getTitle());

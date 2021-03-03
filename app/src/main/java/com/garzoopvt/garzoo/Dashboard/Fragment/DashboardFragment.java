@@ -299,7 +299,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener, 
 
     private void initRecyclerView() {
         ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
-        mAdapter = new DashboardAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader);
+        mAdapter = new DashboardAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader,user_id);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
 
@@ -715,6 +715,11 @@ public class DashboardFragment extends Fragment implements OnDashboardListener, 
     @Override
     public void onChatClick(int position) {
         if (!(user_id.equals("0") || user_id.isEmpty())) {
+
+            DashboardList dl = mAdapter.getSelected(position);
+            if (!dl.getUser_id().equals(user_id)) {
+
+            }
 
         } else {
             Utils.openLogin(context);

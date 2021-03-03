@@ -42,6 +42,7 @@ public class BuyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private static final int EndList_TYPE = 5;
 
     public final int ITEM_PER_ADV = 8;
+    public  String user_id;
 
     private List<Buy> mBuyList;
     private List<NativeAd> mAdItems;
@@ -53,12 +54,13 @@ public class BuyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     public BuyAdapter(OnDashboardListener mOnListener, Context mContext,
                       NativeAdsManager mNativeAdsManager,
-                      RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider) {
+                      RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider, String user_id) {
         this.mOnListener = mOnListener;
         this.mContext = mContext;
         this.mNativeAdsManager = mNativeAdsManager;
         this.requestManager = requestManager;
         this.preloadSizeProvider = preloadSizeProvider;
+        this.user_id = user_id;
         mBuyList = new ArrayList<>();
         mAdItems = new ArrayList<>();
     }
@@ -107,7 +109,7 @@ public class BuyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 //                    ((DashboardViewHolder) viewHolder).item_container.setLayoutParams(((DashboardViewHolder) viewHolder).params);
 //                }else {
 
-                ((BuyViewHolder)viewHolder).onBind(mBuyList.get(i), mContext,i);
+                ((BuyViewHolder)viewHolder).onBind(mBuyList.get(i), mContext,i,user_id);
 
 //                }
             }

@@ -41,6 +41,7 @@ public class PromotionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int EndList_TYPE = 5;
 
     public final int ITEM_PER_ADV = 8;
+    public String user_id;
 
     private List<Promotion> mPromotionList;
     private List<NativeAd> mAdItems;
@@ -52,12 +53,13 @@ public class PromotionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public PromotionAdapter(OnDashboardListener mOnListener, Context mContext,
                             NativeAdsManager mNativeAdsManager,
-                            RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider) {
+                            RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider, String user_id) {
         this.mOnListener = mOnListener;
         this.mContext = mContext;
         this.mNativeAdsManager = mNativeAdsManager;
         this.requestManager = requestManager;
         this.preloadSizeProvider = preloadSizeProvider;
+        this.user_id = user_id;
         mPromotionList = new ArrayList<>();
         mAdItems = new ArrayList<>();
     }
@@ -106,7 +108,7 @@ public class PromotionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 //                    ((DashboardViewHolder) viewHolder).item_container.setLayoutParams(((DashboardViewHolder) viewHolder).params);
 //                }else {
 
-                ((PromotionViewHolder)viewHolder).onBind(mPromotionList.get(i), mContext,i);
+                ((PromotionViewHolder)viewHolder).onBind(mPromotionList.get(i), mContext,i,user_id);
 
 //                }
             }

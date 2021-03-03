@@ -181,7 +181,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
     private void initRecyclerView() {
         ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
-        mAdapter = new RentAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader);
+        mAdapter = new RentAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader,user_id);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
 //        RecyclerViewPreloader<String> preloader = new RecyclerViewPreloader<String>(Glide.with(context), mAdapter, viewPreloader, ITEM_PER_ADV);

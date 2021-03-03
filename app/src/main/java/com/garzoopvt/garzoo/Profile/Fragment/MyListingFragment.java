@@ -167,7 +167,7 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
 
     private void initRecyclerView() {
         ViewPreloadSizeProvider<String> viewPreloader=new ViewPreloadSizeProvider<>();
-        mAdapter = new MyListingAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader);
+        mAdapter = new MyListingAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader,user_id);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
 

@@ -40,6 +40,7 @@ public class BusinessAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private static final int EndList_TYPE = 5;
 
     public final int ITEM_PER_ADV = 8;
+    public String user_id;
 
     private List<Business> mBusinessList;
     private List<NativeAd> mAdItems;
@@ -51,12 +52,13 @@ public class BusinessAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public BusinessAdapter(OnDashboardListener mOnListener, Context mContext,
                            NativeAdsManager mNativeAdsManager,
-                           RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider) {
+                           RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider , String user_id) {
         this.mOnListener = mOnListener;
         this.mContext = mContext;
         this.mNativeAdsManager = mNativeAdsManager;
         this.requestManager = requestManager;
         this.preloadSizeProvider = preloadSizeProvider;
+        this.user_id = user_id;
         mBusinessList = new ArrayList<>();
         mAdItems = new ArrayList<>();
     }
@@ -105,7 +107,7 @@ public class BusinessAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //                    ((DashboardViewHolder) viewHolder).item_container.setLayoutParams(((DashboardViewHolder) viewHolder).params);
 //                }else {
 
-                ((BusinessViewHolder)viewHolder).onBind(mBusinessList.get(i), mContext,i);
+                ((BusinessViewHolder)viewHolder).onBind(mBusinessList.get(i), mContext,i,user_id);
 
 //                }
             }

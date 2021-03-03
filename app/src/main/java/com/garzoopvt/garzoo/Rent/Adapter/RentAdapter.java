@@ -40,6 +40,7 @@ public class RentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private static final int EndList_TYPE = 5;
 
     public final int ITEM_PER_ADV = 8;
+    public  String user_id;
 
     private List<Rent> mRentList;
     private List<NativeAd> mAdItems;
@@ -51,12 +52,13 @@ public class RentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     public RentAdapter(OnDashboardListener mOnListener, Context mContext,
                        NativeAdsManager mNativeAdsManager,
-                       RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider) {
+                       RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider, String user_id) {
         this.mOnListener = mOnListener;
         this.mContext = mContext;
         this.mNativeAdsManager = mNativeAdsManager;
         this.requestManager = requestManager;
         this.preloadSizeProvider = preloadSizeProvider;
+        this.user_id = user_id;
         mRentList = new ArrayList<>();
         mAdItems = new ArrayList<>();
     }
@@ -105,7 +107,7 @@ public class RentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 //                    ((DashboardViewHolder) viewHolder).item_container.setLayoutParams(((DashboardViewHolder) viewHolder).params);
 //                }else {
 
-                ((RentViewHolder)viewHolder).onBind(mRentList.get(i), mContext,i);
+                ((RentViewHolder)viewHolder).onBind(mRentList.get(i), mContext,i,user_id);
 
 //                }
             }
