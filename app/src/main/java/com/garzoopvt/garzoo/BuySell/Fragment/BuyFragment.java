@@ -113,7 +113,7 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         initView();
         initRecyclerView();
         subscribeObservers();
-        getBuyList();
+
         initSearchView();
         return view;
     }
@@ -121,7 +121,7 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
     @Override
     public void onResume() {
         super.onResume();
-
+        getBuyList();
     }
 
     @Override
@@ -397,9 +397,11 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         if(!(user_id.equals("0")|| user_id.isEmpty())) {
 
             Buy dl = mAdapter.getSelected(position);
-            Intent intent = new Intent(context, EditSellListingActivity.class);
-            intent.putExtra("data", dl);
-            context.startActivity(intent);
+            if(user_id.equals(dl.getUser_id())) {
+                Intent intent = new Intent(context, EditSellListingActivity.class);
+                intent.putExtra("data", dl);
+                context.startActivity(intent);
+            }
 
         }
         else{

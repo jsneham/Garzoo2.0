@@ -11,6 +11,8 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -58,6 +60,29 @@ public interface PromotionApi {
             @Part("listing_id") RequestBody  listing_id,
             @Part("type") RequestBody  type,
             @Part("listing_title") RequestBody  listing_title
+
+    );
+
+    @POST(URLs.api_sell_delete_image)
+    @FormUrlEncoded
+    Call<ResponseBody> deleteImage(@Field("image_id") String image_id,
+                                   @Field("image") String image);
+
+
+    @Multipart
+    @POST(URLs.api_promo_edit_record_2_0)
+    Call<ResponseBody> edit(
+            @Part("user_id") RequestBody user_id,
+            @Part("mobile_status") RequestBody  mobile_status,
+            @Part("title") RequestBody  title,
+            @Part("description") RequestBody  description,
+            @Part("latitude") RequestBody  latitude,
+            @Part("longitude") RequestBody  longitude,
+            @Part("address") RequestBody  address,
+            @Part MultipartBody.Part image[],
+            @Part MultipartBody.Part video_file,
+            @Part("pd_status") RequestBody  pd_status,
+            @Part("p") RequestBody  p
 
     );
 }

@@ -31,11 +31,14 @@ import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
 import com.garzoopvt.garzoo.Business.Activity.AddBusinessListingActivity;
 import com.garzoopvt.garzoo.Business.Activity.BusinessInnerActivity;
+import com.garzoopvt.garzoo.Business.Activity.EditBusinessListingActivity;
 import com.garzoopvt.garzoo.Business.Adapter.BusinessAdapter;
 import com.garzoopvt.garzoo.Business.Model.Business;
 import com.garzoopvt.garzoo.Business.ViewModel.BusinessViewModel;
 import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
+import com.garzoopvt.garzoo.Employement.Activity.EditEmpListingActivity;
+import com.garzoopvt.garzoo.Employement.Model.Employment;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.Util.SessionManager;
@@ -77,7 +80,7 @@ public class BusinessFragment extends Fragment implements NativeAdsManager.Liste
     //Data
     private String category_id="";
     private String user_id="0";
-    private String username="Sneha";
+    private String username;
     private String search_name="";
     private String latitude="19.108589";
     private String longitude="72.827072";
@@ -112,8 +115,15 @@ public class BusinessFragment extends Fragment implements NativeAdsManager.Liste
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getBusinessList();
+    }
+
     private void getSessionData() {
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
+        username = sessionManager.getFromSessionManager(SessionManager.USERNAME);
         if(user_id.isEmpty()) user_id="0";
     }
 
@@ -383,7 +393,12 @@ public class BusinessFragment extends Fragment implements NativeAdsManager.Liste
     @Override
     public void onEditClick(int position) {
         if(!(user_id.equals("0")|| user_id.isEmpty())) {
-
+            Business dl = mAdapter.getSelected(position);
+            if(user_id.equals(dl.getUser_id())) {
+                Intent intent = new Intent(context, EditBusinessListingActivity.class);
+                intent.putExtra("data", dl);
+                context.startActivity(intent);
+            }
         }
         else{
             Utils.openLogin(context);

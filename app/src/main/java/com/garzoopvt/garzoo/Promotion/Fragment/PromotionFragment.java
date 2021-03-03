@@ -30,11 +30,14 @@ import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
 
+import com.garzoopvt.garzoo.Business.Activity.EditBusinessListingActivity;
+import com.garzoopvt.garzoo.Business.Model.Business;
 import com.garzoopvt.garzoo.Dashboard.Activity.DashboardInnerActivity;
 import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.Promotion.Activity.AddAdvertisementListingActivity;
 import com.garzoopvt.garzoo.Promotion.Activity.AddQuestionListingActivity;
+import com.garzoopvt.garzoo.Promotion.Activity.EditPromoListingActivity;
 import com.garzoopvt.garzoo.Promotion.Activity.PDInnerActivity;
 import com.garzoopvt.garzoo.Promotion.Adapter.PromotionAdapter;
 import com.garzoopvt.garzoo.Promotion.Model.Promotion;
@@ -79,7 +82,7 @@ public class PromotionFragment extends Fragment implements NativeAdsManager.List
     //Data
     private String category_id = "";
     private String user_id;
-    private String username = "Sneha";
+    private String username;
     private String search_name = "";
     private String latitude = "19.108589";
     private String longitude = "72.827072";
@@ -108,13 +111,20 @@ public class PromotionFragment extends Fragment implements NativeAdsManager.List
         initView();
         initRecyclerView();
         subscribeObservers();
-        getPromotionList();
+
         initSearchView();
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPromotionList();
+    }
+
     private void getSessionData() {
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
+        username = sessionManager.getFromSessionManager(SessionManager.USERNAME);
         if (user_id.isEmpty()) user_id = "0";
     }
 
@@ -397,7 +407,12 @@ public class PromotionFragment extends Fragment implements NativeAdsManager.List
     @Override
     public void onEditClick(int position) {
         if (!(user_id.equals("0") || user_id.isEmpty())) {
-
+            Promotion dl = mAdapter.getSelected(position);
+            if(user_id.equals(dl.getUser_id())) {
+                Intent intent = new Intent(context, EditPromoListingActivity.class);
+                intent.putExtra("data", dl);
+                context.startActivity(intent);
+            }
         } else {
             Utils.openLogin(context);
         }

@@ -1,4 +1,4 @@
-package com.garzoopvt.garzoo.Employement.Activity;
+package com.garzoopvt.garzoo.Promotion.Activity;
 
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
@@ -21,16 +21,13 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,21 +42,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.Rotation;
 import com.daasuu.mp4compose.composer.Mp4Composer;
-import com.garzoopvt.garzoo.Adapter.FilterAdapter;
 import com.garzoopvt.garzoo.Adapter.ImageListAdapter;
 import com.garzoopvt.garzoo.Adapter.ImageVideo;
 import com.garzoopvt.garzoo.BaseActivity;
-import com.garzoopvt.garzoo.BuySell.Model.Category;
-import com.garzoopvt.garzoo.Employement.ViewModel.EmploymentViewModel;
+import com.garzoopvt.garzoo.Business.Model.Business;
 import com.garzoopvt.garzoo.MapsActivity;
+import com.garzoopvt.garzoo.Promotion.Model.Promotion;
+import com.garzoopvt.garzoo.Promotion.ViewModel.PromotionViewModel;
 import com.garzoopvt.garzoo.R;
-import com.garzoopvt.garzoo.Rent.ViewModel.RentViewModel;
 import com.garzoopvt.garzoo.Util.ImageCompression;
 import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.Transaltion;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -80,17 +75,16 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AddEmpRegisterListingActivity extends BaseActivity implements View.OnClickListener, View.OnKeyListener {
+public class EditPromoListingActivity extends BaseActivity implements View.OnClickListener, View.OnKeyListener {
 
-    private String TAG = "AddEmpRegisterListingActivity";
+    private String TAG = "EditPromoListingActivity";
 
     //View
     @BindView(R.id.etTitle)
     EditText etTitle;
     @BindView(R.id.etDescription)
     EditText etDescription;
-    @BindView(R.id.etPrice)
-    EditText etPrice;
+
     @BindView(R.id.btnSubmit)
     Button btnSubmit;
     @BindView(R.id.ivImage)
@@ -101,16 +95,14 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     RelativeLayout rlLayout;
     @BindView(R.id.rbMobile)
     RadioGroup rbMobile;
-//    @BindView(R.id.rbGroup)
-//    RadioGroup rbGroup;
     @BindView(R.id.rbLocation)
     RadioGroup rbLocation;
     @BindView(R.id.list)
     RecyclerView list;
     @BindView(R.id.gifDescription)
     ImageView gifDescription;
-    @BindView(R.id.gifPrice)
-    ImageView gifPrice;
+    //    @BindView(R.id.gifPrice)
+//    ImageView gifPrice;
     @BindView(R.id.gifTitle)
     ImageView gifTitle;
     @BindView(R.id.gifTaluka)
@@ -126,18 +118,23 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     LinearLayout llHomeAddress;
     @BindView(R.id.llAddress)
     LinearLayout llAddress;
+    @BindView(R.id.tvHomeTaluka)
+    EditText tvHomeTaluka;
+    @BindView(R.id.tvHomeArea)
+    EditText tvHomeArea;
 
 
     //class
     private ImageListAdapter adapter;
-    private EmploymentViewModel mViewModel;
+    private PromotionViewModel mViewModel;
+    private Promotion productArrayList;
 
     //Data
-
     private ArrayList<ImageVideo> imageList = new ArrayList<>();
     private ArrayList<String> images = new ArrayList<>();
     private ArrayList<String> videoList = new ArrayList<>();
     private ArrayList<String> flat_images = new ArrayList<>();
+    private ArrayList<ImageVideo> removeImageList = new ArrayList<>();
     private Context context = this;
     private StringBuffer description = new StringBuffer("");
     private StringBuffer title = new StringBuffer("");
@@ -151,38 +148,72 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     private String imagePath = "";
     private String selectedImagePath = "";
     private String user_id;
-    private String category_id="0";
+    private String category_id, category_name;
     private String mobile_status = "0";
-    private String emp_status = "2";
+    private String pd_status = "1";
     private int image_count = 10;
     private String Lat, Long;
     private String Taluka = "", Area = "";
     private SessionManager sessionManager;
     private int LocationSelectionMode = 2;
     private boolean requestCamera = true;
+    private String[] uploaded_images;
+    private String[] image_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_emp_rgister_listing);
+        setContentView(R.layout.activity_edit_promo_listing);
         sessionManager = new SessionManager(this);
-        mViewModel = ViewModelProviders.of(this).get(EmploymentViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(PromotionViewModel.class);
 
         ButterKnife.bind(this);
+        imagelist();
         getSessionData();
         getToolBar();
-        imagelist();
+
 
     }
 
     private void getSessionData() {
+
         Lat = sessionManager.getFromSessionManager(SessionManager.LATITUDE_FIXED);
         Long = sessionManager.getFromSessionManager(SessionManager.LONGITUDE_FIXED);
         Area = sessionManager.getFromSessionManager(SessionManager.Login_CITY);
         Taluka = sessionManager.getFromSessionManager(SessionManager.Login_TALUKA);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
+
         tvArea.setText(Area);
         tvTaluka.setText(Taluka);
+
+        productArrayList = (Promotion) getIntent().getParcelableExtra("data");
+        etTitle.setText(productArrayList.getTitle());
+        etDescription.setText(productArrayList.getDescription());
+
+        String address[] = productArrayList.getAddress().split(",");
+        Area = address[0];
+        Taluka = address[1];
+        Lat= productArrayList.getLatitude();
+        Long= productArrayList.getLongitude();
+        tvHomeTaluka.setText(Taluka);
+        tvHomeArea.setText(Area);
+        pd_status = productArrayList.getPd_status();
+         mobile_status = productArrayList.getMobile_status();
+
+        uploaded_images = productArrayList.getImages().split(",");
+        image_id = productArrayList.getImage_id().split(",");
+        for (int i = 0; i < uploaded_images.length; i++) {
+            if (uploaded_images[i].contains("video")) {
+                fillImageList(URLs.IMAGE_URL + uploaded_images[i], "video", image_id[i]);
+                videoList.add(URLs.IMAGE_URL + uploaded_images[i]);
+            } else if (!uploaded_images[i].equals("")) {
+                fillImageList(URLs.IMAGE_URL + uploaded_images[i], "image",image_id[i]);
+                images.add(URLs.IMAGE_URL + uploaded_images[i]);
+                flat_images.add(URLs.IMAGE_URL + uploaded_images[i]);
+            }
+        }
+
+
     }
 
     private void getToolBar() {
@@ -190,7 +221,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(R.string.empregister_);
+        actionBar.setTitle(productArrayList.getTitle());
 
     }
 
@@ -201,14 +232,14 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         list.setLayoutManager(mLayoutManager);
         // Getting adapter by passing xml data ArrayList
-        adapter = new ImageListAdapter(this, imageList, AddEmpRegisterListingActivity.this);
+        adapter = new ImageListAdapter(this, imageList, EditPromoListingActivity.this);
         list.setAdapter(adapter);
     }
 
     @OnClick(R.id.btnSubmit)
     public void Submit() {
         if (Validation()) {
-
+            removeImageIfAny();
             uploadImage();
 
 
@@ -219,35 +250,37 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         try {
             MultipartBody.Part videos = null;
             if (videoList.size() > 0) {
-                MultipartBody.Part videoRequest = prepareFilePart("video_file", Uri.parse(videoList.get(0)), videoList.get(0));
-                videos= videoRequest;
+                if (!videoList.get(0).contains(URLs.IMAGE_URL)) {
+                    MultipartBody.Part videoRequest = prepareFilePart("video_file", Uri.parse(videoList.get(0)), videoList.get(0));
+                    videos = videoRequest;
+                }
+
             }
 
 
             MultipartBody.Part list[] = new MultipartBody.Part[flat_images.size()];
 
-//            for (String uri : flat_images) {
+
             for (int j = 0; j < flat_images.size(); j++) {
-                // MultipartBody.Part imageRequest = prepareFilePart("file[]", Uri.parse(uri), uri);
-                // MultipartBody.Part imageRequest = prepareFilePart("picture", Uri.parse(uri), uri);
-                MultipartBody.Part imageRequest = prepareFilePart("image[]", Uri.parse(flat_images.get(j)), flat_images.get(j));
-                //list.add(imageRequest);
-                list[j] = imageRequest;
+                if (!flat_images.get(j).contains(URLs.IMAGE_URL)) {
+                    MultipartBody.Part imageRequest = prepareFilePart("image[]", Uri.parse(flat_images.get(j)), flat_images.get(j));
+                    list[j] = imageRequest;
+                }
+
             }
 
             RequestBody rb_user_id = RequestBody.create(MultipartBody.FORM, user_id);
             RequestBody rb_mobile_status = RequestBody.create(MultipartBody.FORM, mobile_status);
-            RequestBody rb_emp_status = RequestBody.create(MultipartBody.FORM, emp_status);
-            RequestBody rb_category_id = RequestBody.create(MultipartBody.FORM, category_id);
             RequestBody title = RequestBody.create(MultipartBody.FORM, etTitle.getText().toString());
             RequestBody description = RequestBody.create(MultipartBody.FORM, etDescription.getText().toString());
-            RequestBody price = RequestBody.create(MultipartBody.FORM, etPrice.getText().toString());
             RequestBody address = RequestBody.create(MultipartBody.FORM, Area + " ," + Taluka);
             RequestBody rb_Lat = RequestBody.create(MultipartBody.FORM, Lat);
             RequestBody rb_Long = RequestBody.create(MultipartBody.FORM, Long);
+            RequestBody rb_pd_status = RequestBody.create(MultipartBody.FORM, pd_status);
+            RequestBody p = RequestBody.create(MultipartBody.FORM, productArrayList.getId()); //productId
 
-            Call<ResponseBody> call = mViewModel.uploadData(list, rb_user_id, rb_mobile_status, rb_category_id, title,
-                    description, price, rb_Lat, rb_Long, address, videos, rb_emp_status); //.get(0)
+            Call<ResponseBody> call = mViewModel.editData(list, rb_user_id, rb_mobile_status, title,
+                    description, rb_Lat, rb_Long, address, videos, rb_pd_status,p); //.get(0)
 
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
@@ -256,7 +289,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
                         if (response.isSuccessful()) {
                             try {
                                 String result = response.body().string();
-                                if (result.equals("success")) {
+                                if (result.contains("success")) {
                                     Utils.openSnackBar("यशस्वीरित्या अपलोड केले", rlLayout);
                                     Log.d(TAG, "the message is ----> " + response.message());
                                     //Log.e("main", "the error is ----> " + response.body().getError());
@@ -304,9 +337,6 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     }
 
 
-
-
-
     @OnClick(R.id.gifTitle)
     public void gifTitleOnclick() {
         Utils.checkErrorPresent(context, etTitle);
@@ -319,11 +349,6 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         startVoiceInput("etDescription", REQ_CODE_SPEECH_INPUT_Description);
     }
 
-    @OnClick(R.id.gifPrice)
-    public void gifPriceOnclick() {
-        Utils.checkErrorPresent(context, etPrice);
-        startVoiceInput("etPrice", REQ_CODE_SPEECH_INPUT_PRICE);
-    }
 
     @OnClick(R.id.gifArea)
     public void gifAreaOnclick() {
@@ -364,11 +389,6 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     }
 
 
-    @OnTextChanged(value = R.id.etPrice, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void etPriceChange(CharSequence text) {
-        SoftKeyMethod((AppCompatEditText) etPrice);
-    }
-
     @OnClick(R.id.ivImage)
     public void ivImageClicked() {
         if (requestCamera && images.size() < image_count) {
@@ -381,7 +401,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     public void actionDialogBox(final Context context) {
         final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
         final CharSequence[] options1 = {"फोटो घ्या", "गॅलरीमधून निवडा", "रद्द करा"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(AddEmpRegisterListingActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditPromoListingActivity.this);
         builder.setTitle("फोटो जोडा!");
         builder.setItems(options1, new DialogInterface.OnClickListener() {
             @Override
@@ -420,7 +440,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     public void actionDialogBoxForVideo(final Context context) {
         final CharSequence[] options1 = {"व्हिडिओ घ्या", "गॅलरीमधून निवडा", "रद्द करा"};
         final CharSequence[] options = {"Take Video", "Choose from Gallery", "Cancel"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(AddEmpRegisterListingActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditPromoListingActivity.this);
         builder.setTitle("हिडिओ जोडा!");
         builder.setItems(options1, new DialogInterface.OnClickListener() {
             @Override
@@ -440,8 +460,6 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         });
         builder.show();
     }
-
-
 
 
     @OnClick({R.id.rbShow, R.id.rbHide})
@@ -471,6 +489,23 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
 
         // Check which radio button was clicked
         switch (radioButton.getId()) {
+
+            case R.id.rbHome:
+                if (checked) {
+                    LocationSelectionMode = 1;
+                    llHomeAddress.setVisibility(View.VISIBLE);
+                    llAddress.setVisibility(View.GONE);
+                    String address[] = productArrayList.getAddress().split(",");
+                    Area = address[0];
+                    Taluka = address[1];
+                    Lat = productArrayList.getLatitude();
+                    Long = productArrayList.getLongitude();
+                    tvHomeTaluka.setText(Taluka);
+                    tvHomeArea.setText(Area);
+
+                }
+                break;
+
             case R.id.rbCurrent:
                 if (checked) {
                     tvTaluka.setText("");
@@ -492,7 +527,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
                     tvArea.setText("");
                     llHomeAddress.setVisibility(View.GONE);
                     llAddress.setVisibility(View.VISIBLE);
-                    Intent in = new Intent(AddEmpRegisterListingActivity.this, MapsActivity.class);
+                    Intent in = new Intent(EditPromoListingActivity.this, MapsActivity.class);
                     in.putExtra("latitude", sessionManager.getFromSessionManager(SessionManager.LATITUDE));
                     in.putExtra("longitude", sessionManager.getFromSessionManager(SessionManager.LONGITUDE));
                     startActivityForResult(in, 777);
@@ -527,17 +562,6 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
                 etDescription.setText(description);
                 etDescription.setSelection(etDescription.getText().toString().length());
                 etDescription.requestFocus();
-            }
-
-        } else if (requestCode == REQ_CODE_SPEECH_INPUT_PRICE) {
-            if (resultCode == RESULT_OK && null != data) {
-                int pos = etPrice.getSelectionStart();
-                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                price.insert(pos, result.get(0));
-                price.append(" ");
-                etPrice.setText(price);
-                etPrice.setSelection(etPrice.getText().toString().length());
-                etPrice.requestFocus();
             }
 
         } else if (requestCode == 555) {
@@ -736,12 +760,25 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
             imageList.remove(i);
             adapter.notifyDataSetChanged();
             flat_images.remove(i);
+            if (!path.getImage_id().equals(""))   removeImageList.add(new ImageVideo(path.getPath(), "",path.getImage_id()));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
+
+    private void removeImageIfAny() {
+        if(removeImageList.size()>0){
+            for(int i=0; i<removeImageList.size();i++){
+                deleteImage(removeImageList.get(i).getImage_id(), removeImageList.get(i).getPath());
+            }
+        }
+    }
+
+    private void deleteImage(String image_id, String path) {
+        mViewModel.deleteImage(image_id, path);
+    }
 
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -807,11 +844,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
                 description.append("");
                 break;
 
-            case R.id.etPrice:
-                price.delete(0, price.length());
-                price.append(editTextData);
-                price.append("");
-                break;
+
         }
 
     }
@@ -827,9 +860,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
             case R.id.etDescription:
                 description.delete(0, description.length());
                 break;
-            case R.id.etPrice:
-                price.delete(0, price.length());
-                break;
+
 
         }
 
@@ -848,8 +879,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         } else if (flat_images.size() == 0) {
             Utils.openSnackBar("कृपया किमान एक फोटो अपलोड करा", rlLayout);
             return false;
-        }
-        else if (tvArea.getText().toString().equals("unnamed") || tvArea.getText().toString().equals("")) {
+        } else if (tvArea.getText().toString().equals("unnamed") || tvArea.getText().toString().equals("")) {
             Utils.openSnackBar(getString(R.string.err_address), rlLayout);
             return false;
         } else if (tvTaluka.getText().toString().equals("unnamed") || tvTaluka.getText().toString().equals("")) {
@@ -932,7 +962,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
                     dest = new File(moviesDir, filePrefix + fileNo + fileExtn);
                 }
                 String filePath = dest.getAbsolutePath();
-                 compressTrimVideo(scrPath, filePath);
+                compressTrimVideo(scrPath, filePath);
             } else {
                 finalFile = scrPath;
                 runOnUiThread(() -> {

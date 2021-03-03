@@ -133,7 +133,7 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
     private EmploymentViewModel mViewModel;
 
     //Data
-    private ArrayList<Category> categoryArrayList=new ArrayList<>();
+
     private ArrayList<ImageVideo> imageList = new ArrayList<>();
     private ArrayList<String> images = new ArrayList<>();
     private ArrayList<String> videoList = new ArrayList<>();
@@ -167,7 +167,7 @@ public class AddEmpReqListingActivity extends BaseActivity implements View.OnCli
         setContentView(R.layout.activity_add_emp_req_listing);
         sessionManager = new SessionManager(this);
         mViewModel = ViewModelProviders.of(this).get(EmploymentViewModel.class);
-        categoryArrayList= getIntent().getParcelableArrayListExtra("category");
+
         ButterKnife.bind(this);
         getSessionData();
         getToolBar();

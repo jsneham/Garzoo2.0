@@ -161,10 +161,23 @@ public class PromotionViewModel extends AndroidViewModel {
         return promotionRepository.uploadData(list, user_id,mobile_status,title,description,latitude,longitude,address,video_file,pd_status);
 
     }
+
+    public Call<ResponseBody> editData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody title,
+                                         RequestBody description,  RequestBody latitude, RequestBody longitude, RequestBody address, MultipartBody.Part video_file, RequestBody pd_status, RequestBody product_id){
+
+        return promotionRepository.editData(list, user_id,mobile_status,title,description,latitude,longitude,address,video_file,pd_status,product_id);
+
+    }
     public Call<ResponseBody> interest( RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
                                         RequestBody listing_id, RequestBody type, RequestBody listing_title){
 
         return promotionRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title);
+
+    }
+
+    public Call<ResponseBody> deleteImage( String image_id, String path){
+
+        return promotionRepository.deleteImage(image_id, path);
 
     }
 }

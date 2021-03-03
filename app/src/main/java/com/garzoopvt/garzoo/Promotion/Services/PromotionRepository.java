@@ -137,6 +137,34 @@ public class PromotionRepository {
         );
 
     }
+
+    public Call<ResponseBody> editData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody title,
+                                       RequestBody description,  RequestBody latitude, RequestBody longitude, RequestBody address, MultipartBody.Part video_file, RequestBody pd_status, RequestBody product_id){
+
+        return  ServiceGenerator.getPromotionApi().edit(
+                user_id,
+                mobile_status,
+                title,
+                description,
+                latitude,
+                longitude,
+                address,
+                list,
+                video_file,
+                pd_status,
+                product_id
+        );
+
+    }
+
+    public Call<ResponseBody> deleteImage(String image_id, String path){
+
+        return  ServiceGenerator.getPromotionApi().deleteImage(
+                image_id,
+                path
+        );
+
+    }
 }
 
 

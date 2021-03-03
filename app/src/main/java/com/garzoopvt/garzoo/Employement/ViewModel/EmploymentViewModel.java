@@ -167,4 +167,31 @@ public class EmploymentViewModel extends AndroidViewModel {
         return employmentRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title);
 
     }
+
+
+    public Call<ResponseBody> editData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody category_id, RequestBody title,
+                                         RequestBody description, RequestBody price, RequestBody latitude, RequestBody longitude, RequestBody address, MultipartBody.Part video_file, RequestBody emp_status, RequestBody product_id){
+
+        return employmentRepository.editData(list, user_id,mobile_status,category_id,title,description,price,latitude,longitude,address,video_file,emp_status,product_id);
+
+    }
+
+    public Call<ResponseBody> available( String unique_id, String user_id, String listing_id){
+
+        return employmentRepository.available(unique_id, user_id,listing_id);
+
+    }
+
+    public Call<ResponseBody> unavailable( String unique_id, String user_id, String listing_id){
+
+        return employmentRepository.unavailable(unique_id, user_id,listing_id);
+
+    }
+
+
+    public Call<ResponseBody> deleteImage( String image_id, String path){
+
+        return employmentRepository.deleteImage(image_id, path);
+
+    }
 }

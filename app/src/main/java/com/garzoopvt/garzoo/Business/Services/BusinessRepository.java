@@ -137,6 +137,34 @@ public class BusinessRepository {
         );
 
     }
+
+    public Call<ResponseBody> deleteImage(String image_id, String path){
+
+        return  ServiceGenerator.getBusinessApi().deleteImage(
+                image_id,
+                path
+        );
+
+    }
+
+    public Call<ResponseBody> editData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody category_id, RequestBody title,
+                                         RequestBody description,  RequestBody latitude, RequestBody longitude, RequestBody address, MultipartBody.Part video_file, RequestBody product_id){
+
+        return  ServiceGenerator.getBusinessApi().edit(
+                user_id,
+                category_id,
+                mobile_status,
+                title,
+                description,
+                latitude,
+                longitude,
+                address,
+                list,
+                video_file,
+                product_id
+        );
+
+    }
 }
 
 

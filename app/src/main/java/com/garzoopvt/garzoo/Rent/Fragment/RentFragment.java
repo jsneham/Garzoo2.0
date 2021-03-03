@@ -32,8 +32,10 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
+import com.garzoopvt.garzoo.BuySell.Activity.EditSellListingActivity;
 import com.garzoopvt.garzoo.BuySell.Adapter.CategoryAdapter;
 import com.garzoopvt.garzoo.BuySell.Adapter.OnCategoryListener;
+import com.garzoopvt.garzoo.BuySell.Model.Buy;
 import com.garzoopvt.garzoo.BuySell.Model.Category;
 import com.garzoopvt.garzoo.Dashboard.Activity.DashboardInnerActivity;
 import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
@@ -41,6 +43,7 @@ import com.garzoopvt.garzoo.Dashboard.Adapter.RecycleAdapter_GridHome;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.Rent.Activity.AddRentListingActivity;
+import com.garzoopvt.garzoo.Rent.Activity.EditRentListingActivity;
 import com.garzoopvt.garzoo.Rent.Activity.RentInnerActivity;
 import com.garzoopvt.garzoo.Rent.Adapter.RentAdapter;
 import com.garzoopvt.garzoo.Rent.Model.Rent;
@@ -84,9 +87,9 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
     //Data
     private ArrayList<Category> categoryArrayList = new ArrayList<>();
-    private String category_id = "";
+    private String category_id = "1";
     private String user_id = "0";
-    private String username = "Sneha";
+    private String username;
     private String search_name = "";
     private String latitude = "19.108589";
     private String longitude = "72.827072";
@@ -114,12 +117,25 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         initView();
         initRecyclerView();
         subscribeObservers();
-        getRentList();
+
         initSearchView();
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getRentList();
+    }
+
+    @Override
+    public void onDestroy() {
+        mViewModel.cancelSearchRequest(true);
+        super.onDestroy();
+    }
+
     private void getSessionData() {
+        username = sessionManager.getFromSessionManager(SessionManager.USERNAME);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
         if (user_id.isEmpty()) user_id = "0";
     }
@@ -398,7 +414,12 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
     @Override
     public void onEditClick(int position) {
         if (!(user_id.equals("0") || user_id.isEmpty())) {
-
+            Rent dl = mAdapter.getSelected(position);
+            if(user_id.equals(dl.getUser_id())) {
+                Intent intent = new Intent(context, EditRentListingActivity.class);
+                intent.putExtra("data", dl);
+                context.startActivity(intent);
+            }
         } else {
             Utils.openLogin(context);
         }

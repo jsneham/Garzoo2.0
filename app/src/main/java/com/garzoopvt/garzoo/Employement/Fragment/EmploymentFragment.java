@@ -34,11 +34,14 @@ import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.Employement.Activity.AddEmpRegisterListingActivity;
 import com.garzoopvt.garzoo.Employement.Activity.AddEmpReqListingActivity;
+import com.garzoopvt.garzoo.Employement.Activity.EditEmpListingActivity;
 import com.garzoopvt.garzoo.Employement.Activity.EmpInnerActivity;
 import com.garzoopvt.garzoo.Employement.Adapter.EmploymentAdapter;
 import com.garzoopvt.garzoo.Employement.Model.Employment;
 import com.garzoopvt.garzoo.Employement.ViewModel.EmploymentViewModel;
 import com.garzoopvt.garzoo.R;
+import com.garzoopvt.garzoo.Rent.Activity.EditRentListingActivity;
+import com.garzoopvt.garzoo.Rent.Model.Rent;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.URLs;
@@ -78,7 +81,7 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
     //Data
     private String category_id = "";
     private String user_id = "0";
-    private String username = "Sneha";
+    private String username;
     private String search_name = "";
     private String latitude = "19.108589";
     private String longitude = "72.827072";
@@ -106,12 +109,19 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
         initView();
         initRecyclerView();
         subscribeObservers();
-        getEmploymentList();
+
         initSearchView();
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getEmploymentList();
+    }
+
     private void getSessionData() {
+        username = sessionManager.getFromSessionManager(SessionManager.USERNAME);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
         if (user_id.isEmpty()) user_id = "0";
     }
@@ -383,6 +393,13 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
     @Override
     public void onEditClick(int position) {
         if (!(user_id.equals("0") || user_id.isEmpty())) {
+
+            Employment dl = mAdapter.getSelected(position);
+            if(user_id.equals(dl.getUser_id())) {
+                Intent intent = new Intent(context, EditEmpListingActivity.class);
+                intent.putExtra("data", dl);
+                context.startActivity(intent);
+            }
 
         } else {
             Utils.openLogin(context);

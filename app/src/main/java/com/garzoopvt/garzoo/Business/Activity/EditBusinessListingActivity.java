@@ -45,7 +45,10 @@ import com.daasuu.mp4compose.composer.Mp4Composer;
 import com.garzoopvt.garzoo.Adapter.ImageListAdapter;
 import com.garzoopvt.garzoo.Adapter.ImageVideo;
 import com.garzoopvt.garzoo.BaseActivity;
+import com.garzoopvt.garzoo.Business.Model.Business;
 import com.garzoopvt.garzoo.Business.ViewModel.BusinessViewModel;
+import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
+import com.garzoopvt.garzoo.Employement.Model.Employment;
 import com.garzoopvt.garzoo.MapsActivity;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.Util.ImageCompression;
@@ -120,16 +123,23 @@ public class EditBusinessListingActivity extends BaseActivity implements View.On
     @BindView(R.id.llAddress)
     LinearLayout llAddress;
 
+    @BindView(R.id.tvHomeTaluka)
+    EditText tvHomeTaluka;
+    @BindView(R.id.tvHomeArea)
+    EditText tvHomeArea;
+
 
     //class
     private ImageListAdapter adapter;
     private BusinessViewModel mViewModel;
+    private Business productArrayList;
 
     //Data
     private ArrayList<ImageVideo> imageList = new ArrayList<>();
     private ArrayList<String> images = new ArrayList<>();
     private ArrayList<String> videoList = new ArrayList<>();
     private ArrayList<String> flat_images = new ArrayList<>();
+    private ArrayList<ImageVideo> removeImageList = new ArrayList<>();
     private Context context = this;
     private StringBuffer description = new StringBuffer("");
     private StringBuffer title = new StringBuffer("");
@@ -152,28 +162,80 @@ public class EditBusinessListingActivity extends BaseActivity implements View.On
     private int LocationSelectionMode = 2;
     private boolean requestCamera = true;
 
+    RadioButton rbHide, rbShow, rbAvailable,rbNotAva,rbKam,rbRojgar;
+    private String[] uploaded_images;
+    private String[] image_id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_bus_listing);
+        setContentView(R.layout.activity_edit_bus_listing);
         sessionManager = new SessionManager(this);
         mViewModel = ViewModelProviders.of(this).get(BusinessViewModel.class);
-
         ButterKnife.bind(this);
+        imagelist();
         getSessionData();
         getToolBar();
-        imagelist();
+
 
     }
 
     private void getSessionData() {
+        rbShow = findViewById(R.id.rbShow);
+        rbHide = findViewById(R.id.rbHide);
+
         Lat = sessionManager.getFromSessionManager(SessionManager.LATITUDE_FIXED);
         Long = sessionManager.getFromSessionManager(SessionManager.LONGITUDE_FIXED);
         Area = sessionManager.getFromSessionManager(SessionManager.Login_CITY);
         Taluka = sessionManager.getFromSessionManager(SessionManager.Login_TALUKA);
-
+        user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
         tvArea.setText(Area);
         tvTaluka.setText(Taluka);
+
+
+
+        productArrayList = (Business) getIntent().getParcelableExtra("data");
+
+        Lat = productArrayList.getLatitude();
+        Long = productArrayList.getLongitude();
+
+        String address[] = productArrayList.getAddress().split(",");
+        Area = address[0];
+        Taluka = address[1];
+        Lat= productArrayList.getLatitude();
+        Long= productArrayList.getLongitude();
+        tvHomeTaluka.setText(Taluka);
+        tvHomeArea.setText(Area);
+
+        mobile_status = productArrayList.getMobile_status();
+        if (mobile_status != null) {
+            if (mobile_status.equals("0")) {
+                rbShow.setChecked(true);
+                rbHide.setChecked(false);
+            } else {
+                rbHide.setChecked(true);
+                rbShow.setChecked(false);
+            }
+        }
+
+        etBusinessType.setText(productArrayList.getCategory_id());
+        etTitle.setText(productArrayList.getTitle());
+        etDescription.setText(productArrayList.getDescription());
+
+
+        uploaded_images = productArrayList.getImages().split(",");
+
+        image_id = productArrayList.getImage_id().split(",");
+        for (int i = 0; i < uploaded_images.length; i++) {
+            if (uploaded_images[i].contains("video")) {
+                fillImageList(URLs.IMAGE_URL + uploaded_images[i], "video", image_id[i]);
+                videoList.add(URLs.IMAGE_URL + uploaded_images[i]);
+            } else {
+                fillImageList(URLs.IMAGE_URL + uploaded_images[i], "image", image_id[i]);
+                images.add(URLs.IMAGE_URL + uploaded_images[i]);
+                flat_images.add(URLs.IMAGE_URL + uploaded_images[i]);
+            }
+        }
     }
 
     private void getToolBar() {
@@ -181,7 +243,7 @@ public class EditBusinessListingActivity extends BaseActivity implements View.On
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(R.string.bus);
+        actionBar.setTitle(productArrayList.getTitle());
 
     }
 
@@ -199,7 +261,7 @@ public class EditBusinessListingActivity extends BaseActivity implements View.On
     @OnClick(R.id.btnSubmit)
     public void Submit() {
         if (Validation()) {
-
+            removeImageIfAny();
             uploadImage();
 
 
@@ -210,20 +272,23 @@ public class EditBusinessListingActivity extends BaseActivity implements View.On
         try {
             MultipartBody.Part videos = null;
             if (videoList.size() > 0) {
-                MultipartBody.Part videoRequest = prepareFilePart("video_file", Uri.parse(videoList.get(0)), videoList.get(0));
-                videos= videoRequest;
+                if (!videoList.get(0).contains(URLs.IMAGE_URL)) {
+                    MultipartBody.Part videoRequest = prepareFilePart("video_file", Uri.parse(videoList.get(0)), videoList.get(0));
+                    videos = videoRequest;
+                }
+
             }
 
 
             MultipartBody.Part list[] = new MultipartBody.Part[flat_images.size()];
 
-//            for (String uri : flat_images) {
+
             for (int j = 0; j < flat_images.size(); j++) {
-                // MultipartBody.Part imageRequest = prepareFilePart("file[]", Uri.parse(uri), uri);
-                // MultipartBody.Part imageRequest = prepareFilePart("picture", Uri.parse(uri), uri);
-                MultipartBody.Part imageRequest = prepareFilePart("image[]", Uri.parse(flat_images.get(j)), flat_images.get(j));
-                //list.add(imageRequest);
-                list[j] = imageRequest;
+                if (!flat_images.get(j).contains(URLs.IMAGE_URL)) {
+                    MultipartBody.Part imageRequest = prepareFilePart("image[]", Uri.parse(flat_images.get(j)), flat_images.get(j));
+                    list[j] = imageRequest;
+                }
+
             }
 
             RequestBody rb_user_id = RequestBody.create(MultipartBody.FORM, user_id);
@@ -235,9 +300,10 @@ public class EditBusinessListingActivity extends BaseActivity implements View.On
             RequestBody address = RequestBody.create(MultipartBody.FORM, Area + " ," + Taluka);
             RequestBody rb_Lat = RequestBody.create(MultipartBody.FORM, Lat);
             RequestBody rb_Long = RequestBody.create(MultipartBody.FORM, Long);
+            RequestBody p = RequestBody.create(MultipartBody.FORM, productArrayList.getId()); //productId
 
-            Call<ResponseBody> call = mViewModel.uploadData(list, rb_user_id, rb_mobile_status, rb_category_id, title,
-                    description, rb_Lat, rb_Long, address, videos); //.get(0)
+            Call<ResponseBody> call = mViewModel.editData(list, rb_user_id, rb_mobile_status, rb_category_id, title,
+                    description, rb_Lat, rb_Long, address, videos,p); //.get(0)
 
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
@@ -451,13 +517,28 @@ public class EditBusinessListingActivity extends BaseActivity implements View.On
         }
     }
 
-    @OnClick({R.id.rbCurrent, R.id.rbSelect})
+    @OnClick({R.id.rbHome,R.id.rbCurrent, R.id.rbSelect})
     public void setLocation(RadioButton radioButton) {
         // Is the button now checked?
         boolean checked = radioButton.isChecked();
 
         // Check which radio button was clicked
         switch (radioButton.getId()) {
+            case R.id.rbHome:
+                if (checked) {
+                    llHomeAddress.setVisibility(View.VISIBLE);
+                    llAddress.setVisibility(View.GONE);
+                    String address[] = productArrayList.getAddress().split(",");
+                    Area = address[0];
+                    Taluka = address[1];
+                    Lat= productArrayList.getLatitude();
+                    Long= productArrayList.getLongitude();
+                    tvHomeTaluka.setText(Taluka);
+                    tvHomeArea.setText(Area);
+                    LocationSelectionMode = 1;
+                }
+                break;
+
             case R.id.rbCurrent:
                 if (checked) {
                     tvTaluka.setText("");
@@ -723,10 +804,22 @@ public class EditBusinessListingActivity extends BaseActivity implements View.On
             imageList.remove(i);
             adapter.notifyDataSetChanged();
             flat_images.remove(i);
+            if (!path.getImage_id().equals(""))   removeImageList.add(new ImageVideo(path.getPath(), "",path.getImage_id()));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+    private void removeImageIfAny() {
+        if(removeImageList.size()>0){
+            for(int i=0; i<removeImageList.size();i++){
+                deleteImage(removeImageList.get(i).getImage_id(), removeImageList.get(i).getPath());
+            }
+        }
+    }
+
+    private void deleteImage(String image_id, String path) {
+        mViewModel.deleteImage(image_id, path);
     }
 
 

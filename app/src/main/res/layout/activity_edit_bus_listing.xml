@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:id="@+id/rlLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <include
+        android:id="@+id/abMain"
+        layout="@layout/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" />
+
+    <!--    <com.technocodellp.garzoo.Utility.VerticalScrollview-->
+    <androidx.core.widget.NestedScrollView
+        android:layout_margin="@dimen/dp5"
+        android:layout_below="@+id/abMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/dp10"
+            android:gravity="center"
+            android:orientation="vertical"
+            tools:context=".Activity.Add.AddBuyListingActivity">
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_margin="5dp"
+                    android:background="@drawable/btn_shape"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_margin="@dimen/dp5"
+                        android:id="@+id/ivImage"
+                        android:layout_width="@dimen/dp60"
+                        android:layout_height="@dimen/dp60"
+                        android:src="@drawable/ic_baseline_linked_camera_24"></ImageView>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:maxLines="2"
+                        android:text="@string/photos"
+                        android:textColor="@color/theme3"
+                        android:layout_marginBottom="@dimen/dp5"
+                        android:textStyle="bold"
+                        android:textSize="10sp"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_margin="5dp"
+                    android:background="@drawable/btn_shape"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_margin="@dimen/dp5"
+                        android:id="@+id/ivVdeo"
+                        android:layout_width="@dimen/dp60"
+                        android:layout_height="@dimen/dp60"
+                        android:src="@drawable/ic_baseline_videocam_24"></ImageView>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="@string/videos"
+                        android:maxLines="2"
+                        android:layout_margin="@dimen/dp2"
+                        android:textColor="@color/theme3"
+                        android:layout_marginBottom="@dimen/dp5"
+                        android:textStyle="bold"
+                        android:textSize="8sp"
+                        />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp5"
+                android:padding="@dimen/dp5" />
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_margin="@dimen/dp5"
+                    android:gravity="left"
+                    android:text="@string/bus_hint"
+                    android:textColor="@color/theme3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="17sp"></TextView>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp50"
+                    android:layout_margin="@dimen/dp5"
+                    android:background="@drawable/custom_layout_border_black">
+
+                    <pl.droidsonroids.gif.GifImageView
+                        android:id="@+id/gifBusinessType"
+                        android:layout_width="@dimen/dp25"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:src="@drawable/mic" />
+
+                    <EditText
+                        android:textSelectHandle="@drawable/handle"
+                        android:background="@null"
+                        android:layout_toLeftOf="@+id/gifBusinessType"
+                        android:id="@+id/etBusinessType"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp50"
+                        android:layout_margin="@dimen/dp5"
+                        android:padding="@dimen/dp5"
+                        android:hint="@string/bus_type"
+                        android:textColor="@color/black"
+                        android:inputType="text"
+                        android:textColorHint="@color/sub_text_color"
+                        ></EditText>
+                </RelativeLayout>
+            </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/rbMobile"
+                android:layout_margin="@dimen/dp5"
+                android:background="@drawable/btn_shape"
+                android:orientation="vertical"
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/rbShow"
+                    android:layout_margin="@dimen/dp5"
+                    android:text="@string/mobile_show"
+                    android:checked="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"></com.google.android.material.radiobutton.MaterialRadioButton>
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/rbHide"
+                    android:text="@string/mobile_dont_show"
+                    android:layout_margin="@dimen/dp5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"></com.google.android.material.radiobutton.MaterialRadioButton>
+
+
+            </RadioGroup>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp50"
+                android:layout_margin="@dimen/dp5"
+                android:background="@drawable/custom_layout_border_black">
+
+                <pl.droidsonroids.gif.GifImageView
+                    android:id="@+id/gifTitle"
+                    android:layout_width="@dimen/dp25"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/mic" />
+
+                <EditText android:textSelectHandle="@drawable/handle"
+                    android:background="@null"
+                    android:layout_toLeftOf="@+id/gifTitle"
+                    android:id="@+id/etTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp50"
+                    android:layout_margin="@dimen/dp5"
+                    android:padding="@dimen/dp5"
+                    android:hint="@string/bus_name"
+                    android:textColor="@color/black"
+                    android:inputType="text"
+                    android:textColorHint="@color/sub_text_color"
+                    ></EditText>
+
+            </RelativeLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp5"
+                android:background="@drawable/custom_layout_border_black">
+
+                <pl.droidsonroids.gif.GifImageView
+                    android:id="@+id/gifDescription"
+                    android:layout_width="@dimen/dp25"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/mic" />
+                <EditText android:textSelectHandle="@drawable/handle"
+                    android:overScrollMode="always"
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical"
+                    android:layout_toLeftOf="@+id/gifDescription"
+                    android:id="@+id/etDescription"
+                    android:background="@null"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/dp5"
+                    android:padding="@dimen/dp5"
+                    android:hint="@string/bus_description"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/sub_text_color"
+                    android:inputType="textMultiLine"
+                    android:maxLength="1000"
+                    android:gravity="top|left"
+                    ></EditText>
+            </RelativeLayout>
+
+            <EditText
+                android:visibility="gone"
+                android:id="@+id/etPrice"
+                android:background="@drawable/custom_layout_border_black"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp50"
+                android:layout_margin="@dimen/dp5"
+                android:padding="@dimen/dp5"
+                android:hint="@string/price_"
+                android:textColor="@color/black"
+                android:textColorHint="@color/sub_text_color"
+                android:inputType="numberDecimal" ></EditText>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp5"
+                android:id="@+id/etCategoryText"
+                android:hint="Select Category"
+                app:startIconDrawable="@drawable/ic_baseline_arrow_drop_down_24"
+                app:startIconTint="@color/theme2">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCategory1"
+                    android:enabled="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp5"
+                android:hint="Title"
+                android:visibility="gone"
+                app:hintTextColor="@color/theme2"
+                android:textColorHint="@color/theme2"
+                app:boxStrokeColor="@color/theme2"
+                app:startIconDrawable="@drawable/ic_baseline_mic_24"
+                app:startIconTint="@color/theme2">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etTitle1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp5"
+                android:visibility="gone"
+                android:hint="Description"
+                android:textColorHint="@color/theme2"
+                app:boxStrokeColor="@color/theme2"
+                app:startIconDrawable="@drawable/ic_baseline_mic_24"
+                app:hintTextColor="@color/theme2"
+                app:startIconTint="@color/theme2">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etDescription1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lines="5"
+                    android:maxLines="5"
+                    android:inputType="textMultiLine" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp5"
+                android:visibility="gone"
+                app:hintTextColor="@color/theme2"
+                android:textColorHint="@color/theme2"
+                app:boxStrokeColor="@color/theme2"
+                android:hint="Price">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPrice1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    android:maxLength="10" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <include layout="@layout/edit_location"/>
+
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="match_parent"
+                android:textSize="@dimen/dp20"
+                android:layout_height="60dp"
+                android:text="@string/Submit"
+                android:backgroundTint="@color/theme2"
+                android:textColor="@color/white" />
+        </LinearLayout>
+        <!--    </com.technocodellp.garzoo.Utility.VerticalScrollview>-->
+    </androidx.core.widget.NestedScrollView>
+
+
+</RelativeLayout>
+

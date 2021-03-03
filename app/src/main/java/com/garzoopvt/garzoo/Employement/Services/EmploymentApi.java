@@ -10,6 +10,8 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -60,4 +62,42 @@ public interface EmploymentApi {
             @Part("listing_title") RequestBody  listing_title
 
     );
+
+    @Multipart
+    @POST(URLs.api_emp_edit_record_2_0)
+    Call<ResponseBody> edit(
+            @Part("user_id") RequestBody user_id,
+            @Part("category_id") RequestBody  category_id,
+            @Part("mobile_status") RequestBody  mobile_status,
+            @Part("title") RequestBody  title,
+            @Part("description") RequestBody  description,
+            @Part("price") RequestBody  price,
+            @Part("latitude") RequestBody  latitude,
+            @Part("longitude") RequestBody  longitude,
+            @Part("address") RequestBody  address,
+            @Part MultipartBody.Part image[],
+            @Part MultipartBody.Part video_file,
+            @Part("emp_status") RequestBody  emp_status,
+            @Part("p") RequestBody  p
+
+    );
+
+    @GET(URLs.api_emp_available_2_0)
+    Call<ResponseBody> available(
+            @Query("unique_id") String unique_id,
+            @Query("user_id") String user_id,
+            @Query("p") String record_id
+    );
+
+
+    @GET(URLs.api_emp_unavailable_2_0)
+    Call<ResponseBody> unavailable(
+            @Query("unique_id") String unique_id,
+            @Query("user_id") String user_id,
+            @Query("p") String record_id
+    );
+    @POST(URLs.api_sell_delete_image)
+    @FormUrlEncoded
+    Call<ResponseBody> deleteImage(@Field("image_id") String image_id,
+                                   @Field("image") String image);
 }

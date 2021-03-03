@@ -40,24 +40,27 @@ public class URLs {
     public static final String api_get_category_2_0 = "Listing_sell/api_get_category";
     public static final String api_sell_add_record = "Listing_sell/api_add_record_2_0";
     public static final String api_edit_record_2_0 = "Listing_sell/api_edit_record_2_0";
-    public static final String api_sell_delete_image = BASE_URL + "Listing_sell/api_delete_image";
+    public static final String api_sell_delete_image =  "Listing_sell/api_delete_image";
 
 
     //API RENT
     public static final String api_rent_data_2_0 = "Listing_rent/api_rent_data_2_0";
     public static final String api_rent_category_data_2_0 = "Listing_rent/api_rent_category_data";
     public static final String api_rent_add_record = "Listing_rent/api_add_record_2_0";
+    public static final String api_rent_edit_record_2_0 = "Listing_rent/api_edit_record_2_0";
 
 
     //Employment
     public static final String api_emp_data_2_0 = "Employment/api_emp_data_2_0";
     public static final String api_emp_add_record = "Employment/api_add_record_2_0";
-
-
+    public static final String api_emp_edit_record_2_0 = "Employment/api_emp_edit_record_2_0";
+    public static final String api_emp_available_2_0 = "Employment/available_2_0";
+    public static final String api_emp_unavailable_2_0 = BASE_URL + "Employment/unavailable_2_0";
 
     //Business
     public static final String api_business_data_2_0 = "Business/api_business_data_2_0";
     public static final String api_business_add_record = "Business/api_add_record_2_0";
+    public static final String api_business_edit_record_2_0 = "Business/api_edit_record_2_0";
 
 
 
@@ -74,6 +77,7 @@ public class URLs {
     //Promotion
     public static final String Promotion_discussion = "Promotion_discussion/api_pd_data_2_0";
     public static final String api_pd_add_record = "Promotion_discussion/api_add_record_2_0";
+    public static final String api_promo_edit_record_2_0 = "Promotion_discussion/api_edit_record_2_0";
 
     //Report
     public static final String report_post = BASE_URL + "Report/add_record";

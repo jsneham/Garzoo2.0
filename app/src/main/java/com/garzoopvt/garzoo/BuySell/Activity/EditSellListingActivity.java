@@ -198,8 +198,7 @@ public class EditSellListingActivity extends BaseActivity implements View.OnClic
 
     private void getSessionData() {
 
-        category_id = getIntent().getStringExtra("category_id");
-        category_name = getIntent().getStringExtra("category_name");
+
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
         Lat = sessionManager.getFromSessionManager(SessionManager.LATITUDE_FIXED);
         Long = sessionManager.getFromSessionManager(SessionManager.LONGITUDE_FIXED);
@@ -256,6 +255,11 @@ public class EditSellListingActivity extends BaseActivity implements View.OnClic
                 openFilterSheet();
             }
         });
+
+        Transaltion.translateListing(sessionManager.getFromSessionManager(SessionManager.TALUKA), tvTaluka, "Taluka", context);
+        Transaltion.translateListing(sessionManager.getFromSessionManager(SessionManager.CITY), tvArea, "Area", context);
+        Area = sessionManager.getFromSessionManager(SessionManager.CITY_List);
+        Taluka = sessionManager.getFromSessionManager(SessionManager.TALUKA_List);
 
     }
 
@@ -602,13 +606,27 @@ public class EditSellListingActivity extends BaseActivity implements View.OnClic
         }
     }
 
-    @OnClick({R.id.rbCurrent, R.id.rbSelect})
+    @OnClick({R.id.rbCurrent, R.id.rbSelect, R.id.rbHome})
     public void setLocation(RadioButton radioButton) {
         // Is the button now checked?
         boolean checked = radioButton.isChecked();
 
         // Check which radio button was clicked
         switch (radioButton.getId()) {
+            case R.id.rbHome:
+                if (checked) {
+                    llHomeAddress.setVisibility(View.VISIBLE);
+                    llAddress.setVisibility(View.GONE);
+                    String address[] = productArrayList.getAddress().split(",");
+                    Area = address[0];
+                    Taluka = address[1];
+                    Lat= productArrayList.getLatitude();
+                    Long= productArrayList.getLongitude();
+                    tvHomeTaluka.setText(Taluka);
+                    tvHomeArea.setText(Area);
+                    LocationSelectionMode = 1;
+                }
+                break;
             case R.id.rbCurrent:
                 if (checked) {
                     tvTaluka.setText("");

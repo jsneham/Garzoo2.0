@@ -21,16 +21,13 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,23 +42,25 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.daasuu.mp4compose.FillMode;
 import com.daasuu.mp4compose.Rotation;
 import com.daasuu.mp4compose.composer.Mp4Composer;
-import com.garzoopvt.garzoo.Adapter.FilterAdapter;
 import com.garzoopvt.garzoo.Adapter.ImageListAdapter;
 import com.garzoopvt.garzoo.Adapter.ImageVideo;
 import com.garzoopvt.garzoo.BaseActivity;
+import com.garzoopvt.garzoo.BuySell.Activity.EditSellListingActivity;
+import com.garzoopvt.garzoo.BuySell.Model.Buy;
 import com.garzoopvt.garzoo.BuySell.Model.Category;
+import com.garzoopvt.garzoo.BuySell.ViewModel.BuyViewModel;
+import com.garzoopvt.garzoo.Employement.Model.Employment;
 import com.garzoopvt.garzoo.Employement.ViewModel.EmploymentViewModel;
 import com.garzoopvt.garzoo.MapsActivity;
 import com.garzoopvt.garzoo.R;
-import com.garzoopvt.garzoo.Rent.ViewModel.RentViewModel;
 import com.garzoopvt.garzoo.Util.ImageCompression;
 import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.Transaltion;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.io.File;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -80,9 +79,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AddEmpRegisterListingActivity extends BaseActivity implements View.OnClickListener, View.OnKeyListener {
+public class EditEmpListingActivity extends BaseActivity implements View.OnClickListener, View.OnKeyListener {
 
-    private String TAG = "AddEmpRegisterListingActivity";
+    private String TAG = "EditEmpListingActivity";
 
     //View
     @BindView(R.id.etTitle)
@@ -127,10 +126,16 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     @BindView(R.id.llAddress)
     LinearLayout llAddress;
 
+    @BindView(R.id.tvHomeTaluka)
+    EditText tvHomeTaluka;
+    @BindView(R.id.tvHomeArea)
+    EditText tvHomeArea;
+
 
     //class
     private ImageListAdapter adapter;
     private EmploymentViewModel mViewModel;
+    private Employment productArrayList;
 
     //Data
 
@@ -138,11 +143,14 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     private ArrayList<String> images = new ArrayList<>();
     private ArrayList<String> videoList = new ArrayList<>();
     private ArrayList<String> flat_images = new ArrayList<>();
+    private ArrayList<ImageVideo> removeImageList = new ArrayList<>();
     private Context context = this;
     private StringBuffer description = new StringBuffer("");
     private StringBuffer title = new StringBuffer("");
     private StringBuffer price = new StringBuffer("");
     private ProgressDialog progressDialog;
+    private String[] uploaded_images;
+    private String[] image_id;
 
     //constant
     private static final int REQ_CODE_SPEECH_INPUT = 100;
@@ -153,25 +161,28 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     private String user_id;
     private String category_id="0";
     private String mobile_status = "0";
-    private String emp_status = "2";
+    private String emp_status = "0";
+    private String available_status = "0";
     private int image_count = 10;
     private String Lat, Long;
     private String Taluka = "", Area = "";
     private SessionManager sessionManager;
     private int LocationSelectionMode = 2;
     private boolean requestCamera = true;
+    //View
+    RadioButton rbHide, rbShow, rbAvailable,rbNotAva,rbKam,rbRojgar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_emp_rgister_listing);
+        setContentView(R.layout.activity_edit_emp_listing);
         sessionManager = new SessionManager(this);
         mViewModel = ViewModelProviders.of(this).get(EmploymentViewModel.class);
-
         ButterKnife.bind(this);
+        imagelist();
         getSessionData();
         getToolBar();
-        imagelist();
+
 
     }
 
@@ -183,6 +194,80 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
         tvArea.setText(Area);
         tvTaluka.setText(Taluka);
+
+        productArrayList = (Employment) getIntent().getParcelableExtra("data");
+        String address[] = productArrayList.getAddress().split(",");
+        Area = address[0];
+        Taluka = address[1];
+        Lat = productArrayList.getLatitude();
+        Long = productArrayList.getLongitude();
+        tvHomeTaluka.setText(Taluka);
+        tvHomeArea.setText(Area);
+
+        rbShow = findViewById(R.id.rbShow);
+        rbHide = findViewById(R.id.rbHide);
+
+        rbAvailable = findViewById(R.id.rbAvailable);
+        rbNotAva = findViewById(R.id.rbNotAva);
+
+        rbKam = findViewById(R.id.rbKam);
+        rbRojgar = findViewById(R.id.rbRojgar);
+
+//        category_id = productArrayList.getCategory_id();
+        mobile_status = productArrayList.getMobile_status();
+        if (mobile_status != null) {
+            if (mobile_status.equals("0")) {
+                rbShow.setChecked(true);
+                rbHide.setChecked(false);
+            } else {
+                rbHide.setChecked(true);
+                rbShow.setChecked(false);
+            }
+        }
+
+        available_status= productArrayList.getAvailable_status();
+        if (available_status.equals("0")) {
+            rbAvailable.setChecked(true);
+            rbNotAva.setChecked(false);
+        } else {
+            rbNotAva.setChecked(true);
+            rbAvailable.setChecked(false);
+        }
+
+        emp_status = productArrayList.getEmp_status();
+        if (emp_status.equals("1")) {
+            rbKam.setChecked(true);
+            rbRojgar.setChecked(false);
+        } else {
+            rbRojgar.setChecked(true);
+            rbKam.setChecked(false);
+        }
+
+
+        etTitle.setText(productArrayList.getTitle());
+        etDescription.setText(productArrayList.getDescription());
+        etPrice.setText(productArrayList.getPrice());
+
+        uploaded_images = productArrayList.getImages().split(",");
+        image_id = productArrayList.getImage_id().split(",");
+        for (int i = 0; i < uploaded_images.length; i++) {
+            if (uploaded_images[i].contains("video")) {
+                fillImageList(URLs.IMAGE_URL + uploaded_images[i], "video", image_id[i]);
+                videoList.add(URLs.IMAGE_URL + uploaded_images[i]);
+            } else {
+                fillImageList(URLs.IMAGE_URL + uploaded_images[i], "image", image_id[i]);
+                images.add(URLs.IMAGE_URL + uploaded_images[i]);
+                flat_images.add(URLs.IMAGE_URL + uploaded_images[i]);
+            }
+        }
+
+
+
+        Transaltion.translateListing(sessionManager.getFromSessionManager(SessionManager.TALUKA), tvTaluka, "Taluka", context);
+        Transaltion.translateListing(sessionManager.getFromSessionManager(SessionManager.CITY), tvArea, "Area", context);
+        Area = sessionManager.getFromSessionManager(SessionManager.CITY_List);
+        Taluka = sessionManager.getFromSessionManager(SessionManager.TALUKA_List);
+
     }
 
     private void getToolBar() {
@@ -190,7 +275,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(R.string.empregister_);
+        actionBar.setTitle(productArrayList.getTitle());
 
     }
 
@@ -201,14 +286,14 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         list.setLayoutManager(mLayoutManager);
         // Getting adapter by passing xml data ArrayList
-        adapter = new ImageListAdapter(this, imageList, AddEmpRegisterListingActivity.this);
+        adapter = new ImageListAdapter(this, imageList, EditEmpListingActivity.this);
         list.setAdapter(adapter);
     }
 
     @OnClick(R.id.btnSubmit)
     public void Submit() {
         if (Validation()) {
-
+            removeImageIfAny();
             uploadImage();
 
 
@@ -219,20 +304,23 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         try {
             MultipartBody.Part videos = null;
             if (videoList.size() > 0) {
-                MultipartBody.Part videoRequest = prepareFilePart("video_file", Uri.parse(videoList.get(0)), videoList.get(0));
-                videos= videoRequest;
+                if (!videoList.get(0).contains(URLs.IMAGE_URL)) {
+                    MultipartBody.Part videoRequest = prepareFilePart("video_file", Uri.parse(videoList.get(0)), videoList.get(0));
+                    videos = videoRequest;
+                }
+
             }
 
 
             MultipartBody.Part list[] = new MultipartBody.Part[flat_images.size()];
 
-//            for (String uri : flat_images) {
+
             for (int j = 0; j < flat_images.size(); j++) {
-                // MultipartBody.Part imageRequest = prepareFilePart("file[]", Uri.parse(uri), uri);
-                // MultipartBody.Part imageRequest = prepareFilePart("picture", Uri.parse(uri), uri);
-                MultipartBody.Part imageRequest = prepareFilePart("image[]", Uri.parse(flat_images.get(j)), flat_images.get(j));
-                //list.add(imageRequest);
-                list[j] = imageRequest;
+                if (!flat_images.get(j).contains(URLs.IMAGE_URL)) {
+                    MultipartBody.Part imageRequest = prepareFilePart("image[]", Uri.parse(flat_images.get(j)), flat_images.get(j));
+                    list[j] = imageRequest;
+                }
+
             }
 
             RequestBody rb_user_id = RequestBody.create(MultipartBody.FORM, user_id);
@@ -245,9 +333,10 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
             RequestBody address = RequestBody.create(MultipartBody.FORM, Area + " ," + Taluka);
             RequestBody rb_Lat = RequestBody.create(MultipartBody.FORM, Lat);
             RequestBody rb_Long = RequestBody.create(MultipartBody.FORM, Long);
+            RequestBody p = RequestBody.create(MultipartBody.FORM, productArrayList.getId()); //productId
 
-            Call<ResponseBody> call = mViewModel.uploadData(list, rb_user_id, rb_mobile_status, rb_category_id, title,
-                    description, price, rb_Lat, rb_Long, address, videos, rb_emp_status); //.get(0)
+            Call<ResponseBody> call = mViewModel.editData(list, rb_user_id, rb_mobile_status, rb_category_id, title,
+                    description, price, rb_Lat, rb_Long, address, videos, rb_emp_status, p); //.get(0)
 
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
@@ -381,7 +470,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     public void actionDialogBox(final Context context) {
         final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
         final CharSequence[] options1 = {"फोटो घ्या", "गॅलरीमधून निवडा", "रद्द करा"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(AddEmpRegisterListingActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditEmpListingActivity.this);
         builder.setTitle("फोटो जोडा!");
         builder.setItems(options1, new DialogInterface.OnClickListener() {
             @Override
@@ -420,7 +509,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
     public void actionDialogBoxForVideo(final Context context) {
         final CharSequence[] options1 = {"व्हिडिओ घ्या", "गॅलरीमधून निवडा", "रद्द करा"};
         final CharSequence[] options = {"Take Video", "Choose from Gallery", "Cancel"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(AddEmpRegisterListingActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditEmpListingActivity.this);
         builder.setTitle("हिडिओ जोडा!");
         builder.setItems(options1, new DialogInterface.OnClickListener() {
             @Override
@@ -464,13 +553,145 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         }
     }
 
-    @OnClick({R.id.rbCurrent, R.id.rbSelect})
+    @OnClick({R.id.rbRojgar, R.id.rbKam})
+    public void setEmpStatus(RadioButton radioButton) {
+        // Is the button now checked?
+        boolean checked = radioButton.isChecked();
+
+        // Check which radio button was clicked
+        switch (radioButton.getId()) {
+            case R.id.rbRojgar:
+                if (checked) {
+                    emp_status = "2";
+                }
+                break;
+            case R.id.rbKam:
+                if (checked) {
+                    emp_status = "1";
+                }
+                break;
+        }
+    }
+
+
+    @OnClick({R.id.rbAvailable, R.id.rbNotAva})
+    public void setAvailableStatus(RadioButton radioButton) {
+        // Is the button now checked?
+        boolean checked = radioButton.isChecked();
+
+        // Check which radio button was clicked
+        switch (radioButton.getId()) {
+            case R.id.rbAvailable:
+                if (checked) {
+                    setAvailableStatusToServer();
+                }
+                break;
+            case R.id.rbNotAva:
+                if (checked) {
+                    setUnavailableStatusToServer();
+                }
+                break;
+        }
+    }
+
+    private void setUnavailableStatusToServer() {
+
+        Call<ResponseBody> call = mViewModel.unavailable(URLs.unique_id, user_id,productArrayList.getId()); //.get(0)
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+                            String result = response.body().string();
+                            if (result.equals("success")) {
+                                Utils.openSnackBar("यशस्वीरित्या अपलोड केले", rlLayout);
+                                Log.d(TAG, "the message is ----> " + response.message());
+                                //Log.e("main", "the error is ----> " + response.body().getError());
+                                finish();
+                            } else {
+                                Utils.openSnackBar("अयशस्वी, कृपया नंतर प्रयत्न करा !!", rlLayout);
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
+    }
+
+    private void setAvailableStatusToServer() {
+
+        Call<ResponseBody> call = mViewModel.available(URLs.unique_id, user_id,productArrayList.getId()); //.get(0)
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+                            String result = response.body().string();
+                            if (result.equals("success")) {
+                                Utils.openSnackBar("यशस्वीरित्या अपलोड केले", rlLayout);
+                                Log.d(TAG, "the message is ----> " + response.message());
+                                //Log.e("main", "the error is ----> " + response.body().getError());
+                                finish();
+                            } else {
+                                Utils.openSnackBar("अयशस्वी, कृपया नंतर प्रयत्न करा !!", rlLayout);
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
+    }
+
+    @OnClick({R.id.rbHome,R.id.rbCurrent, R.id.rbSelect})
     public void setLocation(RadioButton radioButton) {
         // Is the button now checked?
         boolean checked = radioButton.isChecked();
 
         // Check which radio button was clicked
         switch (radioButton.getId()) {
+            case R.id.rbHome:
+                if (checked) {
+                    llHomeAddress.setVisibility(View.VISIBLE);
+                    llAddress.setVisibility(View.GONE);
+                    String address[] = productArrayList.getAddress().split(",");
+                    Area = address[0];
+                    Taluka = address[1];
+                    Lat= productArrayList.getLatitude();
+                    Long= productArrayList.getLongitude();
+                    tvHomeTaluka.setText(Taluka);
+                    tvHomeArea.setText(Area);
+                    LocationSelectionMode = 1;
+                }
+                break;
+
             case R.id.rbCurrent:
                 if (checked) {
                     tvTaluka.setText("");
@@ -492,7 +713,7 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
                     tvArea.setText("");
                     llHomeAddress.setVisibility(View.GONE);
                     llAddress.setVisibility(View.VISIBLE);
-                    Intent in = new Intent(AddEmpRegisterListingActivity.this, MapsActivity.class);
+                    Intent in = new Intent(EditEmpListingActivity.this, MapsActivity.class);
                     in.putExtra("latitude", sessionManager.getFromSessionManager(SessionManager.LATITUDE));
                     in.putExtra("longitude", sessionManager.getFromSessionManager(SessionManager.LONGITUDE));
                     startActivityForResult(in, 777);
@@ -736,10 +957,22 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
             imageList.remove(i);
             adapter.notifyDataSetChanged();
             flat_images.remove(i);
+            if (!path.getImage_id().equals(""))   removeImageList.add(new ImageVideo(path.getPath(), "",path.getImage_id()));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+    }
+    private void removeImageIfAny() {
+        if(removeImageList.size()>0){
+            for(int i=0; i<removeImageList.size();i++){
+                deleteImage(removeImageList.get(i).getImage_id(), removeImageList.get(i).getPath());
+            }
+        }
+    }
+
+    private void deleteImage(String image_id, String path) {
+        mViewModel.deleteImage(image_id, path);
     }
 
 
@@ -998,4 +1231,8 @@ public class AddEmpRegisterListingActivity extends BaseActivity implements View.
         }
         return filePath;
     }
+
+
+
+
 }

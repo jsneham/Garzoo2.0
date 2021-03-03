@@ -169,4 +169,18 @@ public class BusinessViewModel extends AndroidViewModel {
         return businessRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title);
 
     }
+
+    public Call<ResponseBody> deleteImage( String image_id, String path){
+
+        return businessRepository.deleteImage(image_id, path);
+
+    }
+
+    public Call<ResponseBody> editData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody category_id, RequestBody title,
+                                         RequestBody description, RequestBody latitude, RequestBody longitude,
+                                       RequestBody address, MultipartBody.Part video_file, RequestBody product_id){
+
+        return businessRepository.editData(list, user_id,mobile_status,category_id,title,description,latitude,longitude,address,video_file, product_id);
+
+    }
 }

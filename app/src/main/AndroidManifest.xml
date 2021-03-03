@@ -102,16 +102,26 @@
             android:name=".Rent.Activity.AddRentListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".Rent.Activity.EditRentListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".Employement.Activity.AddEmpRegisterListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Employement.Activity.AddEmpReqListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".Employement.Activity.EditEmpListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Business.Activity.AddBusinessListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Business.Activity.EditBusinessListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Promotion.Activity.EditPromoListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Promotion.Activity.AddQuestionListingActivity"

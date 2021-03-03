@@ -210,10 +210,25 @@ public class RentViewModel extends AndroidViewModel {
         return rentRepository.uploadData(list, user_id,mobile_status,category_id,title,description,price,latitude,longitude,address,video_file,listing_status,available_status);
 
     }
+
+    public Call<ResponseBody> editData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody category_id, RequestBody title,
+                                       RequestBody description, RequestBody price, RequestBody latitude, RequestBody longitude, RequestBody address,
+                                       MultipartBody.Part video_file, RequestBody product_id, RequestBody listing_status){
+
+        return rentRepository.editData(list, user_id,mobile_status,category_id,title,description,price,latitude,longitude,address,video_file,product_id,listing_status);
+
+    }
+
     public Call<ResponseBody> interest( RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
                                         RequestBody listing_id, RequestBody type, RequestBody listing_title){
 
         return rentRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title);
+
+    }
+
+    public Call<ResponseBody> deleteImage( String image_id, String path){
+
+        return rentRepository.deleteImage(image_id, path);
 
     }
 }
