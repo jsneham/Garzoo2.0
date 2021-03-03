@@ -183,4 +183,23 @@ public class BusinessViewModel extends AndroidViewModel {
         return businessRepository.editData(list, user_id,mobile_status,category_id,title,description,latitude,longitude,address,video_file, product_id);
 
     }
+
+
+    public Call<ResponseBody> block(String self_user_id, String to_user_id){
+
+        return businessRepository.block( self_user_id,to_user_id);
+
+    }
+    public Call<ResponseBody> deletePost (String to_user_id){
+
+        return businessRepository.deletePost(to_user_id);
+
+    }
+    public Call<ResponseBody> ReportPost(String user_id, String post_id, String employment_id,String business_id,String report){
+
+        return businessRepository.ReportPost(user_id, post_id, employment_id,business_id, report);
+
+    }
+
+
 }

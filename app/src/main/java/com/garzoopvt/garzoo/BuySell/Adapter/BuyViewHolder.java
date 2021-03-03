@@ -101,7 +101,7 @@ public class BuyViewHolder extends RecyclerView.ViewHolder implements View.OnCli
                 mOnListener.onShareClick(getAdapterPosition());
                 break;
             case R.id.ivEdit:
-                mOnListener.onEditClick(getAdapterPosition());
+                mOnListener.onEditClick(getAdapterPosition(), ivEdit);
                 break;
 
             case R.id.item_container:

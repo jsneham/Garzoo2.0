@@ -291,6 +291,17 @@ public class PromotionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return null;
     }
 
+    public void deleteSelected(int position){
+        if(mPromotionList != null){
+            if(mPromotionList.size() > 0){
+                mPromotionList.remove(position);
+
+                notifyDataSetChanged();
+            }
+        }
+
+    }
+
     public class BannerViewViewHolder extends RecyclerView.ViewHolder {
 
         NativeAdLayout nativeAdLayout;

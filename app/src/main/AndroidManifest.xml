@@ -45,16 +45,19 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
+
         <service
             android:name=".services.MyFirebaseMessagingService"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter></service>
+            </intent-filter>
+        </service>
 
-        <activity android:name=".Profile.Activity.UserProfileEditActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".Profile.Activity.UserProfileEditActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -97,12 +100,18 @@
         <activity
             android:name=".BuySell.Activity.EditSellListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".BuySell.Activity.DbEditSellListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name=".Rent.Activity.AddRentListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Rent.Activity.EditRentListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Rent.Activity.DbEditRentListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Employement.Activity.AddEmpRegisterListingActivity"
@@ -115,13 +124,22 @@
             android:name=".Employement.Activity.EditEmpListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".Employement.Activity.DbEditEmpListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".Business.Activity.AddBusinessListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Business.Activity.EditBusinessListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".Business.Activity.DbEditBusinessListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".Promotion.Activity.EditPromoListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Promotion.Activity.DbEditPromoListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Promotion.Activity.AddQuestionListingActivity"

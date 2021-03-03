@@ -290,6 +290,17 @@ public class BusinessAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return null;
     }
 
+    public void deleteSelected(int position){
+        if(mBusinessList != null){
+            if(mBusinessList.size() > 0){
+                mBusinessList.remove(position);
+
+                notifyDataSetChanged();
+            }
+        }
+
+    }
+
     public class BannerViewViewHolder extends RecyclerView.ViewHolder {
 
         NativeAdLayout nativeAdLayout;

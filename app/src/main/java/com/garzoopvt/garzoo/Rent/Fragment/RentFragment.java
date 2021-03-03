@@ -1,18 +1,28 @@
 package com.garzoopvt.garzoo.Rent.Fragment;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +42,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
+import com.garzoopvt.garzoo.Business.Activity.EditBusinessListingActivity;
 import com.garzoopvt.garzoo.BuySell.Activity.EditSellListingActivity;
 import com.garzoopvt.garzoo.BuySell.Adapter.CategoryAdapter;
 import com.garzoopvt.garzoo.BuySell.Adapter.OnCategoryListener;
@@ -41,6 +52,8 @@ import com.garzoopvt.garzoo.Dashboard.Activity.DashboardInnerActivity;
 import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
 import com.garzoopvt.garzoo.Dashboard.Adapter.RecycleAdapter_GridHome;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
+import com.garzoopvt.garzoo.Employement.Activity.EditEmpListingActivity;
+import com.garzoopvt.garzoo.Promotion.Activity.EditPromoListingActivity;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.Rent.Activity.AddRentListingActivity;
 import com.garzoopvt.garzoo.Rent.Activity.EditRentListingActivity;
@@ -63,6 +76,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.app.Activity.RESULT_OK;
 import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_EXHAUSTED;
 
 
@@ -77,6 +91,8 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
     private EditText searchView;
     private static final String TAG = "BuyFragment";
     private SessionManager sessionManager;
+    public String[] text = {""};
+    public EditText etEnquiry;
 
     //instances
     private RentViewModel mViewModel;
@@ -412,26 +428,23 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 
 
     @Override
-    public void onEditClick(int position) {
+    public void onEditClick(int position, View view) {
         if (!(user_id.equals("0") || user_id.isEmpty())) {
             Rent dl = mAdapter.getSelected(position);
             if(user_id.equals(dl.getUser_id())) {
-                Intent intent = new Intent(context, EditRentListingActivity.class);
-                intent.putExtra("data", dl);
-                context.startActivity(intent);
+                showSelfMenuOption(view, dl, position);
+            } else {
+                showMenuOption(view, dl.getUser_id(), user_id, dl.getId(), position);
             }
+
+
+
         } else {
             Utils.openLogin(context);
         }
     }
 
-    @Override
-    public void onItemClick(int position) {
-        Rent dl = mAdapter.getSelected(position);
-        Intent intent = new Intent(context, RentInnerActivity.class);
-        intent.putExtra("data", dl);
-        context.startActivity(intent);
-    }
+
 
     @Override
     public void onCategoryItemClick(int position) {
@@ -449,5 +462,283 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
 //                break;
 //
 //        }
+    }
+
+
+    @Override
+    public void onItemClick(int position) {
+        Rent dl = mAdapter.getSelected(position);
+        Intent intent = new Intent(context, RentInnerActivity.class);
+        intent.putExtra("data", dl);
+        context.startActivity(intent);
+    }
+
+    public void showSelfMenuOption(View v, Rent productArrayList, int position) {
+        PopupMenu popup = new PopupMenu(context, v);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.submenu_self_pop_up, popup.getMenu());
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.action_edit) {
+                    openEditPage(productArrayList);
+                } else if (item.getItemId() == R.id.action_delete) {
+                    deletePostCheck(productArrayList, position);
+                }
+                return true;
+            }
+        });
+
+        popup.show();
+    }
+
+    public void openEditPage(Rent dl) {
+        Intent intent = new Intent(context, EditRentListingActivity.class);
+        intent.putExtra("data", dl);
+        context.startActivity(intent);
+
+    }
+
+    public  void deletePostCheck(Rent productArrayList, int position) {
+        String post_id = productArrayList.getId();
+        ConfirmationPoup(post_id,position);
+
+    }
+
+    public  void ConfirmationPoup(String post_id, int position) {
+
+        androidx.appcompat.app.AlertDialog alertDialog = new androidx.appcompat.app.AlertDialog.Builder(context)
+                .setIcon(R.mipmap.ic_launcher)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.delete_post)
+                .setPositiveButton(R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                deletePost(post_id, position);
+                            }
+
+                        }).setNegativeButton(R.string.No, null).show();
+
+        alertDialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLUE);
+
+        alertDialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.DKGRAY);
+
+    }
+
+
+
+    public void showMenuOption(View v,String to_user_id, String self_user_id,String post_id,int postion) {
+
+        PopupMenu popup = new PopupMenu(context, v);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.submenu_pop_up, popup.getMenu());
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.action_report) {
+                    openReportPopup(post_id,  to_user_id,postion);
+                } else {
+                    AddBlock(self_user_id, to_user_id ,postion);
+                }
+                return true;
+            }
+        });
+
+        popup.show();
+    }
+
+    public  void openReportPopup(String id, String user_id, int position) {
+        View view = LayoutInflater.from(context).inflate(R.layout.report_view, null);
+        Button btnSubmit = (Button) view.findViewById(R.id.btnSubmit);
+        Button btnCancel = (Button) view.findViewById(R.id.btnCancel);
+        RadioGroup rbReport = (RadioGroup) view.findViewById(R.id.rbReport);
+        etEnquiry = (EditText) view.findViewById(R.id.etEnquiry);
+        ImageView gifEnquiry = (ImageView) view.findViewById(R.id.gifEnquiry);
+        ImageView ivClear = (ImageView) view.findViewById(R.id.ivClear);
+
+
+        rbReport.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton radioButton = (RadioButton) group.findViewById(checkedId);
+                text[0] = radioButton.getText().toString();
+
+            }
+        });
+
+
+        ivClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etEnquiry.setText("");
+            }
+        });
+
+        gifEnquiry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, URLs.language);
+                intent.putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.help_text));
+                try {
+//                    ((Activity) context).startActivityForResult(intent, 1);
+                    startActivityForResult(intent, 1);
+                } catch (ActivityNotFoundException a) {
+
+                }
+            }
+        });
+
+        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        builder.setView(view);
+        final android.app.AlertDialog alertDialog = builder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        alertDialog.setCancelable(true);
+        alertDialog.show();
+
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
+
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (!(text[0].equals("") && etEnquiry.getText().toString().equals(""))) {
+                    alertDialog.dismiss();
+                    ReportPost(id,"0","0",text[0], position);
+
+                } else {
+                    etEnquiry.setError("कृपया आपले कारण सबमिट करा किंवा वर दिलेल्या पर्यायांपैकी एक तपासा");
+                    //etEnquiry.setFocusable(true);
+                }
+
+            }
+        });
+    }
+
+    private void AddBlock(String self_user_id, String to_user_id, int position) {
+
+
+
+        Call<ResponseBody> call =mViewModel.block(self_user_id,to_user_id);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+                            String result = response.body().string();
+                            Utils.openSnackBar(result, view);
+                            mAdapter.deleteSelected(position);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
+    }
+
+    private void deletePost(String post_id, int position) {
+
+        Call<ResponseBody> call =mViewModel.deletePost(post_id);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+                            String result = response.body().string();
+                            Utils.openSnackBar(result, view);
+                            mAdapter.deleteSelected(position);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
+    }
+
+    private  void ReportPost(String post_id, String employment_id,String business_id,String report, int position) {
+
+        Call<ResponseBody> call =mViewModel.ReportPost(user_id, post_id, employment_id,business_id, report);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+
+                            String result = response.body().string();
+                            Utils.openSnackBar(result, view);
+                            mAdapter.deleteSelected(position);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 1) {
+                int pos = etEnquiry.getSelectionStart();
+                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                //title.insert(pos, result.get(0));
+                // title.append(" ");
+                etEnquiry.setText(result.get(0));
+                etEnquiry.setSelection(etEnquiry.getText().toString().length());
+                etEnquiry.requestFocus();
+                text[0] = text[0] + " " + etEnquiry.getText().toString();
+            }
+        }
     }
 }

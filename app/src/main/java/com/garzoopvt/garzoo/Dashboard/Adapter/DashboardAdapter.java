@@ -294,6 +294,18 @@ public class DashboardAdapter extends AAH_VideosAdapter {
         return null;
     }
 
+
+    public void deleteSelected(int position){
+        if(mDashboardList != null){
+            if(mDashboardList.size() > 0){
+                mDashboardList.remove(position);
+
+                notifyDataSetChanged();
+            }
+        }
+
+    }
+
     public class BannerViewViewHolder extends AAH_CustomViewHolder {
 
         NativeAdLayout nativeAdLayout;

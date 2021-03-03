@@ -98,4 +98,27 @@ public interface RentApi {
                                    @Field("image") String image);
 
 
+    @GET(URLs.add_block_2_0)
+    Call<ResponseBody> block(
+            @Query("unique_id") String unique_id,
+            @Query("user_id") String from_uid,
+            @Query("blocked_id") String to_uid
+    );
+
+    @GET(URLs.report_post)
+    Call<ResponseBody> ReportPost(
+            @Query("unique_id") String unique_id,
+            @Query("user_id") String user_id,
+            @Query("listing_id") String listing_id,
+            @Query("employment_id") String employment_id,
+            @Query("business_id") String business_id,
+            @Query("report") String report
+    );
+
+    @GET(URLs.Listing_rent_delete_record_2_0)
+    Call<ResponseBody> Listing_rent_delete_record_2_0(
+            @Query("unique_id") String unique_id,
+            @Query("p") String post_id);
+
+
 }

@@ -180,4 +180,21 @@ public class PromotionViewModel extends AndroidViewModel {
         return promotionRepository.deleteImage(image_id, path);
 
     }
+
+
+    public Call<ResponseBody> block(String self_user_id, String to_user_id){
+
+        return promotionRepository.block( self_user_id,to_user_id);
+
+    }
+    public Call<ResponseBody> deletePost (String to_user_id){
+
+        return promotionRepository.deletePost(to_user_id);
+
+    }
+    public Call<ResponseBody> ReportPost(String user_id, String post_id, String employment_id,String business_id,String report){
+
+        return promotionRepository.ReportPost(user_id, post_id, employment_id,business_id, report);
+
+    }
 }

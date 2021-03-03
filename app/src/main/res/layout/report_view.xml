@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/dp20">
+
+    <ScrollView
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:gravity="center"
+                android:text="@string/Report"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_margin="@dimen/dp5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_layout_border_black">
+
+                <RadioGroup
+                    android:id="@+id/rbReport"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/dp5">
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="फसवणूक/आक्षेपार्ह सामग्री"></RadioButton>
+
+                    <!--                <RadioButton-->
+                    <!--                    android:layout_width="wrap_content"-->
+                    <!--                    android:layout_height="wrap_content"-->
+                    <!--                    android:text="आक्षेपार्ह सामग्री"></RadioButton>-->
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="डुप्लिकेट पोस्ट"></RadioButton>
+
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="वस्तु आधीच विकली गेली आहे"></RadioButton>
+                    <RadioButton
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="चित्र आणि वस्तु भिन्न(असंबद्धीत) आहेत"></RadioButton>
+                </RadioGroup>
+
+            </LinearLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp100"
+                android:layout_margin="@dimen/dp5"
+                android:background="@drawable/custom_layout_border_black">
+
+                <pl.droidsonroids.gif.GifImageView
+                    android:id="@+id/gifEnquiry"
+                    android:layout_width="@dimen/dp25"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/mic" />
+                <EditText
+                    android:layout_alignParentLeft="true"
+
+                    android:layout_toLeftOf="@+id/ivClear"
+                    android:id="@+id/etEnquiry"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/dp5"
+                    android:background="@null"
+                    android:gravity="top|left"
+                    android:hint="@string/enquiry"
+                    android:inputType="textMultiLine"
+                    android:lines="10"
+                    android:maxLines="15"
+                    android:minLines="5"
+                    android:padding="@dimen/dp5"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/sub_text_color"></EditText>
+
+                <ImageView
+                    android:layout_toLeftOf="@+id/gifEnquiry"
+                    android:src="@drawable/ic_baseline_close_24"
+                    android:id="@+id/ivClear"
+                    android:layout_width="@dimen/dp25"
+                    android:layout_height="match_parent"></ImageView>
+
+            </RelativeLayout>
+
+            <!--        <com.google.android.material.textfield.TextInputLayout-->
+            <!--            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"-->
+            <!--            android:layout_width="match_parent"-->
+            <!--            android:layout_height="wrap_content"-->
+            <!--            android:layout_margin="@dimen/dp10"-->
+            <!--            android:hint="Write Something...."-->
+            <!--            android:background="@drawable/btn_shape"-->
+            <!--            app:counterEnabled="true"-->
+            <!--            app:counterMaxLength="300"-->
+            <!--            app:errorEnabled="true"-->
+            <!--            >-->
+
+            <!--            <com.google.android.material.textfield.TextInputEditText-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:inputType="textMultiLine"-->
+            <!--                android:id="@+id/etEnquiry1"-->
+            <!--                android:layout_height="wrap_content" />-->
+            <!--        </com.google.android.material.textfield.TextInputLayout>-->
+
+            <LinearLayout
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <Button
+                    android:id="@+id/btnCancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:layout_margin="@dimen/dp5"
+                    android:layout_weight="1"
+                    android:background="@color/theme2"
+                    android:backgroundTint="@color/theme2"
+                    android:text="@string/cancle"
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/btnSubmit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:layout_margin="@dimen/dp5"
+                    android:layout_weight="1"
+                    android:background="@color/theme2"
+                    android:backgroundTint="@color/theme2"
+                    android:text="@string/Submit"
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

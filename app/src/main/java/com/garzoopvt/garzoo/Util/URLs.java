@@ -80,7 +80,7 @@ public class URLs {
     public static final String api_promo_edit_record_2_0 = "Promotion_discussion/api_edit_record_2_0";
 
     //Report
-    public static final String report_post = BASE_URL + "Report/add_record";
+    public static final String report_post = "Report/add_record_2_0";
 
     //Category
     public static final String get_all_category = BASE_URL + "Category/get_all_category";
@@ -112,6 +112,11 @@ public class URLs {
 
 
     //delete
+    public static final String Business_delete_record_2_0 = "Business/delete_record_2_0";
+    public static final String Employment_delete_record_2_0 =  "Employment/delete_record_2_0";
+    public static final String Listing_rent_delete_record_2_0 =  "Listing_rent/delete_record_2_0";
+    public static final String Listing_sell_delete_record_2_0 =  "Listing_sell/delete_record_2_0";
+    public static final String Pd_delete_record_2_0 =  "Promotion_discussion/delete_record_2_0";
 
     //translate
     public static final String translate = "index.php/Config/translate";

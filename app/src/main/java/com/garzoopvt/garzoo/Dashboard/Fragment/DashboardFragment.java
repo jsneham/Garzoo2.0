@@ -1,24 +1,34 @@
 package com.garzoopvt.garzoo.Dashboard.Fragment;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.telephony.TelephonyManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -44,8 +54,12 @@ import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
+import com.garzoopvt.garzoo.Business.Activity.DbEditBusinessListingActivity;
+import com.garzoopvt.garzoo.Business.Activity.EditBusinessListingActivity;
 import com.garzoopvt.garzoo.Business.Fragment.BusinessFragment;
 import com.garzoopvt.garzoo.BuySell.Activity.BuyInnerActivity;
+import com.garzoopvt.garzoo.BuySell.Activity.DbEditSellListingActivity;
+import com.garzoopvt.garzoo.BuySell.Activity.EditSellListingActivity;
 import com.garzoopvt.garzoo.BuySell.Fragment.BuyFragment;
 import com.garzoopvt.garzoo.BuySell.Fragment.SellSubCategoryFragment;
 import com.garzoopvt.garzoo.BuySell.Model.Buy;
@@ -56,9 +70,15 @@ import com.garzoopvt.garzoo.Dashboard.Adapter.RecycleAdapter_GridHome;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.Dashboard.Model.HomeGridModelClass;
 import com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel;
+import com.garzoopvt.garzoo.Employement.Activity.DbEditEmpListingActivity;
+import com.garzoopvt.garzoo.Employement.Activity.EditEmpListingActivity;
 import com.garzoopvt.garzoo.Employement.Fragment.EmploymentFragment;
+import com.garzoopvt.garzoo.Promotion.Activity.DbEditPromoListingActivity;
+import com.garzoopvt.garzoo.Promotion.Activity.EditPromoListingActivity;
 import com.garzoopvt.garzoo.Promotion.Fragment.PromotionFragment;
 import com.garzoopvt.garzoo.R;
+import com.garzoopvt.garzoo.Rent.Activity.DbEditRentListingActivity;
+import com.garzoopvt.garzoo.Rent.Activity.EditRentListingActivity;
 import com.garzoopvt.garzoo.Rent.Fragment.RentFragment;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.Util.LocaleHelper;
@@ -91,6 +111,7 @@ import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_PHONE_STATE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.app.Activity.RESULT_OK;
 import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_EXHAUSTED;
 
 public class DashboardFragment extends Fragment implements OnDashboardListener, NativeAdsManager.Listener, com.facebook.ads.AdListener {
@@ -127,6 +148,8 @@ public class DashboardFragment extends Fragment implements OnDashboardListener, 
     private String longitude;
     private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
+    public String[] text = {""};
+    public EditText etEnquiry;
     private Integer image[] = {R.drawable.kharedi, R.drawable.vikri, R.drawable.bhade, R.drawable.rojgar, R.drawable.businessv, R.drawable.charcha};
     private Integer name[] = {R.string.buy, R.string.sell, R.string.rent, R.string.employement, R.string.buisness, R.string.promotion};
 
@@ -766,14 +789,7 @@ public class DashboardFragment extends Fragment implements OnDashboardListener, 
         });
     }
 
-    @Override
-    public void onEditClick(int position) {
-        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
-        } else {
-            Utils.openLogin(context);
-        }
-    }
 
     @Override
     public void onItemClick(int position) {
@@ -857,5 +873,332 @@ public class DashboardFragment extends Fragment implements OnDashboardListener, 
     public void onResume() {
         super.onResume();
         rvList.playAvailableVideos(0);
+    }
+
+
+    @Override
+    public void onEditClick(int position, View view) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
+            DashboardList dl = mAdapter.getSelected(position);
+            if (user_id.equals(dl.getUser_id())) {
+                showSelfMenuOption(view, dl, position);
+            } else {
+                showMenuOption(view, dl.getUser_id(), user_id, dl.getId(), position);
+            }
+
+        } else {
+            Utils.openLogin(context);
+        }
+    }
+
+    public void showSelfMenuOption(View v, DashboardList productArrayList, int position) {
+        PopupMenu popup = new PopupMenu(context, v);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.submenu_self_pop_up, popup.getMenu());
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.action_edit) {
+                    openEditPage(productArrayList);
+                } else if (item.getItemId() == R.id.action_delete) {
+                    deletePostCheck(productArrayList, position);
+                }
+                return true;
+            }
+        });
+
+        popup.show();
+    }
+
+    public void openEditPage(DashboardList productArrayList) {
+        String data_type = productArrayList.getData_type();
+        String listing_status = productArrayList.getListing_status();
+        Intent EditIntent = null;
+        switch (data_type) {
+            case "E":
+                EditIntent = new Intent(context, DbEditEmpListingActivity.class);
+
+                break;
+            case "B":
+                EditIntent = new Intent(context, DbEditBusinessListingActivity.class);
+                break;
+            case "P":
+                EditIntent = new Intent(context, DbEditPromoListingActivity.class);
+                break;
+            case "L":
+                if (listing_status.equals("1")) {
+                    EditIntent = new Intent(context, DbEditSellListingActivity.class);
+                } else {
+                    EditIntent = new Intent(context, DbEditRentListingActivity.class);
+                }
+                break;
+        }
+
+        EditIntent.putExtra("data", productArrayList);
+        context.startActivity(EditIntent);
+
+    }
+
+    public  void deletePostCheck(DashboardList productArrayList, int position) {
+        String data_type = productArrayList.getData_type();
+        String listing_status = productArrayList.getListing_status();
+        String post_id = productArrayList.getId();
+        switch (data_type) {
+            case "E":
+                ConfirmationPoup("E",  post_id,position);
+                break;
+            case "B":
+                ConfirmationPoup("B",  post_id,position);
+                break;
+            case "P":
+                ConfirmationPoup("P",  post_id,position);
+                break;
+            case "L":
+                if (listing_status.equals("1")) {
+                    ConfirmationPoup("S",  post_id,position);
+                } else {
+                    ConfirmationPoup("R",  post_id,position);
+                }
+                break;
+        }
+
+
+    }
+
+    public  void ConfirmationPoup(String type, String post_id, int position) {
+
+        androidx.appcompat.app.AlertDialog alertDialog = new androidx.appcompat.app.AlertDialog.Builder(context)
+                .setIcon(R.mipmap.ic_launcher)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.delete_post)
+                .setPositiveButton(R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                  deletePost(type,  post_id, position);
+                            }
+
+                        }).setNegativeButton(R.string.No, null).show();
+
+        alertDialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLUE);
+
+        alertDialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.DKGRAY);
+
+    }
+
+
+
+    public void showMenuOption(View v,String to_user_id, String self_user_id,String post_id,int postion) {
+
+        PopupMenu popup = new PopupMenu(context, v);
+        //Inflating the Popup using xml file
+        popup.getMenuInflater().inflate(R.menu.submenu_pop_up, popup.getMenu());
+
+        //registering popup with OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.action_report) {
+                     openReportPopup(post_id,  postion);
+                } else {
+                     AddBlock(self_user_id, to_user_id ,postion);
+                }
+                return true;
+            }
+        });
+
+        popup.show();
+    }
+
+    public  void openReportPopup(String id, int position) {
+        View view = LayoutInflater.from(context).inflate(R.layout.report_view, null);
+        Button btnSubmit = (Button) view.findViewById(R.id.btnSubmit);
+        Button btnCancel = (Button) view.findViewById(R.id.btnCancel);
+        RadioGroup rbReport = (RadioGroup) view.findViewById(R.id.rbReport);
+        etEnquiry = (EditText) view.findViewById(R.id.etEnquiry);
+        ImageView gifEnquiry = (ImageView) view.findViewById(R.id.gifEnquiry);
+        ImageView ivClear = (ImageView) view.findViewById(R.id.ivClear);
+
+
+        rbReport.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton radioButton = (RadioButton) group.findViewById(checkedId);
+                text[0] = radioButton.getText().toString();
+
+            }
+        });
+
+
+        ivClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etEnquiry.setText("");
+            }
+        });
+
+        gifEnquiry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, URLs.language);
+                intent.putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.help_text));
+                try {
+//                    ((Activity) context).startActivityForResult(intent, 1);
+                    startActivityForResult(intent, 1);
+                } catch (ActivityNotFoundException a) {
+
+                }
+            }
+        });
+
+        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        builder.setView(view);
+        final android.app.AlertDialog alertDialog = builder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        alertDialog.setCancelable(true);
+        alertDialog.show();
+
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
+
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (!(text[0].equals("") && etEnquiry.getText().toString().equals(""))) {
+                    alertDialog.dismiss();
+                    ReportPost(id,"0","0",text[0], position);
+
+                } else {
+                    etEnquiry.setError("कृपया आपले कारण सबमिट करा किंवा वर दिलेल्या पर्यायांपैकी एक तपासा");
+                    //etEnquiry.setFocusable(true);
+                }
+
+            }
+        });
+    }
+
+    private void AddBlock(String self_user_id, String to_user_id, int position) {
+
+
+
+        Call<ResponseBody> call =mViewModel.block(self_user_id,to_user_id);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+                            String result = response.body().string();
+                            Utils.openSnackBar(result, view);
+                            mAdapter.deleteSelected(position);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
+    }
+
+    private void deletePost(String type, String post_id, int position) {
+
+        Call<ResponseBody> call =mViewModel.deletePost(type,post_id);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+                            String result = response.body().string();
+                            Utils.openSnackBar(result, view);
+                            mAdapter.deleteSelected(position);
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
+    }
+
+    private  void ReportPost(String post_id, String employment_id,String business_id,String report, int position) {
+
+        Call<ResponseBody> call =mViewModel.ReportPost(user_id, post_id, employment_id,business_id, report);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+
+                            String result = response.body().string();
+                            Utils.openSnackBar(result, view);
+                            mAdapter.deleteSelected(position);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 1) {
+                int pos = etEnquiry.getSelectionStart();
+                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                //title.insert(pos, result.get(0));
+                // title.append(" ");
+                etEnquiry.setText(result.get(0));
+                etEnquiry.setSelection(etEnquiry.getText().toString().length());
+                etEnquiry.requestFocus();
+                text[0] = text[0] + " " + etEnquiry.getText().toString();
+            }
+        }
     }
 }

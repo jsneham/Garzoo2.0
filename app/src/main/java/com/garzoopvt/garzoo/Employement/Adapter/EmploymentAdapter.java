@@ -291,6 +291,17 @@ public class EmploymentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return null;
     }
 
+    public void deleteSelected(int position){
+        if(mEmploymentList != null){
+            if(mEmploymentList.size() > 0){
+                mEmploymentList.remove(position);
+
+                notifyDataSetChanged();
+            }
+        }
+
+    }
+
     public class BannerViewViewHolder extends RecyclerView.ViewHolder {
 
         NativeAdLayout nativeAdLayout;

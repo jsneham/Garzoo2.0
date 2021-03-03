@@ -290,6 +290,17 @@ public class RentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         return null;
     }
 
+    public void deleteSelected(int position){
+        if(mRentList != null){
+            if(mRentList.size() > 0){
+                mRentList.remove(position);
+
+                notifyDataSetChanged();
+            }
+        }
+
+    }
+
     public void clearList(){
         mRentList = new ArrayList<>();
         notifyDataSetChanged();

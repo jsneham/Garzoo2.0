@@ -99,7 +99,7 @@ public class PromotionViewHolder extends RecyclerView.ViewHolder implements View
                 mOnListener.onShareClick(getAdapterPosition());
                 break;
             case R.id.ivEdit:
-                mOnListener.onEditClick(getAdapterPosition());
+                mOnListener.onEditClick(getAdapterPosition(),ivEdit);
                 break;
 
             case R.id.item_container:

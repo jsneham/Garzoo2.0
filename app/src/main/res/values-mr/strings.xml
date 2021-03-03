@@ -85,6 +85,7 @@
     <string name="advance_search_tal">शहर/गाव</string>
     <string name="advance_search_city">क्षेत्र/परीसर</string>
     <string name="Submit">सबमिट/समाविष्ट करा</string>
+    <string name="cancle">रद्द करा</string>
     <string name="path">व्यवसायाचे स्थान आणि पथ तपासा</string>
     <string name="regestration">कृपया येथे आपले वस्तु नोंदवा (भाड्याने देणे) </string>
     <string name="regestration_one">(भाड्याने देणे) \nकृपया येथे आपले वस्तु नोंदवा  </string>
@@ -166,6 +167,8 @@
     <string name="enquiry">चौकशी</string>
     <string name="enquiry_msg">Message/Query</string>
     <string name="unblock">अनब्लॉक करा</string>
+    <string name="block">अवरोधित(ब्लॉक) करा</string>
+    <string name="Report">रीपोर्ट करा</string>
 
     <string name="fb_placement_id">390694838957593_390726152287795</string>
 

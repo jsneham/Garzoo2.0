@@ -170,6 +170,65 @@ public class DashboardRepository {
         );
 
     }
+
+    public Call<ResponseBody> block(String self_user_id, String to_user_id){
+
+        return  ServiceGenerator.getDashboardApi().block(
+                URLs.unique_id,
+                self_user_id,
+                to_user_id
+        );
+
+    }
+
+    public Call<ResponseBody> deletePost(String type, String post_id){
+
+        if(type.equals("E")){
+            return  ServiceGenerator.getDashboardApi().Employment_delete_record_2_0(
+                    URLs.unique_id,
+                    post_id
+            );
+        }
+        else if(type.equals("B")){
+            return  ServiceGenerator.getDashboardApi().Business_delete_record_2_0(
+                    URLs.unique_id,
+                    post_id
+            );
+        }
+        else if(type.equals("P")){
+            return  ServiceGenerator.getDashboardApi().Pd_delete_record_2_0(
+                    URLs.unique_id,
+                    post_id
+            );
+        } else if(type.equals("R")){
+            return  ServiceGenerator.getDashboardApi().Listing_rent_delete_record_2_0(
+                    URLs.unique_id,
+                    post_id
+            );
+        }
+        else{
+            return  ServiceGenerator.getDashboardApi().Listing_sell_delete_record_2_0(
+                    URLs.unique_id,
+                    post_id
+            );
+        }
+
+
+    }
+
+    public Call<ResponseBody> ReportPost(String user_id, String post_id, String employment_id,String business_id,String report){
+
+                return  ServiceGenerator.getDashboardApi().ReportPost(
+                        URLs.unique_id,
+                        user_id,
+                        post_id, employment_id,business_id, report
+                );
+
+
+
+
+
+    }
    
 }
 

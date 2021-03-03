@@ -211,4 +211,20 @@ public class DashboardViewModel extends AndroidViewModel {
 
     }
 
+    public Call<ResponseBody> block(String self_user_id, String to_user_id){
+
+        return dashboardRepository.block( self_user_id,to_user_id);
+
+    }
+    public Call<ResponseBody> deletePost(String type, String to_user_id){
+
+        return dashboardRepository.deletePost( type,to_user_id);
+
+    }
+    public Call<ResponseBody> ReportPost(String user_id, String post_id, String employment_id,String business_id,String report){
+
+        return dashboardRepository.ReportPost(user_id, post_id, employment_id,business_id, report);
+
+    }
+
 }

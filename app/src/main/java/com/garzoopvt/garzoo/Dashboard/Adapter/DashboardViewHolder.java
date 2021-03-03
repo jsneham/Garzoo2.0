@@ -99,7 +99,7 @@ public class DashboardViewHolder extends AAH_CustomViewHolder implements View.On
                 mOnDashboardListener.onShareClick(getAdapterPosition());
                 break;
             case R.id.ivEdit:
-                mOnDashboardListener.onEditClick(getAdapterPosition());
+                mOnDashboardListener.onEditClick(getAdapterPosition(),ivEdit);
                 break;
 
             case R.id.item_container:

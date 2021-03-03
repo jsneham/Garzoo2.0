@@ -91,6 +91,7 @@
     <string name="advance_search_tal">City/Village</string>
     <string name="advance_search_city">Area/premises</string>
     <string name="Submit">Submit </string>
+    <string name="cancle">Cancel</string>
     <string name="path">Check the location and path of the business</string>
     <string name="regestration">Please register your item here (Rental)</string>
     <string name="regestration_one">(Rental) \nPlease register your item here </string>
@@ -166,6 +167,8 @@
     <string name="enquiry_msg">Message/Query</string>
     <string name="sucess">"Your response has been recorded! Thank you"</string>
     <string name="unblock">Unblock</string>
+    <string name="block">Block</string>
+    <string name="Report">Report</string>
 
     <string name="fb_placement_id">390694838957593_390726152287795</string>
 

@@ -1,5 +1,6 @@
 package com.garzoopvt.garzoo.Dashboard.Adapter;
 
+import android.view.View;
 import android.widget.Button;
 
 public interface OnDashboardListener {
@@ -8,6 +9,6 @@ public interface OnDashboardListener {
     void onChatClick(int position);
     void onShareClick(int position);
     void onLikeClick(int position, Button ivInterested);
-    void onEditClick(int position);
+    void onEditClick(int position, View view);
     void onItemClick(int position);
 }

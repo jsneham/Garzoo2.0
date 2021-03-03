@@ -412,7 +412,7 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
     }
 
     @Override
-    public void onEditClick(int position) {
+    public void onEditClick(int position, View view) {
         if(!(user_id.equals("0")|| user_id.isEmpty())) {
 
         }

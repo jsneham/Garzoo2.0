@@ -296,6 +296,17 @@ public class BuyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         return null;
     }
 
+    public void deleteSelected(int position){
+        if(mBuyList != null){
+            if(mBuyList.size() > 0){
+                mBuyList.remove(position);
+
+                notifyDataSetChanged();
+            }
+        }
+
+    }
+
     public class BannerViewViewHolder extends RecyclerView.ViewHolder {
 
         NativeAdLayout nativeAdLayout;
