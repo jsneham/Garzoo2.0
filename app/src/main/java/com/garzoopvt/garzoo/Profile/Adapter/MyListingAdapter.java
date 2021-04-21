@@ -44,13 +44,13 @@ public class MyListingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private List<DashboardList> mDashboardList;
     private List<NativeAd> mAdItems;
-    private OnDashboardListener mOnDashboardListener;
+    private OnMyListListener mOnDashboardListener;
     private Context mContext;
     private NativeAdsManager mNativeAdsManager;
     private RequestManager requestManager;
     private ViewPreloadSizeProvider<String> preloadSizeProvider;
 
-    public MyListingAdapter(OnDashboardListener mOnDashboardListener, Context mContext,
+    public MyListingAdapter(OnMyListListener mOnDashboardListener, Context mContext,
                             NativeAdsManager mNativeAdsManager,
                             RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider, String user_id) {
         this.mOnDashboardListener = mOnDashboardListener;
@@ -71,8 +71,8 @@ public class MyListingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         switch (i) { // i is the view type constant
             case LIST_TYPE:{
-                view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.dashboard_row, viewGroup, false);
-                return new DashboardViewHolder(view, mOnDashboardListener,requestManager,preloadSizeProvider);
+                view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.mylisting_row, viewGroup, false);
+                return new MyListViewHolder(view, mOnDashboardListener,requestManager,preloadSizeProvider);
             }
             case LOADING_TYPE:{
                 view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_loading_list_item, viewGroup, false);
@@ -91,8 +91,8 @@ public class MyListingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 return new BannerViewViewHolder((NativeAdLayout)view);
             }
             default:{
-                view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.dashboard_row, viewGroup, false);
-                return new DashboardViewHolder(view, mOnDashboardListener,requestManager,preloadSizeProvider);
+                view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.mylisting_row, viewGroup, false);
+                return new MyListViewHolder(view, mOnDashboardListener,requestManager,preloadSizeProvider);
             }
         }
     }
@@ -106,8 +106,8 @@ public class MyListingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 //                if(index==-1){
 //                    ((DashboardViewHolder) viewHolder).item_container.setLayoutParams(((DashboardViewHolder) viewHolder).params);
 //                }else {
-
-                ((DashboardViewHolder)viewHolder).onBind(mDashboardList.get(i), mContext,i,user_id);
+                ((MyListViewHolder)viewHolder).ivEdit.setVisibility(View.GONE);
+                ((MyListViewHolder)viewHolder).onBind(mDashboardList.get(i), mContext,i,user_id);
 
 //                }
             }
@@ -292,6 +292,17 @@ public class MyListingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
         }
         return null;
+    }
+
+    public void deleteSelected(int position){
+        if(mDashboardList != null){
+            if(mDashboardList.size() > 0){
+                mDashboardList.remove(position);
+
+                notifyDataSetChanged();
+            }
+        }
+
     }
 
     public class BannerViewViewHolder extends RecyclerView.ViewHolder {

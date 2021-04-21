@@ -76,10 +76,10 @@ public class BusinessFragment extends Fragment implements NativeAdsManager.Liste
     //Data
     private String category_id = "";
     private String user_id = "0";
-    private String username = "Sneha";
+    private String username = "";
     private String search_name = "";
-    private String latitude = "19.108589";
-    private String longitude = "72.827072";
+    private String latitude = "";
+    private String longitude = "";
     private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
 
@@ -205,7 +205,7 @@ public class BusinessFragment extends Fragment implements NativeAdsManager.Liste
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
-                                Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
+                               //  Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
                                 if (listResource.message.equals(QUERY_EXHAUSTED)) {
                                     mAdapter.setQueryExhausted();
@@ -283,7 +283,7 @@ public class BusinessFragment extends Fragment implements NativeAdsManager.Liste
                     String number = dl.getMobile();
                     Intent intent = new Intent(Intent.ACTION_DIAL);
                     intent.setData(Uri.parse("tel:" + number));
-                    context.startActivity(intent);
+                    startActivity(intent);
                 } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
             }
         } else {
@@ -311,8 +311,8 @@ public class BusinessFragment extends Fragment implements NativeAdsManager.Liste
             Business dl = mAdapter.getSelected(position);
             if (!dl.getUser_id().equals(user_id)) {
                 if (dl.getInterest_status().equalsIgnoreCase("yes")) {
-                    ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_thumb_up_24, 0, 0, 0);
-                    dl.setInterest_status("no");
+                  //  ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_thumb_up_24, 0, 0, 0);
+                    //dl.setInterest_status("no");
                 } else {
                     ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_thumb_up_24, 0, 0, 0);
                     dl.setInterest_status("yes");
@@ -381,6 +381,6 @@ public class BusinessFragment extends Fragment implements NativeAdsManager.Liste
         Business dl = mAdapter.getSelected(position);
         Intent intent = new Intent(context, BusinessInnerActivity.class);
         intent.putExtra("data", dl);
-        context.startActivity(intent);
+        startActivity(intent);
     }
 }

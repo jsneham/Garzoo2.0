@@ -111,7 +111,7 @@ public class SliderItemView extends RelativeLayout {
             case ITEM_LOCAL_IMAGE:
                 imageView.setVisibility(View.VISIBLE);
                 videoView.setVisibility(View.INVISIBLE);
-                RequestCreator rq = Picasso.with(getContext()).load(file);
+                RequestCreator rq = Picasso.get().load(file);
                 rq.fit().centerInside();
                 rq.into(imageView);
                 break;

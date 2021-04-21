@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.garzoopvt.garzoo.BuySell.Model.Buy;
 import com.garzoopvt.garzoo.BuySell.Model.Category;
 import com.garzoopvt.garzoo.R;
+import com.google.android.material.card.MaterialCardView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.MyView
         public ImageView android_gridview_image, android_gridview_image_replace;
         FrameLayout linear_card;
         OnCategoryListener onCategoryListener;
+        MaterialCardView cardview;
 
         public MyViewHolder(View gridViewAndroid, OnCategoryListener onCategoryListener) {
             super(gridViewAndroid);
@@ -41,12 +43,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.MyView
             android_gridview_image = (ImageView) gridViewAndroid.findViewById(R.id.image);
             // linear_card = (FrameLayout) gridViewAndroid.findViewById(R.id.linear_card);
             android_gridview_text = (TextView) gridViewAndroid.findViewById(R.id.name);
-
-            android_gridview_image.setOnClickListener(this::onClick);
+            cardview = (MaterialCardView) itemView.findViewById( R.id.album_item_container);
+            cardview.setOnClickListener(this::onClick);
         }
 
         @Override
         public void onClick(View view) {
+
             onCategoryListener.onCategoryItemClick(getAdapterPosition());
         }
     }
@@ -69,8 +72,11 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.MyView
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         final Category v = headerArrayList.get(position);
+
+
         holder.android_gridview_text.setText(v.getName());
-        Picasso.with(context).load(v.getImage()).into(holder.android_gridview_image);
+        Picasso.get().load(v.getImage()).into(holder.android_gridview_image);
+
 
     }
 

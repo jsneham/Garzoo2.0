@@ -26,7 +26,7 @@ public abstract  class BuyDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     BuyDatabase.class,
                     DATABASE_NAME
-            ).build();
+            ).allowMainThreadQueries().build();
         }
         return instance;
     }

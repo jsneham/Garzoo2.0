@@ -1,6 +1,7 @@
 package com.garzoopvt.garzoo.Util;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -14,11 +15,14 @@ import retrofit2.Callback;
 public class Transaltion {
 
     private static LoginApi api;
+    private SessionManager sessionManager;
 
-    public static void translate(String text, EditText editText){
+    public static void translate(String text, EditText editText, Context context){
         if(text!=null) {
+            SessionManager sessionManager = new SessionManager(context);
+            String lang= sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
             api = ServiceGenerator.getLoginApi();
-            api.translate(text)
+            api.translate(text, lang)
                     .enqueue(new Callback<TransaleOutput>() {
                         @Override
                         public void onResponse(Call<TransaleOutput> call,
@@ -41,10 +45,11 @@ public class Transaltion {
         }
     }
 
-
-    public static void translate(String text, TextView editText){
+    public static void translate(String text, TextView editText, Context context){
+        SessionManager sessionManager = new SessionManager(context);
+        String lang= sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
         api = ServiceGenerator.getLoginApi();
-        api.translate(text)
+        api.translate(text, lang)
                 .enqueue(new Callback<TransaleOutput>() {
                     @Override
                     public void onResponse(Call<TransaleOutput> call,
@@ -65,13 +70,12 @@ public class Transaltion {
                 });
     }
 
-
-
     public static void translateListing(String text, EditText editText, String type, Context context){
         if(text!=null) {
             SessionManager sessionManager = new SessionManager(context);
+            String lang= sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
             api = ServiceGenerator.getLoginApi();
-            api.translate(text)
+            api.translate(text, lang)
                     .enqueue(new Callback<TransaleOutput>() {
                         @Override
                         public void onResponse(Call<TransaleOutput> call,
@@ -95,7 +99,7 @@ public class Transaltion {
 
                         @Override
                         public void onFailure(Call<TransaleOutput> call, Throwable t) {
-
+                            Log.d("TransaleOutput", "onFailure: ");
                         }
                     });
         }

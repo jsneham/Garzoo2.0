@@ -32,7 +32,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
-import com.garzoopvt.garzoo.BuySell.Adapter.CategoryAdapter;
+
 import com.garzoopvt.garzoo.BuySell.Adapter.OnCategoryListener;
 import com.garzoopvt.garzoo.BuySell.Model.Category;
 import com.garzoopvt.garzoo.Dashboard.Activity.DashboardInnerActivity;
@@ -86,10 +86,10 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
     private ArrayList<Category> categoryArrayList = new ArrayList<>();
     private String category_id = "";
     private String user_id = "0";
-    private String username = "Sneha";
+    private String username = "";
     private String search_name = "";
-    private String latitude = "19.108589";
-    private String longitude = "72.827072";
+    private String latitude = "";
+    private String longitude = "";
     private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
 
@@ -214,7 +214,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
-                                Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
+                            //     Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
                                 if (listResource.message.equals(QUERY_EXHAUSTED)) {
                                     mAdapter.setQueryExhausted();
@@ -310,7 +310,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
                     String number = dl.getMobile();
                     Intent intent = new Intent(Intent.ACTION_DIAL);
                     intent.setData(Uri.parse("tel:" + number));
-                    context.startActivity(intent);
+                    startActivity(intent);
                 } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
             }
         } else {
@@ -408,7 +408,7 @@ public class RentFragment extends Fragment implements NativeAdsManager.Listener,
         Rent dl = mAdapter.getSelected(position);
         Intent intent = new Intent(context, RentInnerActivity.class);
         intent.putExtra("data", dl);
-        context.startActivity(intent);
+        startActivity(intent);
     }
 
     @Override

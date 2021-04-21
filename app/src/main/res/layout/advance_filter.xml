@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <include
+        layout="@layout/search_layout_advance"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp50"
+        android:layout_margin="@dimen/dp5"></include>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp5">
+
+        <LinearLayout
+            android:weightSum="3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/rbK"
+                android:checked="true"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/buy" />
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/rbR"  android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/rent" />
+
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/rbB"  android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/buisness" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:weightSum="4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/rbE"  android:layout_weight="1.5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/employement" />
+            <androidx.appcompat.widget.AppCompatRadioButton
+                android:id="@+id/rbP"  android:layout_weight="2.5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/promotion" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp5"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp60"
+            >
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+
+                app:hintTextColor="@color/theme2"
+                android:hint="@string/advance_search_tal"
+                android:layout_toLeftOf="@+id/gifDist"
+                android:textColorHint="@color/theme2"
+                app:boxStrokeColor="@color/theme2"
+                app:startIconDrawable="@drawable/ic_baseline_location_on_24"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                >
+
+                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                    android:id="@+id/etDistrict"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <pl.droidsonroids.gif.GifImageView
+                android:src="@drawable/mic"
+                android:layout_width="@dimen/dp25"
+                android:layout_alignParentRight="true"
+                android:id="@+id/gifDist"
+                android:layout_height="match_parent"/>
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp60"
+            >
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="@string/rtaluka"
+                android:layout_toLeftOf="@+id/gifTalk"
+                app:hintTextColor="@color/theme2"
+                app:boxStrokeColor="@color/theme2"
+                android:textColorHint="@color/theme2"
+                app:startIconDrawable="@drawable/ic_baseline_location_on_24"
+                >
+
+                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                    android:id="@+id/etTaluka"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+            <pl.droidsonroids.gif.GifImageView
+                android:src="@drawable/mic"
+                android:layout_width="@dimen/dp25"
+                android:layout_alignParentRight="true"
+                android:id="@+id/gifTalk"
+                android:layout_height="match_parent"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp60"
+            >
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_toLeftOf="@+id/gifArea"
+                android:layout_height="wrap_content"
+                app:hintTextColor="@color/theme2"
+                android:hint="@string/advance_search_city"
+                android:textColorHint="@color/theme2"
+                app:boxStrokeColor="@color/theme2"
+                app:startIconDrawable="@drawable/ic_baseline_location_city_24"
+                >
+
+                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:inputType="text"
+                    android:id="@+id/etArea"
+                    />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <pl.droidsonroids.gif.GifImageView
+                android:src="@drawable/mic"
+                android:layout_width="@dimen/dp25"
+                android:layout_alignParentRight="true"
+                android:id="@+id/gifArea"
+
+                android:layout_height="match_parent"/>
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_margin="@dimen/dp5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_margin="@dimen/dp5"
+            android:layout_weight="1"
+            android:background="@color/theme2"
+            android:backgroundTint="@color/theme2"
+            android:text="@string/cancle"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_margin="@dimen/dp5"
+            android:layout_weight="1"
+            android:background="@color/theme2"
+            android:backgroundTint="@color/theme2"
+            android:text="@string/Submit"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -15,6 +15,7 @@ import java.io.Serializable;
 
 @Entity(tableName = "employment")
 public class Employment implements Parcelable {
+
     @PrimaryKey
     @NonNull
     private String id;
@@ -109,13 +110,19 @@ public class Employment implements Parcelable {
     @ColumnInfo(name = "timestamp")
     private int timestamp;
 
-
+    @ColumnInfo(name = "block_status")
+    private String block_status;
 
     public Employment(){
 
     }
 
-    public Employment(@NonNull String id, String distance, String image_id, String video, String interest_status, String address, String mobile_status, String admin_id, String category_id, String user_id, String title, String description, String price, String image, String images, String latitude, String longitude, String available_status, String status, String last_modified, String dt, String fname, String lname, String emp_status, String media_url, String area, String taluka, String mobile, int timestamp) {
+    public Employment(@NonNull String id, String distance, String image_id, String video, String interest_status,
+                      String address, String mobile_status, String admin_id, String category_id,
+                      String user_id, String title, String description, String price, String image,
+                      String images, String latitude, String longitude, String available_status, String status,
+                      String last_modified, String dt, String fname, String lname, String emp_status,
+                      String media_url, String area, String taluka, String mobile, int timestamp, String block_status) {
         this.id = id;
         this.distance = distance;
         this.image_id = image_id;
@@ -145,6 +152,7 @@ public class Employment implements Parcelable {
         this.taluka = taluka;
         this.mobile = mobile;
         this.timestamp = timestamp;
+        this.block_status = block_status;
     }
 
 
@@ -178,6 +186,7 @@ public class Employment implements Parcelable {
         taluka = in.readString();
         mobile = in.readString();
         timestamp = in.readInt();
+        block_status = in.readString();
     }
 
     public static final Creator<Employment> CREATOR = new Creator<Employment>() {
@@ -425,6 +434,14 @@ public class Employment implements Parcelable {
         this.timestamp = timestamp;
     }
 
+    public String getBlock_status() {
+        return block_status;
+    }
+
+    public void setBlock_status(String block_status) {
+        this.block_status = block_status;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -461,6 +478,7 @@ public class Employment implements Parcelable {
         parcel.writeString(taluka);
         parcel.writeString(mobile);
         parcel.writeInt(timestamp);
+        parcel.writeString(block_status);
     }
 
     @Override
@@ -495,6 +513,7 @@ public class Employment implements Parcelable {
                 ", taluka='" + taluka + '\'' +
                 ", mobile='" + mobile + '\'' +
                 ", timestamp=" + timestamp +
+                ", block_status='" + block_status + '\'' +
                 '}';
     }
 }

@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.ExifInterface;
+import android.os.Build;
 import android.os.Environment;
 
 import java.io.File;
@@ -137,10 +138,24 @@ public class ImageCompression {
     }
 
     public static String getFilename(Context context) {
-        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
-                + "/Android/data/"
-                + context.getApplicationContext().getPackageName()
-                + "/Files/Compressed");
+//        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
+//                + "/Android/data/"
+//                + context.getApplicationContext().getPackageName()
+//                + "/Files/Compressed");
+
+        File mediaStorageDir=null;
+
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+             mediaStorageDir =  new File(context.getExternalFilesDir(""),
+                    context.getApplicationContext().getPackageName() +"/Files/Compressed");
+        }
+        else{
+             mediaStorageDir = new File(Environment.getExternalStorageDirectory()
+                    + "/Android/data/"
+                    + context.getApplicationContext().getPackageName()
+                    + "/Files/Compressed");
+        }
 
         // Create the storage directory if it does not exist
         if (! mediaStorageDir.exists()){
@@ -152,5 +167,9 @@ public class ImageCompression {
         return uriString;
 
     }
+
+
+
+
 
 }

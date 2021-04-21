@@ -23,6 +23,7 @@ import com.garzoopvt.garzoo.Util.ExpandableTextView;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
 import com.google.android.material.card.MaterialCardView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -71,7 +72,7 @@ public class RentViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         //img_vol = itemView.findViewById(R.id.img_vol);
         img_playback = itemView.findViewById(R.id.img_playback);
         flVideo = itemView.findViewById(R.id.flVideo);
-      //  image = itemView.findViewById(R.id.image);
+        image = itemView.findViewById(R.id.image);
 
 
         ivCall.setOnClickListener(this::onClick);
@@ -80,12 +81,15 @@ public class RentViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         ivShare.setOnClickListener(this::onClick);
         ivEdit.setOnClickListener(this::onClick);
         item_container.setOnClickListener(this::onClick);
+        flVideo.setOnClickListener(this::onClick);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-
+            case R.id.flVideo:
+                mOnListener.onVideoClick(getAdapterPosition());
+                break;
             case R.id.ivCall:
                 mOnListener.onCallClick(getAdapterPosition());
                 break;
@@ -105,6 +109,10 @@ public class RentViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
             case R.id.item_container:
                 mOnListener.onItemClick(getAdapterPosition());
+                break;
+
+            case R.id.img_playback:
+                mOnListener.onVideoClick(getAdapterPosition());
                 break;
         }
     }
@@ -126,7 +134,7 @@ public class RentViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         }
 
 
-        username.setText(i + ") " + mRentList.getFname() + " " + mRentList.getLname());
+        username.setText(mRentList.getFname() + " " + mRentList.getLname());
         txtView_title.setText(mRentList.getTitle());
         txtView_description.setText(mRentList.getDescription().trim());
         timestamp.setText(Utils.formateDate(mRentList.getDt()));
@@ -151,12 +159,21 @@ public class RentViewHolder extends RecyclerView.ViewHolder implements View.OnCl
                 break;
         }
 
-        head.setText(String.format("%1$s %2$s", mContext.getString(R.string.title), " : "));
-        tdescription.setText(String.format("%1$s %2$s", mContext.getString(R.string.description_), " : "));
+        head.setText(String.format("%1$s %2$s", mContext.getString(R.string.title1), " : "));
+        tdescription.setText(String.format("%1$s %2$s", mContext.getString(R.string.description1), " : "));
         tprice.setText(String.format("%1$s %2$s", mContext.getString(R.string.dar), " : "));
 
         String imge[] = mRentList.getImages().split(",");
         createGallery(imge, rvImages, mRentList, mContext);
+
+        if (mRentList.getVideo() == null || mRentList.getVideo().equals("")) {
+            flVideo.setVisibility(View.GONE);
+        } else {
+            flVideo.setVisibility(View.VISIBLE);
+            //Picasso.get().load(URLs.IMAGE_URL + mRentList.getImage()).into(image);
+            Glide.with(mContext)
+                    .load(mRentList.getVideo()).into(image);
+        }
 
     }
 
@@ -170,6 +187,7 @@ public class RentViewHolder extends RecyclerView.ViewHolder implements View.OnCl
             else if (!img.equals("")) imagesList.add(img);
         }
 
+
         _sGridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
@@ -182,7 +200,7 @@ public class RentViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
             }
         });
-//        }
+
 
         rvImages.setLayoutManager(_sGridLayoutManager);
         MultipleImagesAdapter rcAdapter = new MultipleImagesAdapter(mContext, imagesList, requestManager, preloadSizeProvider);

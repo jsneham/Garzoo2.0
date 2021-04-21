@@ -17,7 +17,7 @@ public class Testing {
 
     public static void printRecipess(String tag, List<DashboardList> list) {
         for (DashboardList r : list) {
-            Log.d(tag, "printRecipes: " + r.getId() + ", " + r.getTitle());
+            Log.d(tag, "printRecipes: " + r.getListing_id() + ", " + r.getTitle());
         }
     }
 }

@@ -23,6 +23,7 @@ import com.garzoopvt.garzoo.Util.ExpandableTextView;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
 import com.google.android.material.card.MaterialCardView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -71,7 +72,7 @@ public class EmploymentViewHolder extends RecyclerView.ViewHolder implements Vie
         //img_vol = itemView.findViewById(R.id.img_vol);
         img_playback = itemView.findViewById(R.id.img_playback);
         flVideo = itemView.findViewById(R.id.flVideo);
-       // image = itemView.findViewById(R.id.image);
+        image = itemView.findViewById(R.id.image);
 
         ivCall.setOnClickListener(this::onClick);
         ivChat.setOnClickListener(this::onClick);
@@ -79,12 +80,15 @@ public class EmploymentViewHolder extends RecyclerView.ViewHolder implements Vie
         ivShare.setOnClickListener(this::onClick);
         ivEdit.setOnClickListener(this::onClick);
         item_container.setOnClickListener(this::onClick);
+        flVideo.setOnClickListener(this::onClick);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-
+            case R.id.flVideo:
+                mOnListener.onVideoClick(getAdapterPosition());
+                break;
             case R.id.ivCall:
                 mOnListener.onCallClick(getAdapterPosition());
                 break;
@@ -104,6 +108,10 @@ public class EmploymentViewHolder extends RecyclerView.ViewHolder implements Vie
 
             case R.id.item_container:
                 mOnListener.onItemClick(getAdapterPosition());
+                break;
+
+            case R.id.img_playback:
+                mOnListener.onVideoClick(getAdapterPosition());
                 break;
         }
     }
@@ -126,7 +134,7 @@ public class EmploymentViewHolder extends RecyclerView.ViewHolder implements Vie
 
         }
 
-        username.setText(i + ") " + mList.getFname() + " " + mList.getLname());
+        username.setText(mList.getFname() + " " + mList.getLname());
         txtView_title.setText(mList.getTitle());
         txtView_description.setText(mList.getDescription().trim());
         timestamp.setText(Utils.formateDate(mList.getDt()));
@@ -144,12 +152,21 @@ public class EmploymentViewHolder extends RecyclerView.ViewHolder implements Vie
         String emp_status = (mList.getEmp_status().equals("1")) ? mContext.getString(R.string.kam_pahije) : mContext.getString(R.string.roj_pahije);
         type.setText(emp_status);
 
-        head.setText(String.format("%1$s %2$s", mContext.getString(R.string.kala), " : "));
-        tdescription.setText(String.format("%1$s %2$s", mContext.getString(R.string.emp_description_), " : "));
-        tprice.setText(String.format("%1$s %2$s", mContext.getString(R.string.empprice_), " : "));
+        head.setText(String.format("%1$s %2$s", mContext.getString(R.string.emp_title), " : "));
+        tdescription.setText(String.format("%1$s %2$s", mContext.getString(R.string.emp_description), " : "));
+        tprice.setText(String.format("%1$s %2$s", mContext.getString(R.string.emp_price), " : "));
 
         String imge[] = mList.getImages().split(",");
         createGallery(imge, rvImages, mList, mContext);
+
+        if (mList.getVideo() == null || mList.getVideo().equals("")) {
+            flVideo.setVisibility(View.GONE);
+        } else {
+            flVideo.setVisibility(View.VISIBLE);
+           // Picasso.get().load(URLs.IMAGE_URL + mList.getImage()).into(image);
+            Glide.with(mContext)
+                    .load(mList.getVideo()).into(image);
+        }
 
     }
 
@@ -163,6 +180,7 @@ public class EmploymentViewHolder extends RecyclerView.ViewHolder implements Vie
             else if (!img.equals("")) imagesList.add(img);
         }
 
+
         _sGridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
@@ -175,7 +193,7 @@ public class EmploymentViewHolder extends RecyclerView.ViewHolder implements Vie
 
             }
         });
-//        }
+
 
         rvImages.setLayoutManager(_sGridLayoutManager);
         MultipleImagesAdapter rcAdapter = new MultipleImagesAdapter(mContext, imagesList, requestManager, preloadSizeProvider);

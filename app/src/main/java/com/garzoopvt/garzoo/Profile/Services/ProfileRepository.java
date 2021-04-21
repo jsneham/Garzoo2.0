@@ -22,6 +22,8 @@ import com.garzoopvt.garzoo.Profile.Room.InterestedListDao;
 import com.garzoopvt.garzoo.Profile.Room.InterestedListDatabase;
 import com.garzoopvt.garzoo.Profile.Room.MyListDao;
 import com.garzoopvt.garzoo.Profile.Room.MyListDatabase;
+import com.garzoopvt.garzoo.Profile.Room.UserMoreDatabase;
+import com.garzoopvt.garzoo.Profile.Room.UserMoreListDao;
 import com.garzoopvt.garzoo.RetrofitService.ApiResponse;
 import com.garzoopvt.garzoo.RetrofitService.AppExecutors;
 import com.garzoopvt.garzoo.RetrofitService.NetworkBoundResource;
@@ -29,6 +31,7 @@ import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.RetrofitService.ServiceGenerator;
 import com.garzoopvt.garzoo.Util.URLs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.RequestBody;
@@ -41,9 +44,10 @@ public class ProfileRepository {
 
     private int mPageNumber;
 
-    private InterestedListDao dashboardListDao;
+    private InterestedListDao interestedListDao;
     private BlockedListDao blockedListDao;
     private MyListDao myListDao;
+    private UserMoreListDao userMoreListDao;
 
     public static ProfileRepository getInstance(Context context) {
         if (instance == null) {
@@ -53,9 +57,10 @@ public class ProfileRepository {
     }
 
     private ProfileRepository(Context context) {
-        dashboardListDao = InterestedListDatabase.getInstance(context).getDashboardListDao();
+        interestedListDao = InterestedListDatabase.getInstance(context).getDashboardListDao();
         blockedListDao = BlockedListDatabase.getInstance(context).getListDao();
         myListDao = MyListDatabase.getInstance(context).getDashboardListDao();
+        userMoreListDao = UserMoreDatabase.getInstance(context).getDashboardListDao();
     }
 
     public Call<ResponseBody> contactUs(String mobile, String email, String message, String name) {
@@ -82,23 +87,37 @@ public class ProfileRepository {
             public void saveCallResult(@NonNull InterestedResponse item) {
 
                 if (item.getDashboard() != null) { //  list will be null if api key is expired
-                    DashboardList[] recipes = new DashboardList[item.getDashboard().size()];
-
+                    DashboardList[] list = new DashboardList[item.getDashboard().size()];
+                    ArrayList<String> ids=new ArrayList<>();
                     int index = 0;
-                    for (long rowId : dashboardListDao.insertRecipes((DashboardList[]) (item.getDashboard().toArray(recipes)))) {
+                    for (long rowId : interestedListDao.insertData((DashboardList[]) (item.getDashboard().toArray(list)))) {
                         if (rowId == -1) { // conflict detected
                             Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
                             // if already exists, I don't want to set the values  or timestamp b/c they will be erased
-                            dashboardListDao.updateList(
-                                    recipes[index].getId(),
-                                    recipes[index].getTitle(),
-                                    recipes[index].getDescription(),
-                                    recipes[index].getPrice(),
-                                    recipes[index].getAddress()
+                            interestedListDao.updateList(
+                                    list[index].getId(),
+                                    list[index].getTitle(),
+                                    list[index].getDescription(),
+                                    list[index].getPrice(),
+                                    list[index].getAddress(),
+                                    list[index].getImages(),
+                                    list[index].getImage_id(),
+                                    list[index].getBlock_status(),
+                                    list[index].getStatus(),
+                                    list[index].getInterest_status(),
+                                    list[index].getLatitude(),
+                                    list[index].getLongitude(),
+                                    list[index].getDistance(),
+                                    list[index].getListing_id()
+
                             );
                         }
+                        ids.add(list[index].getId());
                         index++;
+
                     }
+
+                    if(ids.size()>0)interestedListDao.deleteOldData(ids);
                 }
 
             }
@@ -111,7 +130,7 @@ public class ProfileRepository {
             @NonNull
             @Override
             public LiveData<List<DashboardList>> loadFromDb() {
-                return dashboardListDao.searchList(search_name, pageNumber);
+                return interestedListDao.getLIst();
             }
 
             @NonNull
@@ -130,9 +149,8 @@ public class ProfileRepository {
         }.getAsLiveData();
     }
 
-
     public Call<ResponseBody> interest(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
-                                       RequestBody listing_id, RequestBody type, RequestBody listing_title) {
+                                       RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type, RequestBody language) {
 
         return ServiceGenerator.getDashboardApi().interest(
                 unique_id,
@@ -141,8 +159,67 @@ public class ProfileRepository {
                 full_name,
                 listing_id,
                 type,
-                listing_title
+                listing_title,
+                listing_type,
+                language
         );
+
+    }
+
+    public LiveData<Resource<List<DashboardList>>> interest1(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
+                                                             RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type) {
+        return new NetworkBoundResource<List<DashboardList>, DashboardResponse>(AppExecutors.getInstance()) {
+
+            @Override
+            public void saveCallResult(@NonNull DashboardResponse item) {
+
+                if (item.getDashboard() != null) { //  list will be null if api key is expired
+                    DashboardList[] recipes = new DashboardList[item.getDashboard().size()];
+
+                    int index = 0;
+                    for (long rowId : interestedListDao.insertData((DashboardList[]) (item.getDashboard().toArray(recipes)))) {
+                        if (rowId == -1) { // conflict detected
+                            Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
+                            // if already exists, I don't want to set the values  or timestamp b/c they will be erased
+                            interestedListDao.updateInterestStatusList(
+                                    recipes[index].getId(),
+                                    recipes[index].getInterest_status()
+                            );
+                        }
+                        index++;
+                    }
+                }
+
+            }
+
+            @Override
+            public boolean shouldFetch(@Nullable List<DashboardList> data) {
+                return true; // always query the network since the queries can be anything
+            }
+
+            @NonNull
+            @Override
+            public LiveData<List<DashboardList>> loadFromDb() {
+                return interestedListDao.getLIst();
+
+            }
+
+            @NonNull
+            @Override
+            public LiveData<ApiResponse<DashboardResponse>> createCall() {
+                return ServiceGenerator.getDashboardApi().interest1(
+                        unique_id,
+                        user_id,
+                        to_user_id,
+                        full_name,
+                        listing_id,
+                        type,
+                        listing_title,
+                        listing_type
+                );
+            }
+
+        }.getAsLiveData();
 
     }
 
@@ -157,7 +234,7 @@ public class ProfileRepository {
                     BlockedPeople[] recipes = new BlockedPeople[item.getBlocked().size()];
 
                     int index = 0;
-                    for (long rowId : blockedListDao.insertRecipes((BlockedPeople[]) (item.getBlocked().toArray(recipes)))) {
+                    for (long rowId : blockedListDao.insertData((BlockedPeople[]) (item.getBlocked().toArray(recipes)))) {
                         if (rowId == -1) { // conflict detected
                             Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
                             // if already exists, I don't want to set the values  or timestamp b/c they will be erased
@@ -212,25 +289,36 @@ public class ProfileRepository {
             public void saveCallResult(@NonNull MyListResponse item) {
 
                 if (item.getDashboard() != null) { //  list will be null if api key is expired
-                    DashboardList[] recipes = new DashboardList[item.getDashboard().size()];
-
+                    DashboardList[] list = new DashboardList[item.getDashboard().size()];
+                    ArrayList<String> ids=new ArrayList<>();
                     int index = 0;
-                    for (long rowId : myListDao.insertRecipes((DashboardList[]) (item.getDashboard().toArray(recipes)))) {
+                    for (long rowId : myListDao.insertData((DashboardList[]) (item.getDashboard().toArray(list)))) {
                         if (rowId == -1) { // conflict detected
                             Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
                             // if already exists, I don't want to set the values  or timestamp b/c they will be erased
                             myListDao.updateList(
-                                    recipes[index].getId(),
-                                    recipes[index].getTitle(),
-                                    recipes[index].getDescription(),
-                                    recipes[index].getPrice(),
-                                    recipes[index].getAddress(),
-                                    recipes[index].getData_type()
+                                    list[index].getId(),
+                                    list[index].getTitle(),
+                                    list[index].getDescription(),
+                                    list[index].getPrice(),
+                                    list[index].getAddress(),
+                                    list[index].getImages(),
+                                    list[index].getImage_id(),
+                                    list[index].getBlock_status(),
+                                    list[index].getStatus(),
+                                    list[index].getInterest_status(),
+                                    list[index].getLatitude(),
+                                    list[index].getLongitude(),
+                                    list[index].getDistance(),
+                                    list[index].getListing_id()
 
                             );
                         }
+                        ids.add(list[index].getId());
                         index++;
+
                     }
+                    if(ids.size()>0) myListDao.deleteOldData(ids);
                 }
 
             }
@@ -297,6 +385,208 @@ public class ProfileRepository {
 
         return ServiceGenerator.getProfileApi().user_mobile_update(
                 mobileno, user_id
+        );
+
+    }
+
+
+    public LiveData<Resource<List<DashboardList>>> getUserMoreListApi(final String user_id, final int pageNumber, final String search_name, final String latitude, final String longitude, final String type) {
+        return new NetworkBoundResource<List<DashboardList>, MyListResponse>(AppExecutors.getInstance()) {
+
+            @Override
+            public void saveCallResult(@NonNull MyListResponse item) {
+
+                if (item.getDashboard() != null) { //  list will be null if api key is expired
+                    DashboardList[] recipes = new DashboardList[item.getDashboard().size()];
+
+                    int index = 0;
+                    for (long rowId : userMoreListDao.insertData((DashboardList[]) (item.getDashboard().toArray(recipes)))) {
+                        if (rowId == -1) { // conflict detected
+                            Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
+                            // if already exists, I don't want to set the values  or timestamp b/c they will be erased
+                            userMoreListDao.updateList(
+                                    recipes[index].getId(),
+                                    recipes[index].getTitle(),
+                                    recipes[index].getDescription(),
+                                    recipes[index].getPrice(),
+                                    recipes[index].getAddress(),
+                                    recipes[index].getData_type(),
+                                    recipes[index].getUser_id()
+
+                            );
+                        }
+                        index++;
+                    }
+                }
+
+            }
+
+            @Override
+            public boolean shouldFetch(@Nullable List<DashboardList> data) {
+                return true; // always query the network since the queries can be anything
+            }
+
+            @NonNull
+            @Override
+            public LiveData<List<DashboardList>> loadFromDb() {
+                return userMoreListDao.getLIst(user_id, pageNumber, type);
+            }
+
+            @NonNull
+            @Override
+            public LiveData<ApiResponse<MyListResponse>> createCall() {
+                return ServiceGenerator.getProfileApi().getMyRecords(
+                        URLs.unique_id,
+                        user_id,
+                        String.valueOf(pageNumber),
+                        search_name,
+                        latitude,
+                        longitude,
+                        type
+                );
+            }
+
+        }.getAsLiveData();
+    }
+
+    public Call<ResponseBody> logActivity(String post_id, String post_user_id, String user_id, String type) {
+
+        return ServiceGenerator.getProfileApi().LogActivity(
+                URLs.unique_id,
+                post_id,
+                post_user_id, user_id, type
+        );
+
+
+    }
+
+    public Call<ResponseBody> RemoveBlock(String record_id) {
+
+        return ServiceGenerator.getProfileApi().RemoveBlock(
+                record_id
+        );
+
+
+    }
+
+    public Call<ResponseBody> renew(String type, String record_id) {
+
+        return ServiceGenerator.getProfileApi().renew(
+                type, record_id
+        );
+
+
+    }
+
+    public Call<ResponseBody> deletePost(String type, String post_id) {
+
+        if (type.equals("E")) {
+            return ServiceGenerator.getProfileApi().Employment_delete_record_2_0(
+                    URLs.unique_id,
+                    post_id
+            );
+        } else if (type.equals("B")) {
+            return ServiceGenerator.getProfileApi().Business_delete_record_2_0(
+                    URLs.unique_id,
+                    post_id
+            );
+        } else if (type.equals("P")) {
+            return ServiceGenerator.getProfileApi().Pd_delete_record_2_0(
+                    URLs.unique_id,
+                    post_id
+            );
+        } else if (type.equals("R")) {
+            return ServiceGenerator.getProfileApi().Listing_rent_delete_record_2_0(
+                    URLs.unique_id,
+                    post_id
+            );
+        } else {
+            return ServiceGenerator.getProfileApi().Listing_sell_delete_record_2_0(
+                    URLs.unique_id,
+                    post_id
+            );
+        }
+
+
+    }
+
+    public LiveData<Resource<List<DashboardList>>> deletePost1(String type, String post_id, String master_id) {
+        return new NetworkBoundResource<List<DashboardList>, DashboardResponse>(AppExecutors.getInstance()) {
+
+            @Override
+            public void saveCallResult(@NonNull DashboardResponse item) {
+
+                if (item.getDashboard() != null) { //  list will be null if api key is expired
+                    DashboardList[] list = new DashboardList[item.getDashboard().size()];
+
+                    int index = 0;
+                    for (long rowId : myListDao.insertData((DashboardList[]) (item.getDashboard().toArray(list)))) {
+                        if (rowId == -1) { // conflict detected
+                            Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
+                            // if already exists, I don't want to set the values  or timestamp b/c they will be erased
+                            myListDao.updateList(
+                                    list[index].getId(),
+                                    list[index].getTitle(),
+                                    list[index].getDescription(),
+                                    list[index].getPrice(),
+                                    list[index].getAddress(),
+                                    list[index].getImages(),
+                                    list[index].getImage_id(),
+                                    list[index].getBlock_status(),
+                                    list[index].getStatus(),
+                                    list[index].getInterest_status(),
+                                    list[index].getLatitude(),
+                                    list[index].getLongitude(),
+                                    list[index].getDistance(),
+                                    list[index].getListing_id()
+
+                            );
+                        }
+                        index++;
+                    }
+                }
+
+            }
+
+            @Override
+            public boolean shouldFetch(@Nullable List<DashboardList> data) {
+                return true; // always query the network since the queries can be anything
+            }
+
+            @NonNull
+            @Override
+            public LiveData<List<DashboardList>> loadFromDb() {
+                return myListDao.searchList(type, mPageNumber);
+
+            }
+
+            @NonNull
+            @Override
+            public LiveData<ApiResponse<DashboardResponse>> createCall() {
+                return ServiceGenerator.getProfileApi().Dashboard_delete_record_2_0(
+                        URLs.unique_id,
+                        post_id,
+                        type,
+                        master_id
+
+                );
+            }
+
+        }.getAsLiveData();
+
+    }
+
+    public void addRemoveFromFrav(String id, String interest_status) {
+        interestedListDao.updateInterestStatusList(id, interest_status);
+    }
+
+    public Call<ResponseBody> uploadToken(String user_id, String username, String token, String IMEINumber, String language ) {
+
+        return ServiceGenerator.getProfileApi().uploadToken(
+                user_id,
+                username,
+                token, IMEINumber,
+                language
         );
 
     }

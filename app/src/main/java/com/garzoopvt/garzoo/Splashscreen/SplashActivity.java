@@ -1,11 +1,14 @@
 package com.garzoopvt.garzoo.Splashscreen;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.TextView;
 
 import com.garzoopvt.garzoo.BaseActivity;
 import com.garzoopvt.garzoo.Home.HomeActivity;
@@ -21,18 +24,25 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        new Handler().postDelayed(new Runnable() {
+        try {
+            TextView textView= findViewById(R.id.textView);
+            textView.setTypeface(ResourcesCompat.getFont(context, R.font.motype_corseva));
 
-            @Override
-            public void run() {
-                Intent i = new Intent(SplashActivity.this, HomeActivity.class);
-                startActivity(i);
-                finish();
-                //check();
-                // This method will be executed once the timer is over
+            new Handler().postDelayed(new Runnable() {
 
-            }
-        }, 500);
+                @Override
+                public void run() {
+                    Intent i = new Intent(SplashActivity.this, HomeActivity.class);
+                    startActivity(i);
+                    finish();
+                    //check();
+                    // This method will be executed once the timer is over
+
+                }
+            }, 500);
+        } catch (Resources.NotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 //    private void check() {

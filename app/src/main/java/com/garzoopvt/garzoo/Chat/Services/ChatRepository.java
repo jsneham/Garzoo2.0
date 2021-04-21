@@ -21,7 +21,11 @@ import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.RetrofitService.ServiceGenerator;
 import com.garzoopvt.garzoo.Util.URLs;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 
 public class ChatRepository {
 
@@ -49,26 +53,34 @@ public class ChatRepository {
 
             @Override
             public void saveCallResult(@NonNull ChatUserResponse item) {
-
+                ArrayList<String> ids=new ArrayList<>();
                 if(item.getChat() != null){ //  list will be null if api key is expired
-                    ChatUser[] recipes = new ChatUser[item.getChat().size()];
-
+                    ChatUser[] list = new ChatUser[item.getChat().size()];
+                    chatUserDao.delete();
                     int index = 0;
-                    for(long rowId: chatUserDao.insertData((ChatUser[])(item.getChat().toArray(recipes)))){
+                    for(long rowId: chatUserDao.insertData((ChatUser[])(item.getChat().toArray(list)))){
                         if(rowId == -1){ // conflict detected
                             Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
                             // if already exists, I don't want to set the values  or timestamp b/c they will be erased
                             chatUserDao.updateList(
-                                    recipes[index].getId(),
-                                    recipes[index].getFname(),
-                                    recipes[index].getLname(),
-                                    recipes[index].getLast_message(),
-                                    recipes[index].getChat_count(),
-                                    recipes[index].getPhone_no()
+                                    list[index].getId(),
+                                    list[index].getFname(),
+                                    list[index].getLname(),
+                                    list[index].getLast_message(),
+                                    list[index].getChat_count(),
+                                    list[index].getPhone_no(),
+                                    list[index].getTo_uid(),
+                                    list[index].getFrom_uid(),
+                                    list[index].getDt(),
+                                    list[index].getCount_id()
+
                             );
                         }
+                        ids.add(list[index].getId());
                         index++;
                     }
+
+                    if(ids.size()>0) chatUserDao.deleteOldData(ids);
                 }
 
             }
@@ -81,7 +93,7 @@ public class ChatRepository {
             @NonNull
             @Override
             public LiveData<List<ChatUser>> loadFromDb() {
-                return chatUserDao.searchList(search_name, pageNumber);
+                return chatUserDao.getList();
             }
 
             @NonNull
@@ -89,8 +101,8 @@ public class ChatRepository {
             public LiveData<ApiResponse<ChatUserResponse>> createCall() {
                 return ServiceGenerator.getChatApi().getUser(
                         URLs.unique_id,
-                        user_id,
-                        String.valueOf(pageNumber)
+                        user_id
+
                 );
             }
 
@@ -103,25 +115,27 @@ public class ChatRepository {
 
             @Override
             public void saveCallResult(@NonNull ChatGroupResponse item) {
-
+                ArrayList<String> ids=new ArrayList<>();
                 if(item.getChat() != null){ //  list will be null if api key is expired
-                    ChatGroup[] recipes = new ChatGroup[item.getChat().size()];
-
+                    ChatGroup[] list = new ChatGroup[item.getChat().size()];
+                    chatGroupyDao.delete();
                     int index = 0;
-                    for(long rowId: chatGroupyDao.insertData((ChatGroup[])(item.getChat().toArray(recipes)))){
+                    for(long rowId: chatGroupyDao.insertData((ChatGroup[])(item.getChat().toArray(list)))){
                         if(rowId == -1){ // conflict detected
                             Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
                             // if already exists, I don't want to set the values  or timestamp b/c they will be erased
                             chatGroupyDao.updateList(
-                                    recipes[index].getId(),
-                                    recipes[index].getFname(),
-                                    recipes[index].getLname(),
-                                    recipes[index].getLast_message(),
-                                    recipes[index].getChat_count()
+                                    list[index].getId(),
+                                    list[index].getTitle(),
+                                    list[index].getLast_message()
+
                             );
                         }
+                        ids.add(list[index].getId());
                         index++;
                     }
+
+                    if(ids.size()>0) chatGroupyDao.deleteOldData(ids);
                 }
 
             }
@@ -134,7 +148,7 @@ public class ChatRepository {
             @NonNull
             @Override
             public LiveData<List<ChatGroup>> loadFromDb() {
-                return chatGroupyDao.searchList(search_name, pageNumber);
+                return chatGroupyDao.getList();
             }
 
             @NonNull
@@ -149,6 +163,17 @@ public class ChatRepository {
 
         }.getAsLiveData();
     }
+
+
+    public Call<ResponseBody> resetNotificationCount(final String user_id ){
+
+        return  ServiceGenerator.getChatApi().ResetNotificationCount(
+                URLs.unique_id,
+                user_id
+        );
+
+    }
+
 
 }
 

@@ -12,7 +12,13 @@ import com.garzoopvt.garzoo.BuySell.Model.Category;
 import com.garzoopvt.garzoo.BuySell.Persistence.CategoryDao;
 import com.garzoopvt.garzoo.BuySell.Persistence.CategoryDatabase;
 import com.garzoopvt.garzoo.BuySell.Services.CategoryResponse;
+import com.garzoopvt.garzoo.Dashboard.Persistence.DashboardListDao;
+import com.garzoopvt.garzoo.Dashboard.Persistence.DashboardListDatabase;
+import com.garzoopvt.garzoo.Profile.Room.MyListDao;
+import com.garzoopvt.garzoo.Profile.Room.MyListDatabase;
 import com.garzoopvt.garzoo.Rent.Model.Rent;
+import com.garzoopvt.garzoo.Rent.Persistence.RentCategoryDao;
+import com.garzoopvt.garzoo.Rent.Persistence.RentCategoryDatabase;
 import com.garzoopvt.garzoo.Rent.Persistence.RentDao;
 import com.garzoopvt.garzoo.Rent.Persistence.RentDatabase;
 import com.garzoopvt.garzoo.RetrofitService.ApiResponse;
@@ -21,6 +27,8 @@ import com.garzoopvt.garzoo.RetrofitService.NetworkBoundResource;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.RetrofitService.ServiceGenerator;
 import com.garzoopvt.garzoo.Util.URLs;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.MultipartBody;
@@ -36,8 +44,12 @@ public class RentRepository {
     private static RentRepository instance;
 
     //new
-    private CategoryDao categoryDao;
+    private RentCategoryDao categoryDao;
     private RentDao rentDao;
+    private DashboardListDao dashboardListDao;
+    private MyListDao myListDao;
+    private static Context context;
+
     public static RentRepository getInstance(Context context){
         if(instance == null){
             instance = new RentRepository(context);
@@ -46,8 +58,9 @@ public class RentRepository {
     }
 
     private RentRepository(Context context) {
+        this.context=context;
         rentDao = RentDatabase.getInstance(context).getListDao();
-        categoryDao = CategoryDatabase.getInstance(context).getListDao();
+        categoryDao = RentCategoryDatabase.getInstance(context).getListDao();
     }
 
 
@@ -58,25 +71,36 @@ public class RentRepository {
             public void saveCallResult(@NonNull RentResponse item) {
 
                 if(item.getRent() != null){ //  list will be null if api key is expired
-                    Rent[] recipes = new Rent[item.getRent().size()];
+                    Rent[] list = new Rent[item.getRent().size()];
+                    ArrayList<String> ids=new ArrayList<>();
 
                     int index = 0;
-                    for(long rowId: rentDao.insertData((Rent[])(item.getRent().toArray(recipes)))){
+                    for(long rowId: rentDao.insertData((Rent[])(item.getRent().toArray(list)))){
                         if(rowId == -1){ // conflict detected
                             Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
                             // if already exists, I don't want to set the values  or timestamp b/c they will be erased
                             rentDao.updateList(
-                                    recipes[index].getId(),
-                                    recipes[index].getTitle(),
-                                    recipes[index].getDescription(),
-                                    recipes[index].getPrice(),
-                                    recipes[index].getAddress(),
-                                    recipes[index].getImages(),
-                                    recipes[index].getImage_id()
+                                    list[index].getId(),
+                                    list[index].getTitle(),
+                                    list[index].getDescription(),
+                                    list[index].getPrice(),
+                                    list[index].getAddress(),
+                                    list[index].getImages(),
+                                    list[index].getImage_id(),
+                                    list[index].getBlock_status(),
+                                    list[index].getStatus(),
+                                    list[index].getInterest_status(),
+                                    list[index].getLatitude(),
+                                    list[index].getLongitude(),
+                                    list[index].getDistance()
                             );
                         }
+                        ids.add(list[index].getId());
                         index++;
+
                     }
+
+                    if(ids.size()>0) rentDao.deleteOldData(ids);
                 }
 
             }
@@ -115,24 +139,24 @@ public class RentRepository {
     }
 
 
-    public LiveData<Resource<List<Category>>> getCategoryList(){
+    public LiveData<Resource<List<Category>>> getCategoryList(String language_code){
         return new NetworkBoundResource<List<Category>, CategoryResponse>(AppExecutors.getInstance() ){
 
             @Override
             public void saveCallResult(@NonNull CategoryResponse item) {
 
                 if(item.getCategory() != null){ //  list will be null if api key is expired
-                    Category[] recipes = new Category[item.getCategory().size()];
+                    Category[] list = new Category[item.getCategory().size()];
 
                     int index = 0;
-                    for(long rowId: categoryDao.insertData((Category[])(item.getCategory().toArray(recipes)))){
+                    for(long rowId: categoryDao.insertData((Category[])(item.getCategory().toArray(list)))){
                         if(rowId == -1){ // conflict detected
                             Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
                             // if already exists, I don't want to set the values  or timestamp b/c they will be erased
                             categoryDao.updateList(
-                                    recipes[index].getId(),
-                                    recipes[index].getName(),
-                                    recipes[index].getImage()
+                                    list[index].getId(),
+                                    list[index].getName(),
+                                    list[index].getImage()
                             );
                         }
                         index++;
@@ -155,7 +179,10 @@ public class RentRepository {
             @NonNull
             @Override
             public LiveData<ApiResponse<CategoryResponse>> createCall() {
-                return ServiceGenerator.getBuyApi().getCategory();
+                return ServiceGenerator.getRentApi().getCategory(
+                        URLs.unique_id,
+                        language_code
+                );
             }
 
         }.getAsLiveData();
@@ -182,18 +209,80 @@ public class RentRepository {
 
     }
 
-    public Call<ResponseBody> interest(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
-                                       RequestBody listing_id, RequestBody type, RequestBody listing_title){
+    public  Call<ResponseBody> interest(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
+       RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type, RequestBody language){
 
-        return  ServiceGenerator.getRentApi().interest(
-                unique_id,
-                user_id,
-                to_user_id,
-                full_name,
-                listing_id,
-                type,
-                listing_title
-        );
+
+                return  ServiceGenerator.getRentApi().interest(
+                        unique_id,
+                        user_id,
+                        to_user_id,
+                        full_name,
+                        listing_id,
+                        type,
+                        listing_title,
+                        listing_type,language
+                );
+
+
+
+    }
+
+    public LiveData<Resource<List<Rent>>> interest1(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
+                                       RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type){
+
+        return new NetworkBoundResource<List<Rent>, RentResponse>(AppExecutors.getInstance() ){
+
+            @Override
+            public void saveCallResult(@NonNull RentResponse item) {
+
+                if(item.getRent() != null){ //  list will be null if api key is expired
+                    Rent[] list = new Rent[item.getRent().size()];
+
+                    int index = 0;
+                    for(long rowId: rentDao.insertData((Rent[])(item.getRent().toArray(list)))){
+                        if(rowId == -1){ // conflict detected
+                            Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
+                            // if already exists, I don't want to set the values  or timestamp b/c they will be erased
+                            rentDao.updateInterestStatusList(
+                                    list[index].getId(),
+                                    list[index].getInterest_status()
+                            );
+                        }
+                        index++;
+                    }
+                }
+
+            }
+
+            @Override
+            public boolean shouldFetch(@Nullable List<Rent> data) {
+                return true; // always query the network since the queries can be anything
+            }
+
+            @NonNull
+            @Override
+            public LiveData<List<Rent>> loadFromDb() {
+                return rentDao.searchList("", 1);
+            }
+
+            @NonNull
+            @Override
+            public LiveData<ApiResponse<RentResponse>> createCall() {
+                return  ServiceGenerator.getRentApi().interest1(
+                        unique_id,
+                        user_id,
+                        to_user_id,
+                        full_name,
+                        listing_id,
+                        type,
+                        listing_title,
+                        listing_type
+                );
+            }
+
+        }.getAsLiveData();
+
 
     }
 
@@ -228,6 +317,40 @@ public class RentRepository {
 
     }
 
+    public void updateImage(String image_id, String path, String post_id, String screen){
+
+        if(screen.equalsIgnoreCase("dashboard")){
+            dashboardListDao = DashboardListDatabase.getInstance(context).getDashboardListDao();
+            dashboardListDao.updateImage(
+                    path,
+                    image_id,
+                    post_id
+
+            );
+        }
+        else if(screen.equalsIgnoreCase("mylist")){
+            myListDao = MyListDatabase.getInstance(context).getDashboardListDao();
+            myListDao.updateImage(
+                    path,
+                    image_id,
+                    post_id
+
+            );
+        }
+        else {
+            rentDao.updateImage(
+                    path,
+                    image_id,
+                    post_id
+
+            );
+        }
+
+
+
+    }
+
+
     public Call<ResponseBody> block(String self_user_id, String to_user_id){
 
         return  ServiceGenerator.getRentApi().block(
@@ -238,13 +361,57 @@ public class RentRepository {
 
     }
 
-    public Call<ResponseBody> deletePost(String post_id){
+    public LiveData<Resource<List<Rent>>> deletePost(String post_id){
 
+        return new NetworkBoundResource<List<Rent>, RentResponse>(AppExecutors.getInstance() ){
 
-        return  ServiceGenerator.getRentApi().Listing_rent_delete_record_2_0(
-                URLs.unique_id,
-                post_id
-        );
+            @Override
+            public void saveCallResult(@NonNull RentResponse item) {
+
+                if(item.getRent() != null){ //  list will be null if api key is expired
+                    Rent[] list = new Rent[item.getRent().size()];
+
+                    int index = 0;
+                    for(long rowId: rentDao.insertData((Rent[])(item.getRent().toArray(list)))){
+                        if(rowId == -1){ // conflict detected
+                            Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
+                            // if already exists, I don't want to set the values  or timestamp b/c they will be erased
+                            rentDao.updateList(
+                                    list[index].getId(),
+                                    list[index].getStatus()
+                            );
+                        }
+                        index++;
+                    }
+                }
+
+            }
+
+            @Override
+            public boolean shouldFetch(@Nullable List<Rent> data) {
+                return true; // always query the network since the queries can be anything
+            }
+
+            @NonNull
+            @Override
+            public LiveData<List<Rent>> loadFromDb() {
+                return rentDao.searchList("", 1);
+            }
+
+            @NonNull
+            @Override
+            public LiveData<ApiResponse<RentResponse>> createCall() {
+                return ServiceGenerator.getRentApi().Listing_rent_delete_record_2_0(
+                        URLs.unique_id,
+                        post_id
+                );
+            }
+
+        }.getAsLiveData();
+//        return  ServiceGenerator.getRentApi().Listing_rent_delete_record_2_0(
+//                URLs.unique_id,
+//                post_id
+//        );
 
     }
 
@@ -260,6 +427,42 @@ public class RentRepository {
 
 
 
+    }
+
+    public Call<ResponseBody> available(String unique_id, String user_id, String listing_id) {
+
+        return ServiceGenerator.getRentApi().available(
+                unique_id,
+                user_id,
+                listing_id
+        );
+
+    }
+
+    public Call<ResponseBody> unavailable(String unique_id, String user_id, String listing_id) {
+
+        return ServiceGenerator.getRentApi().unavailable(
+                unique_id,
+                user_id,
+                listing_id
+        );
+
+    }
+
+    public Call<ResponseBody> logActivity(String post_id, String post_user_id, String user_id,String type) {
+
+        return ServiceGenerator.getRentApi().LogActivity(
+                URLs.unique_id,
+                post_id,
+                post_user_id, user_id, type
+        );
+
+
+    }
+    public void blockRemovefromDb(String to_user_id) {
+        rentDao.delete(to_user_id);
+        DashboardListDao dao = DashboardListDatabase.getInstance(context).getDashboardListDao();
+        dao.block(to_user_id);
     }
 }
 

@@ -15,7 +15,10 @@ public interface LoginApi {
 
     @POST(URLs.translate)
     @FormUrlEncoded
-    Call<TransaleOutput> translate(@Field("text") String text);
+    Call<TransaleOutput> translate(
+            @Field("text") String text,
+            @Field("language_code") String language_code
+    );
 
     @POST(URLs.user_mobile_check)
     @FormUrlEncoded

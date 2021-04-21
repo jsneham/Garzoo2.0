@@ -126,4 +126,8 @@ public class SessionManager {
         return pref.getBoolean(IS_LOGIN, false);
     }
 
+    public String getSavedLanguage() {
+        String lanuage =   pref.getString(LANGUAGE, "N/A");
+        return lanuage;
+    }
 }

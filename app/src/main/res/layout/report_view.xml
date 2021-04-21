@@ -41,7 +41,7 @@
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="फसवणूक/आक्षेपार्ह सामग्री"></RadioButton>
+                        android:text="@string/rp1"></RadioButton>
 
                     <!--                <RadioButton-->
                     <!--                    android:layout_width="wrap_content"-->
@@ -51,16 +51,16 @@
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="डुप्लिकेट पोस्ट"></RadioButton>
+                        android:text="@string/rp2"></RadioButton>
 
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="वस्तु आधीच विकली गेली आहे"></RadioButton>
+                        android:text="@string/rp3"></RadioButton>
                     <RadioButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="चित्र आणि वस्तु भिन्न(असंबद्धीत) आहेत"></RadioButton>
+                        android:text="@string/rp4"></RadioButton>
                 </RadioGroup>
 
             </LinearLayout>

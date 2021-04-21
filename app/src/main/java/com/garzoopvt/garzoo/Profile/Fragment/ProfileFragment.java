@@ -21,6 +21,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,11 +29,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.garzoopvt.garzoo.Home.HomeActivity;
+import com.garzoopvt.garzoo.Login.Activity.LoginActivity;
 import com.garzoopvt.garzoo.Profile.Activity.UserProfileEditActivity;
 import com.garzoopvt.garzoo.Profile.ViewModel.ProfileViewModel;
 import com.garzoopvt.garzoo.R;
@@ -54,14 +58,15 @@ import butterknife.OnClick;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ProfileFragment extends Fragment {
 
 
     //UI
     private ImageView ivEditNumber, ivEditBio;
-    private TextView tvLanguage,tvName, tvAge, tvGender, tvMobile, tvLocation, tvMyListing, tvInterested, tvContactUs, tvSignOut, tvblockList,tvFeedback;
-    private LinearLayout tvUpdate,llName;
+    private TextView tvLanguage, tvName, tvAge, tvGender, tvMobile, tvLocation, tvMyListing, tvInterested, tvContactUs, tvSignOut, tvblockList, tvFeedback, tvSignIn;
+    private LinearLayout tvUpdate, llName, llLogin, llOut;
     private AdView adView;
     private EditText otp1, otp2, otp3, otp4;
 
@@ -72,7 +77,7 @@ public class ProfileFragment extends Fragment {
     private View view;
 
     //variable
-    private String user_id, username, gender, age, loacation, mobile,otp;
+    private String user_id, username, gender, age, loacation, mobile, otp;
     private String mLanguageCode = "en";
     private String latitude, longitude;
 
@@ -87,6 +92,7 @@ public class ProfileFragment extends Fragment {
 
         view = inflater.inflate(R.layout.profile_fragment, container, false);
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
+
         init();
         getBannerAds();
 
@@ -97,11 +103,22 @@ public class ProfileFragment extends Fragment {
 
         context = getContext();
         sessionManager = new SessionManager(context);
-        String is_update= sessionManager.getFromSessionManager(SessionManager.IS_UPDATE);
+        mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
+        String is_update = sessionManager.getFromSessionManager(SessionManager.IS_UPDATE);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
-        if(user_id.isEmpty()) user_id="0";
+        llLogin = view.findViewById(R.id.llLogin);
+        llOut = view.findViewById(R.id.llOut);
+        if (user_id.isEmpty()) {
+            user_id = "0";
+            llOut.setVisibility(View.GONE);
+            llLogin.setVisibility(View.VISIBLE);
+        } else {
+            llLogin.setVisibility(View.GONE);
+            llOut.setVisibility(View.VISIBLE);
+        }
 
         llName = view.findViewById(R.id.llName);
+        tvSignIn = view.findViewById(R.id.tvSignIn);
         tvLanguage = view.findViewById(R.id.tvLanguage);
         tvSignOut = view.findViewById(R.id.tvSignOut);
         tvUpdate = view.findViewById(R.id.tvUpdate);
@@ -119,7 +136,7 @@ public class ProfileFragment extends Fragment {
         ivEditNumber = view.findViewById(R.id.ivEditNumber);
 
 
-        if((user_id.equals("0")|| user_id.isEmpty())) {
+        if ((user_id.equals("0") || user_id.isEmpty())) {
             llName.setVisibility(View.GONE);
         }
 
@@ -141,16 +158,23 @@ public class ProfileFragment extends Fragment {
 
             }
         });
+        tvSignIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent in = new Intent(context, LoginActivity.class);
+                context.startActivity(in);
+
+            }
+        });
 
 
         ivEditBio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!(user_id.equals("0")|| user_id.isEmpty())) {
-                    Intent intent= new Intent(context, UserProfileEditActivity.class);
+                if (!(user_id.equals("0") || user_id.isEmpty())) {
+                    Intent intent = new Intent(context, UserProfileEditActivity.class);
                     startActivity(intent);
-                }
-                else{
+                } else {
                     Utils.openLogin(context);
                 }
 
@@ -160,10 +184,9 @@ public class ProfileFragment extends Fragment {
         ivEditNumber.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!(user_id.equals("0")|| user_id.isEmpty())) {
+                if (!(user_id.equals("0") || user_id.isEmpty())) {
                     openChnageNumberPopup();
-                }
-                else{
+                } else {
                     Utils.openLogin(context);
                 }
             }
@@ -173,24 +196,26 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new ContactUsFragment(), "ContactUsFragment").commit();
+                //getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new ContactUsFragment(), "ContactUsFragment").commit();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new ContactUsFragment()).addToBackStack(null).commit();
             }
         });
 
         tvFeedback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new FeedbackFragment(),"FeedbackFragment").commit();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new FeedbackFragment()).addToBackStack(null).commit();
+//                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new FeedbackFragment(), "FeedbackFragment").commit();
             }
         });
 
         tvMyListing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!(user_id.equals("0")|| user_id.isEmpty())) {
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListCategoryFragment(), "MyListCategoryFragment").commit();
-                } else{
+                if (!(user_id.equals("0") || user_id.isEmpty())) {
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListCategoryFragment()).addToBackStack(null).commit();
+                   // getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListCategoryFragment(), "MyListCategoryFragment").commit();
+                } else {
                     Utils.openLogin(context);
                 }
 
@@ -200,9 +225,10 @@ public class ProfileFragment extends Fragment {
         tvInterested.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!(user_id.equals("0")|| user_id.isEmpty())) {
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new InterestedFragment(), "InterestedFragment").commit();
-                }else{
+                if (!(user_id.equals("0") || user_id.isEmpty())) {
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new InterestedFragment()).addToBackStack(null).commit();
+                   // getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new InterestedFragment(), "InterestedFragment").commit();
+                } else {
                     Utils.openLogin(context);
                 }
             }
@@ -211,15 +237,16 @@ public class ProfileFragment extends Fragment {
         tvblockList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!(user_id.equals("0")|| user_id.isEmpty())) {
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new BlockedListFragment(), "InterestedFragment").commit();
-                }else{
+                if (!(user_id.equals("0") || user_id.isEmpty())) {
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new BlockedListFragment()).addToBackStack(null).commit();
+                   // getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new BlockedListFragment(), "InterestedFragment").commit();
+                } else {
                     Utils.openLogin(context);
                 }
             }
         });
 
-        if(is_update.equals("1")) tvUpdate.setVisibility(View.VISIBLE);
+        if (is_update.equals("1")) tvUpdate.setVisibility(View.VISIBLE);
         else tvUpdate.setVisibility(View.GONE);
 
         tvUpdate.setOnClickListener(new View.OnClickListener() {
@@ -289,63 +316,124 @@ public class ProfileFragment extends Fragment {
 
     public void updateLanguage() {
 
+        View view = LayoutInflater.from(context).inflate(R.layout.language_popup, null);
+
+        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        builder.setView(view);
+        final android.app.AlertDialog alertDialog = builder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        alertDialog.setCancelable(true);
+        alertDialog.show();
+
+        RadioButton rbEnglish = view.findViewById(R.id.rbEnglish);
+        RadioButton rbMarathi = view.findViewById(R.id.rbMarathi);
+        RadioButton rbHindi = view.findViewById(R.id.rbHindi);
+
+
+        switch(mLanguageCode){
+            case "en":
+                rbEnglish.setChecked(true);
+                rbMarathi.setChecked(false);
+                rbHindi.setChecked(false);
+                break;
+            case "mr":
+                rbMarathi.setChecked(true);
+                rbEnglish.setChecked(false);
+                rbHindi.setChecked(false);
+                break;
+
+            case "hi":
+                rbHindi.setChecked(true);
+                rbEnglish.setChecked(false);
+                rbMarathi.setChecked(false);
+                break;
+
+        }
 
 
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),R.style.Theme_AppCompat_Light_Dialog);
-        builder.setTitle(R.string.lang);
+        RadioGroup rbLanguage = view.findViewById(R.id.rbLanguage);
+        rbLanguage.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+
+                if (checkedId == R.id.rbEnglish) {
+                    mLanguageCode = "en";
+
+                } else if (checkedId == R.id.rbMarathi) {
+                    mLanguageCode = "mr";
+
+                } else if (checkedId == R.id.rbHindi) {
+                    mLanguageCode = "hi";
+
+                }
 
 
-        final String items[] = {"English", "Marathi", "Hindi"};
+            }
+        });
 
-        builder.setSingleChoiceItems(items, 0,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+        Button btnCancel = view.findViewById(R.id.btnCancel);
+        Button btnOk = view.findViewById(R.id.btnOk);
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+                sessionManager.setToSessionManager(SessionManager.LANGUAGE, mLanguageCode);
+                sendTokenToServer();
+                    LocaleHelper.setLocale(getContext(), mLanguageCode);
+                    getActivity().recreate();
 
-                        switch(which){
-                            case 0:
-                                mLanguageCode="en";
-                                break;
-                            case 1:
-                                mLanguageCode="mr";
-                                break;
-                            case 2:
-                                mLanguageCode="hi";
-                                break;
+            }
+        });
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
+
+
+    }
+
+    private void sendTokenToServer() {
+
+        String token = sessionManager.getFromSessionManager(SessionManager.TOKEN);
+        String language  = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
+        String IMEINumber = "0";
+
+//        if (user_id.isEmpty() || user_id.equals("0")) {
+//            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+//            IMEINumber = telephonyManager.getDeviceId();
+//
+//        }
+
+        Call<ResponseBody> call = mViewModel.uploadToken(user_id, username, token, IMEINumber,language); //.get(0)
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+
+                            Log.d("TAG", "onResponse:" + response.message());
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-
-                        LocaleHelper.setLocale(getContext(), mLanguageCode);
-                        getActivity().recreate();
-                        dialog.dismiss();
                     }
-                });
 
-        String positiveText = getString(android.R.string.ok);
-        builder.setPositiveButton(positiveText,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // positive button logic here
-                        // dismiss dialog too
-                        dialog.dismiss();
-                    }
-                });
 
-        String negativeText = getString(android.R.string.cancel);
-        builder.setNegativeButton(negativeText,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // negative button logic
-                        dialog.dismiss();
-                    }
-                });
+                }
 
-        AlertDialog dialog = builder.create();
-// display dialog
-        dialog.show();
+            }
 
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
 
     }
 
@@ -353,7 +441,7 @@ public class ProfileFragment extends Fragment {
     private void getApkVersionPopUpComplusory(boolean compulsory) {
 
         try {
-            androidx.appcompat.app.AlertDialog alertDialog=null;
+            androidx.appcompat.app.AlertDialog alertDialog = null;
             alertDialog = new androidx.appcompat.app.AlertDialog.Builder(context)
                     .setIcon(R.drawable.garzoo_tm)
                     .setTitle(R.string.app_name)
@@ -373,11 +461,12 @@ public class ProfileFragment extends Fragment {
                     .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if(!compulsory) dialog.dismiss();
+                            if (!compulsory) dialog.dismiss();
                         }
                     }).show();
 
-            if(compulsory)alertDialog.setCancelable(true); else alertDialog.setCancelable(false);
+            if (compulsory) alertDialog.setCancelable(true);
+            else alertDialog.setCancelable(false);
             alertDialog.getButton(alertDialog.BUTTON_POSITIVE).setTextColor(context.getResources().getColor(R.color.theme2));
             alertDialog.getButton(alertDialog.BUTTON_NEGATIVE).setTextColor(context.getResources().getColor(R.color.black));
         } catch (Exception e) {
@@ -387,7 +476,6 @@ public class ProfileFragment extends Fragment {
     }
 
 
-
     private void setData() {
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
         username = sessionManager.getFromSessionManager(SessionManager.USERNAME);
@@ -395,7 +483,7 @@ public class ProfileFragment extends Fragment {
         gender = sessionManager.getFromSessionManager(SessionManager.GENDER);
         age = sessionManager.getFromSessionManager(SessionManager.AGE);
         loacation = sessionManager.getFromSessionManager(SessionManager.LOCATION_final);
-        Transaltion.translate(loacation, tvLocation);
+        Transaltion.translate(loacation, tvLocation, context);
 
         tvMobile.setText(mobile);
         tvName.setText(username);
@@ -449,6 +537,7 @@ public class ProfileFragment extends Fragment {
             }
         });
     }
+
     public class Custom_dialogbox implements TextWatcher {
 
         @Override
@@ -494,7 +583,7 @@ public class ProfileFragment extends Fragment {
         latitude = sessionManager.getFromSessionManager(SessionManager.LATITUDE);
         longitude = sessionManager.getFromSessionManager(SessionManager.LONGITUDE);
 
-        mViewModel.user_mobile_change(etMobile.getText().toString(), latitude, longitude,user_id).enqueue(new Callback<ResponseBody>() {
+        mViewModel.user_mobile_change(etMobile.getText().toString(), latitude, longitude, user_id).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call,
                                    retrofit2.Response<ResponseBody> response) {
@@ -507,8 +596,7 @@ public class ProfileFragment extends Fragment {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
-                else{
+                } else {
                     Utils.showToast(context, getString(R.string.no_internet_msg));
                 }
             }
@@ -532,7 +620,7 @@ public class ProfileFragment extends Fragment {
 
 
         if (enteredOtp.trim().equals(otp)) {
-            userMobileUpdate(etMobile,alertDialog);
+            userMobileUpdate(etMobile, alertDialog);
 
         } else {
             otp1.setError(getString(R.string.err_otp));
@@ -557,16 +645,17 @@ public class ProfileFragment extends Fragment {
                             mobile = etMobile.getText().toString();
                             sessionManager.setToSessionManager(SessionManager.MOBILE, mobile);
                             tvMobile.setText(mobile);
-                        }
-                        else {
-                            Toast.makeText(context, "अयशस्वी, कृपया पुन्हा प्रयत्न करा",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, getString(R.string.sucess_msg), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(context, getString(R.string.failed_msg), Toast.LENGTH_SHORT).show();
+
+
                         }
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
-                else{
+                } else {
                     Utils.showToast(context, getString(R.string.no_internet_msg));
                 }
             }
@@ -585,6 +674,7 @@ public class ProfileFragment extends Fragment {
         super.onResume();
         setData();
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

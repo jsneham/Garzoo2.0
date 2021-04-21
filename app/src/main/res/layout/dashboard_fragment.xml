@@ -6,46 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".Notification.Fragment.NotificationFragment">
 
-    <androidx.cardview.widget.CardView
-        android:layout_alignParentTop="true"
-        android:id="@+id/llSearch"
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipeContainer"
+        android:layout_above="@+id/llad"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardElevation="@dimen/dp10">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:orientation="horizontal">
-
-            <include layout="@layout/search_layout_one"></include>
-
-            <ImageView
-                android:id="@+id/ivAdvanceSearch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="0.5"
-                android:src="@drawable/ic_baseline_tune_24" />
-
-            <ImageView
-                android:id="@+id/ivShare"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="0.5"
-                android:src="@drawable/ic_baseline_share_24" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
+        android:layout_height="wrap_content">
     <androidx.core.widget.NestedScrollView
         android:id="@+id/rvNestedScroll"
-        android:layout_above="@+id/bannerAdContainer"
         android:background="#eeeeee"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/llSearch">
+       >
 
         <LinearLayout
             android:background="#eeeeee"
@@ -54,26 +26,77 @@
             android:orientation="vertical">
 <!--            <include layout="@layout/category_layout"></include>-->
 
+            <androidx.cardview.widget.CardView
+                android:layout_alignParentTop="true"
+                android:id="@+id/llSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardElevation="@dimen/dp10">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:orientation="horizontal">
+
+                    <include layout="@layout/search_layout_one"></include>
+
+                    <ImageView
+                        android:id="@+id/ivAdvanceSearch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="0.5"
+                        android:src="@drawable/ic_baseline_tune_24" />
+
+                    <ImageView
+                        android:id="@+id/ivShare"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="0.5"
+                        android:src="@drawable/ic_baseline_share_24" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false" />
 
-            <com.allattentionhere.autoplayvideos.AAH_CustomRecyclerView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-            </com.allattentionhere.autoplayvideos.AAH_CustomRecyclerView>
+            </androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
 
 <!--        app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
     </androidx.core.widget.NestedScrollView>
-
-    <RelativeLayout
-        android:id="@+id/bannerAdContainer"
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    <LinearLayout
+        android:id="@+id/llad"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" />
+        android:layout_alignParentBottom="true"
+        android:background="@color/white">
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/bannerAdContainer"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentBottom="true"
+            />
+
+        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-5826510987412325/6048736164"></com.google.android.gms.ads.AdView>
+    </LinearLayout>
 </RelativeLayout>

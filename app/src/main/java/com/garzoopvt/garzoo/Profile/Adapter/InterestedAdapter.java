@@ -10,9 +10,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.allattentionhere.autoplayvideos.AAH_CustomViewHolder;
-import com.allattentionhere.autoplayvideos.AAH_VideosAdapter;
+
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.facebook.ads.AdOptionsView;
@@ -31,7 +31,7 @@ import com.garzoopvt.garzoo.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InterestedAdapter extends AAH_VideosAdapter {
+public class InterestedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     private static final int LIST_TYPE = 1;
@@ -67,7 +67,7 @@ public class InterestedAdapter extends AAH_VideosAdapter {
 
     @NonNull
     @Override
-    public AAH_CustomViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = null;
 
         switch (i) { // i is the view type constant
@@ -99,7 +99,7 @@ public class InterestedAdapter extends AAH_VideosAdapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AAH_CustomViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         try {
             int itemViewType = getItemViewType(i);
             if(itemViewType == LIST_TYPE) {
@@ -107,7 +107,7 @@ public class InterestedAdapter extends AAH_VideosAdapter {
 //                if(index==-1){
 //                    ((DashboardViewHolder) viewHolder).item_container.setLayoutParams(((DashboardViewHolder) viewHolder).params);
 //                }else {
-
+                ((DashboardViewHolder)viewHolder).ivEdit.setVisibility(View.GONE);
                 ((DashboardViewHolder)viewHolder).onBind(mDashboardList.get(i), mContext,i,user_id);
 
 //                }
@@ -286,6 +286,17 @@ public class InterestedAdapter extends AAH_VideosAdapter {
     }
 
 
+    public void deleteSelected(int position){
+        if(mDashboardList != null){
+            if(mDashboardList.size() > 0){
+                mDashboardList.remove(position);
+
+                notifyDataSetChanged();
+            }
+        }
+
+    }
+
     public DashboardList getSelected(int position){
         if(mDashboardList != null){
             if(mDashboardList.size() > 0){
@@ -295,7 +306,7 @@ public class InterestedAdapter extends AAH_VideosAdapter {
         return null;
     }
 
-    public class BannerViewViewHolder extends AAH_CustomViewHolder {
+    public class BannerViewViewHolder extends RecyclerView.ViewHolder {
 
         NativeAdLayout nativeAdLayout;
         MediaView mvAdMedia;

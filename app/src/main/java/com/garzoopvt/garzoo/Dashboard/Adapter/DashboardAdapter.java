@@ -12,8 +12,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.allattentionhere.autoplayvideos.AAH_CustomViewHolder;
-import com.allattentionhere.autoplayvideos.AAH_VideosAdapter;
+
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.facebook.ads.AdOptionsView;
@@ -32,7 +31,7 @@ import com.garzoopvt.garzoo.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DashboardAdapter extends AAH_VideosAdapter {
+public class DashboardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     private static final int LIST_TYPE = 1;
@@ -53,11 +52,12 @@ public class DashboardAdapter extends AAH_VideosAdapter {
     private ViewPreloadSizeProvider<String> preloadSizeProvider;
 
     public DashboardAdapter(OnDashboardListener mOnDashboardListener, Context mContext,
-                            NativeAdsManager mNativeAdsManager,
                             RequestManager requestManager, ViewPreloadSizeProvider<String> preloadSizeProvider, String user_id) {
+
+
         this.mOnDashboardListener = mOnDashboardListener;
         this.mContext = mContext;
-        this.mNativeAdsManager = mNativeAdsManager;
+//        this.mNativeAdsManager = mNativeAdsManager;
         this.requestManager = requestManager;
         this.preloadSizeProvider = preloadSizeProvider;
         this.user_id = user_id;
@@ -68,7 +68,7 @@ public class DashboardAdapter extends AAH_VideosAdapter {
 
     @NonNull
     @Override
-    public AAH_CustomViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = null;
 
         switch (i) { // i is the view type constant
@@ -88,10 +88,10 @@ public class DashboardAdapter extends AAH_VideosAdapter {
                 view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_endlist, viewGroup, false);
                 return new EndListViewHolder(view);
             }
-            case ITEM_BANNER: {
-                 view = (NativeAdLayout) LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.native_ad_unit, viewGroup, false);
-                return new BannerViewViewHolder((NativeAdLayout)view);
-            }
+//            case ITEM_BANNER: {
+//                 view = (NativeAdLayout) LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.native_ad_unit, viewGroup, false);
+//                return new BannerViewViewHolder((NativeAdLayout)view);
+//            }
             default:{
                 view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.dashboard_row, viewGroup, false);
                 return new DashboardViewHolder(view, mOnDashboardListener,requestManager,preloadSizeProvider);
@@ -100,7 +100,7 @@ public class DashboardAdapter extends AAH_VideosAdapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AAH_CustomViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         try {
             int itemViewType = getItemViewType(i);
             if(itemViewType == LIST_TYPE) {
@@ -209,9 +209,9 @@ public class DashboardAdapter extends AAH_VideosAdapter {
             } else if (mDashboardList.get(position).getTitle().equals("EXHAUSTED...")) {
                 return EXHAUSTED_TYPE;
             }
-            else if (position > 0 && position % ITEM_PER_ADV == 0) {
-                return ITEM_BANNER;
-            }
+//            else if (position > 0 && position % ITEM_PER_ADV == 0) {
+//                return ITEM_BANNER;
+//            }
             else {
                 return LIST_TYPE;
             }
@@ -308,7 +308,7 @@ public class DashboardAdapter extends AAH_VideosAdapter {
 
     }
 
-    public class BannerViewViewHolder extends AAH_CustomViewHolder {
+    public class BannerViewViewHolder extends RecyclerView.ViewHolder {
 
         NativeAdLayout nativeAdLayout;
         MediaView mvAdMedia;

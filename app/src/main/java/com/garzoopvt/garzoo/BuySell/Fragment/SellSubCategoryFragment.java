@@ -34,6 +34,10 @@ import com.garzoopvt.garzoo.Rent.ViewModel.RentViewModel;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.Utils;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +60,7 @@ public class SellSubCategoryFragment extends Fragment implements OnCategoryListe
     private CategoryAdapter mCatAdapter;
     private String user_id;
     private SessionManager sessionManager;
+    private String mLanguageCode = "en";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,10 +81,63 @@ public class SellSubCategoryFragment extends Fragment implements OnCategoryListe
         initView();
         subscribeObservers();
         getList();
+        getBannerAdv();
         return view;
     }
 
+    private void getBannerAdv() {
+
+//        final AdView adView = new AdView(context);
+//        adView.setAdSize(AdSize.BANNER);
+//        adView.setAdUnitId(BANNER_ID);
+        AdView adView = view.findViewById(R.id.adView);
+        adView.loadAd(new AdRequest.Builder().build());
+
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                //Toast.makeText(getContext(), "Loaded", Toast.LENGTH_SHORT).show();
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
+                // Code to be executed when an ad request fails.
+                //  Toast.makeText(getContext(), adError.getCode() + ", "+ adError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAdOpened() {
+                //Toast.makeText(getContext(), "onAdOpened", Toast.LENGTH_SHORT).show();
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Toast.makeText(getContext(), "onAdClicked", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                //Toast.makeText(getContext(), "onAdLeftApplication", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Toast.makeText(getContext(), "onAdClosed", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+
+    }
+
+
     private void getSessionData() {
+        mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
         if (user_id.isEmpty()) user_id = "0";
     }
@@ -95,7 +153,7 @@ public class SellSubCategoryFragment extends Fragment implements OnCategoryListe
     }
 
     private void getList() {
-        mViewModel.getCategoryListApi();
+        mViewModel.getCategoryListApi(mLanguageCode);
     }
 
     private void subscribeObservers() {

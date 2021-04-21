@@ -27,7 +27,7 @@ public abstract  class BusinessDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     BusinessDatabase.class,
                     DATABASE_NAME
-            ).build();
+            ).allowMainThreadQueries().build();
         }
         return instance;
     }

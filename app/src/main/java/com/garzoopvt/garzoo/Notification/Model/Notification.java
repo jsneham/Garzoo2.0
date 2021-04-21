@@ -19,28 +19,28 @@ public class Notification implements Parcelable {
 
     @PrimaryKey
     @NonNull
-    String notification_id;
+    private String notification_id;
 
     @ColumnInfo(name = "title")
-    String title;
+    private String title;
 
     @ColumnInfo(name = "from_name")
-    String from_name;
+    private  String from_name;
 
     @ColumnInfo(name = "phone")
-    String phone;
+    private  String phone;
 
     @ColumnInfo(name = "from_id")
-    String from_id;
+    private String from_id;
 
     @ColumnInfo(name = "image")
-    String image;
+    private  String image;
 
     @ColumnInfo(name = "type")
-    String type;
+    private  String type;
 
     @ColumnInfo(name = "date")
-    String date;
+    private String date;
 
 
     public Notification(@NonNull String notification_id, String title, String from_name, String phone, String from_id, String image, String type, String date) {
@@ -149,12 +149,12 @@ public class Notification implements Parcelable {
         this.image = image;
     }
 
-    public String getNotification_type() {
+    public String getType() {
         return type;
     }
 
-    public void setNotification_type(String notification_type) {
-        this.type = notification_type;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getDate() {

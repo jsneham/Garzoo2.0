@@ -93,6 +93,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     viewHolder.txtView_title.setText(chat.getFname() + " " + chat.getLname());
                     //  viewHolder.date.setText(chat.getDt().split(" ")[1].substring(0, 5));
                     viewHolder.date.setText(chat.getDt().split(" ")[1].substring(0, 5));
+
+//                    viewHolder.count.setVisibility(View.GONE);
                     if (chat.getChat_count().equals("0")) viewHolder.count.setVisibility(View.GONE);
                     else viewHolder.count.setText(chat.getChat_count());
 
@@ -221,7 +223,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     class RecyclerViewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         PorterShapeImageView imgView_icon;
         TextView txtView_title, date, count, tvImage, msg;
-        LinearLayout llRow;
+        LinearLayout llRow,llcounter;
         OnItemListener onItemListener;
 
         public RecyclerViewViewHolder(@NonNull View itemView,  OnItemListener onItemListener) {
@@ -234,6 +236,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             msg = itemView.findViewById(R.id.msg);
             tvImage = itemView.findViewById(R.id.tvImage);
             llRow = itemView.findViewById(R.id.llRow);
+            llcounter = itemView.findViewById(R.id.llcounter);
 
             llRow.setOnClickListener(this::onClick);
 

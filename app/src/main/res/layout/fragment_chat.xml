@@ -1,29 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-   >
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    android:orientation="vertical">
 
-        <LinearLayout
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvList"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/llad"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:clipToPadding="false" />
+        <!--        android:clipToPadding="false"-->
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                />
-            <!--        android:clipToPadding="false"-->
 
-        </LinearLayout>
+    <LinearLayout
+        android:id="@+id/llad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white">
 
+        <RelativeLayout
+            android:id="@+id/bannerAdContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone" />
+
+        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-5826510987412325/6048736164"></com.google.android.gms.ads.AdView>
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+
+</RelativeLayout>

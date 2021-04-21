@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/lgn_shape">
+
+    <ImageView
+        android:layout_marginTop="@dimen/dp10"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_garzoo_tm"></ImageView>
+
+    <TextView
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:text="@string/lnPop1"
+        android:layout_margin="@dimen/dp5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </TextView>
+
+    <TextView
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        android:gravity="center"
+        android:text="@string/lnPop2"
+        android:layout_margin="@dimen/dp10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </TextView>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/login"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp40"
+        android:layout_marginLeft="@dimen/dp10"
+        android:layout_marginTop="@dimen/dp10"
+        android:layout_marginRight="@dimen/dp10"
+        android:text="@string/login"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_shape_login"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/tvNo"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        android:gravity="center"
+        android:text="@string/notnow"
+        android:layout_margin="@dimen/dp10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </TextView>
+
+</LinearLayout>

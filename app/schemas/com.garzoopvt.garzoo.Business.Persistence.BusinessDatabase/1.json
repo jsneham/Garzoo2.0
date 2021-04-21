@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "f28de9b490bf44d9a0c9f1a56b5a834b",
+    "identityHash": "0a8940741c30c8624403993e8067883c",
     "entities": [
       {
         "tableName": "business",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `distance` TEXT, `image_id` TEXT, `video` TEXT, `interest_status` TEXT, `media_url` TEXT, `mobile_status` TEXT, `mobile` TEXT, `admin_id` TEXT, `category_id` TEXT, `user_id` TEXT, `title` TEXT, `description` TEXT, `address` TEXT, `price` TEXT, `image` TEXT, `images` TEXT, `latitude` TEXT, `longitude` TEXT, `status` TEXT, `last_modified` TEXT, `dt` TEXT, `fname` TEXT, `lname` TEXT, `category` TEXT, `area` TEXT, `taluka` TEXT, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `distance` TEXT, `image_id` TEXT, `video` TEXT, `interest_status` TEXT, `media_url` TEXT, `mobile_status` TEXT, `mobile` TEXT, `admin_id` TEXT, `category_id` TEXT, `user_id` TEXT, `title` TEXT, `description` TEXT, `address` TEXT, `price` TEXT, `image` TEXT, `images` TEXT, `latitude` TEXT, `longitude` TEXT, `status` TEXT, `last_modified` TEXT, `dt` TEXT, `fname` TEXT, `lname` TEXT, `category` TEXT, `area` TEXT, `taluka` TEXT, `timestamp` INTEGER NOT NULL, `block_status` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -175,6 +175,12 @@
             "columnName": "timestamp",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "block_status",
+            "columnName": "block_status",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -190,7 +196,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f28de9b490bf44d9a0c9f1a56b5a834b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0a8940741c30c8624403993e8067883c')"
     ]
   }
 }

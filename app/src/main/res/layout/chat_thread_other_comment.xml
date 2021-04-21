@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <!--android:background="#d7d3f8"-->
+    <!--android:background="@drawable/rectangular_circle"-->
+    <LinearLayout
+        android:id="@+id/llrow"
+        android:layout_gravity="left"
+        android:layout_margin="@dimen/dp5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:maxEms="10"
+            android:layout_weight="1"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:padding="@dimen/dp10"
+            android:background="@drawable/to_person_bg"
+            android:id="@+id/textViewMessage"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:autoSizeTextType="uniform"
+            />
+
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/android_gridview_image"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp200">
+
+        </ImageView>
+        <LinearLayout
+            android:weightSum="2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:gravity="left"
+                android:textColor="@color/theme3"
+                android:textSize="13sp"
+                android:id="@+id/textName"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+            <TextView
+                android:textColor="@color/black"
+                android:gravity="left"
+                android:id="@+id/textViewTime"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp"
+                />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

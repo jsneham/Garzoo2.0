@@ -31,7 +31,7 @@ public class NotificationApiClient {
     private static final String TAG = "NotificationApiClient";
     private static NotificationApiClient instance;
     private MutableLiveData<List<Notification>> mNotification;
-    private RetrieveNotificationRunnable mRetrieveNotificationRunnable;
+  //  private RetrieveNotificationRunnable mRetrieveNotificationRunnable;
 
     public static NotificationApiClient getInstance(){
         if(instance == null){
@@ -51,83 +51,83 @@ public class NotificationApiClient {
 
     public void getNotification(String user_id , int pageNumber){
 
-        if(mRetrieveNotificationRunnable != null){
-            mRetrieveNotificationRunnable = null;
-        }
-        mRetrieveNotificationRunnable = new RetrieveNotificationRunnable(user_id,pageNumber);
-        final Future handler = AppExecutors.getInstance().networkIO().submit(mRetrieveNotificationRunnable);
+//        if(mRetrieveNotificationRunnable != null){
+//            mRetrieveNotificationRunnable = null;
+//        }
+      //  mRetrieveNotificationRunnable = new RetrieveNotificationRunnable(user_id,pageNumber);
+      //  final Future handler = AppExecutors.getInstance().networkIO().submit(mRetrieveNotificationRunnable);
 
         // Set a timeout for the data refresh
         AppExecutors.getInstance().networkIO().schedule(new Runnable() {
             @Override
             public void run() {
                 // let the user know it timed out
-                handler.cancel(true);
+              //  handler.cancel(true);
             }
         }, NETWORK_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
 
-    private class RetrieveNotificationRunnable implements Runnable{
-
-        private int pageNumber;
-        private String user_id;
-        private boolean cancelRequest;
-
-        private RetrieveNotificationRunnable(String user_id,int pageNumber) {
-            this.pageNumber = pageNumber;
-            this.user_id = user_id;
-            cancelRequest = false;
-        }
-
-        @Override
-        public void run() {
-
-            try {
-                Response response = getNotification(user_id,pageNumber).execute();
-                Log.d(TAG, response.message());
-                if(cancelRequest){
-                    return;
-                }
-                if(response.code() == 200){
-                    List<Notification> list = new ArrayList<>(((NotificationResponse)response.body()).getNotification());
-
-                    if(pageNumber == 1){
-                        mNotification.postValue(list);
-                    }
-                    else{
-                        List<Notification> currentRecipes = mNotification.getValue();
-                        currentRecipes.addAll(list);
-                        mNotification.postValue(currentRecipes);
-                    }
-                }
-                else{
-                    String error = response.errorBody().string();
-                    Log.e(TAG, "run: error: " + error);
-                    mNotification.postValue(null);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                mNotification.postValue(null);
-            }
-        }
-
-        private Call<NotificationResponse> getNotification(String user_id,int pageNumber){
-            return ServiceGenerator.getNotificationApi().getNotification(
-                    URLs.unique_id,
-                    user_id,
-                    String.valueOf(pageNumber));
-        }
-
-        private void cancelRequest(){
-            Log.d(TAG, "cancelRequest: canceling the retrieval query");
-            cancelRequest = true;
-        }
-    }
+//    private class RetrieveNotificationRunnable implements Runnable{
+//
+//        private int pageNumber;
+//        private String user_id;
+//        private boolean cancelRequest;
+//
+//        private RetrieveNotificationRunnable(String user_id,int pageNumber) {
+//            this.pageNumber = pageNumber;
+//            this.user_id = user_id;
+//            cancelRequest = false;
+//        }
+//
+//        @Override
+//        public void run() {
+//
+//            try {
+//                Response response = getNotification(user_id,pageNumber).execute();
+//                Log.d(TAG, response.message());
+//                if(cancelRequest){
+//                    return;
+//                }
+//                if(response.code() == 200){
+//                    List<Notification> list = new ArrayList<>(((NotificationResponse)response.body()).getNotification());
+//
+//                    if(pageNumber == 1){
+//                        mNotification.postValue(list);
+//                    }
+//                    else{
+//                        List<Notification> currentRecipes = mNotification.getValue();
+//                        currentRecipes.addAll(list);
+//                        mNotification.postValue(currentRecipes);
+//                    }
+//                }
+//                else{
+//                    String error = response.errorBody().string();
+//                    Log.e(TAG, "run: error: " + error);
+//                    mNotification.postValue(null);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                mNotification.postValue(null);
+//            }
+//        }
+//
+//        private Call<NotificationResponse> getNotification(String user_id,int pageNumber){
+//            return ServiceGenerator.getNotificationApi().getNotification(
+//                    URLs.unique_id,
+//                    user_id,
+//                    String.valueOf(pageNumber));
+//        }
+//
+//        private void cancelRequest(){
+//            Log.d(TAG, "cancelRequest: canceling the retrieval query");
+//            cancelRequest = true;
+//        }
+//    }
 
 
     public void cancelRequest(){
-        if(mRetrieveNotificationRunnable!=null)
-            mRetrieveNotificationRunnable.cancelRequest();
+//        if(mRetrieveNotificationRunnable!=null)
+//            mRetrieveNotificationRunnable.cancelRequest();
     }
 }

@@ -1,5 +1,7 @@
 package com.garzoopvt.garzoo.Chat.Fragment;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +13,10 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.garzoopvt.garzoo.R;
+import com.garzoopvt.garzoo.Util.URLs;
 import com.google.android.material.tabs.TabLayout;
+
+import static com.garzoopvt.garzoo.Util.URLs.NOTIFICATION_ID;
 
 
 public class ChatMainFragment extends Fragment {
@@ -20,6 +25,7 @@ public class ChatMainFragment extends Fragment {
     ViewPager viewPager;
     ViewPagerAdapter viewPagerAdapter;
     View view;
+    Context context;
 
     public ChatMainFragment() {
         // Required empty public constructor
@@ -38,9 +44,12 @@ public class ChatMainFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view= inflater.inflate(R.layout.fragment_chat_main, container, false);
+        context=getContext();
         init();
+
         return  view;
     }
+
 
     private void init() {
         viewPager = (ViewPager)view.findViewById(R.id.viewPager);

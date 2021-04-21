@@ -29,73 +29,6 @@
 
 
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_margin="5dp"
-                    android:background="@drawable/btn_shape"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_margin="@dimen/dp5"
-                        android:id="@+id/ivImage"
-                        android:layout_width="@dimen/dp60"
-                        android:layout_height="@dimen/dp60"
-                        android:src="@drawable/ic_baseline_linked_camera_24"></ImageView>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:maxLines="2"
-                        android:text="@string/photos"
-                        android:textColor="@color/theme3"
-                        android:layout_marginBottom="@dimen/dp5"
-                        android:textStyle="bold"
-                        android:textSize="10sp"
-                        />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_margin="5dp"
-                    android:background="@drawable/btn_shape"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:layout_margin="@dimen/dp5"
-                        android:id="@+id/ivVdeo"
-                        android:layout_width="@dimen/dp60"
-                        android:layout_height="@dimen/dp60"
-                        android:src="@drawable/ic_baseline_videocam_24"></ImageView>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/videos"
-                        android:maxLines="2"
-                        android:layout_margin="@dimen/dp2"
-                        android:textColor="@color/theme3"
-                        android:layout_marginBottom="@dimen/dp5"
-                        android:textStyle="bold"
-                        android:textSize="8sp"
-                        />
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/dp5"
-                android:padding="@dimen/dp5" />
 
 
             <LinearLayout
@@ -223,7 +156,7 @@
                     android:textColor="@color/black"
                     android:textColorHint="@color/sub_text_color"></EditText>
             </RelativeLayout>
-
+            <include layout="@layout/add_photos_videos"/>
            <include layout="@layout/add_location"/>
 
             <Button

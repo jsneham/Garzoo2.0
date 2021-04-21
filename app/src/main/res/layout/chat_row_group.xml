@@ -36,7 +36,7 @@
                 android:layout_height="@dimen/dp60"
                 android:textColor="@color/white"
                 android:textSize="20sp"
-                android:text="FL"/>
+                android:text="N"/>
 
 
             <LinearLayout
@@ -101,6 +101,7 @@
 
                     <LinearLayout
 
+                        android:id="@+id/llcounter"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"

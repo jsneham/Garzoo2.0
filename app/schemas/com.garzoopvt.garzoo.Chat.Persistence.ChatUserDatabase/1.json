@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "03874352c029352b20d5ecb16f29d8f6",
+    "identityHash": "2f7f4f8f2513bdd54381dfde65b2d83a",
     "entities": [
       {
         "tableName": "chatuser",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `to_uid` TEXT, `fname` TEXT, `lname` TEXT, `count_id` TEXT, `chat_count` TEXT, `last_message` TEXT, `dt` TEXT, `phone_no` TEXT, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `to_uid` TEXT, `from_uid` TEXT, `fname` TEXT, `lname` TEXT, `count_id` TEXT, `chat_count` TEXT, `last_message` TEXT, `dt` TEXT, `phone_no` TEXT, `timestamp` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -17,6 +17,12 @@
           {
             "fieldPath": "to_uid",
             "columnName": "to_uid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "from_uid",
+            "columnName": "from_uid",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -82,7 +88,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '03874352c029352b20d5ecb16f29d8f6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f7f4f8f2513bdd54381dfde65b2d83a')"
     ]
   }
 }

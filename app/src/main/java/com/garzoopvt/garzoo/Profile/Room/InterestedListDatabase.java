@@ -26,7 +26,7 @@ public abstract  class InterestedListDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     InterestedListDatabase.class,
                     DATABASE_NAME
-            ).build();
+            ).allowMainThreadQueries().build();
         }
 
 

@@ -54,7 +54,7 @@
                         android:background="@drawable/btn_shape"
                         android:backgroundTint="@color/white"
                         android:drawableLeft="@drawable/ic_baseline_call_24_white"
-                        android:text="@string/ContactUs"
+                        android:text="@string/noti_contact"
                         android:textColor="@color/black"
                         android:textSize="15sp">
 
@@ -69,7 +69,7 @@
                         android:background="@drawable/btn_shape"
                         android:backgroundTint="@color/white"
                         android:drawableLeft="@drawable/ic_chat"
-                        android:text="@string/chat"
+                        android:text="@string/noti_chat"
                         android:textColor="@color/black"
                         android:textSize="15sp">
 

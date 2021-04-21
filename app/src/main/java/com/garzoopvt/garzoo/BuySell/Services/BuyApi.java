@@ -25,7 +25,7 @@ import retrofit2.http.Query;
 public interface BuyApi {
 
 
-    // GET Dashboard REQUEST
+    // GET  REQUEST
     @GET(URLs.api_sell_data_2_0)
     LiveData<ApiResponse<BuyResponse>> getBuy(
             @Query("unique_id") String unique_id,
@@ -39,7 +39,9 @@ public interface BuyApi {
 
 
     @GET(URLs.api_get_category_2_0)
-    LiveData<ApiResponse<CategoryResponse>> getCategory();
+    LiveData<ApiResponse<CategoryResponse>> getCategory(
+            @Query("language_code") String language_code
+    );
 
 
     @Multipart
@@ -87,7 +89,25 @@ public interface BuyApi {
             @Part("full_name") RequestBody  full_name,
             @Part("listing_id") RequestBody  listing_id,
             @Part("type") RequestBody  type,
-            @Part("listing_title") RequestBody  listing_title
+            @Part("listing_title") RequestBody  listing_title,
+            @Part("listing_type") RequestBody  listing_type,
+            @Part("language") RequestBody  language
+
+
+    );
+
+    @Multipart
+    @POST(URLs.api_add_listing_interest_2_0)
+    LiveData<ApiResponse<BuyResponse>> interest1(
+            @Part("unique_id") RequestBody unique_id,
+            @Part("user_id") RequestBody user_id,
+            @Part("to_user_id") RequestBody  to_user_id,
+            @Part("full_name") RequestBody  full_name,
+            @Part("listing_id") RequestBody  listing_id,
+            @Part("type") RequestBody  type,
+            @Part("listing_title") RequestBody  listing_title,
+            @Part("listing_type") RequestBody  listing_type
+
 
     );
 
@@ -114,8 +134,17 @@ public interface BuyApi {
     );
 
     @GET(URLs.Listing_sell_delete_record_2_0)
-    Call<ResponseBody> Listing_sell_delete_record_2_0(
+    LiveData<ApiResponse<BuyResponse>> Listing_sell_delete_record_2_0(
             @Query("unique_id") String unique_id,
             @Query("p") String post_id);
+
+    @GET(URLs.log_activity)
+    Call<ResponseBody> LogActivity(
+            @Query("unique_id") String unique_id,
+            @Query("post_id") String post_id,
+            @Query("post_user_id") String post_user_id,
+            @Query("user_id") String user_id,
+            @Query("type") String type
+    );
 
 }

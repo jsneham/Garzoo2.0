@@ -24,7 +24,7 @@ public abstract  class EmploymentDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     EmploymentDatabase.class,
                     DATABASE_NAME
-            ).build();
+            ).allowMainThreadQueries().build();
         }
         return instance;
     }

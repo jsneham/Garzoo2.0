@@ -20,6 +20,9 @@ import com.garzoopvt.garzoo.RetrofitService.Resource;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+
 public class ChatViewModel extends AndroidViewModel {
 
     private static final String TAG = "ChatViewModel";
@@ -217,6 +220,12 @@ public class ChatViewModel extends AndroidViewModel {
         });
 
     }
+
+
+    public Call<ResponseBody> ResetNotificationCount(String user_id){
+        return chatRepository.resetNotificationCount(user_id);
+    }
+
 
 
 }

@@ -37,15 +37,13 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private Context mContext;
     private String user_id;
 
-    public EventListener listener;
+    public OnBlockedListener listener;
 
-    public interface EventListener {
-        void onEvent(int data);
-    }
+
 
 
     //    public MyListingAdapter(Context context, ArrayList<DashboardList> userArrayList, String user_id, View.OnClickListener listener ) {
-    public BlockedUserAdapter(Context mContext, String user_id, EventListener listener) {
+    public BlockedUserAdapter(Context mContext, String user_id, OnBlockedListener listener) {
         this.mContext = mContext;
         // this.userArrayList = userArrayList;
         this.user_id = user_id;
@@ -63,7 +61,7 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         switch (viewType) { // viewType is the view type constant
             case LIST_TYPE: {
                 view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.blocked_row, viewGroup, false);
-                return new RecyclerViewViewHolder(view);
+                return new RecyclerViewViewHolder(view,listener);
             }
             case LOADING_TYPE: {
                 view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_loading_list_item, viewGroup, false);
@@ -80,7 +78,7 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
             default: {
                 view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.blocked_row, viewGroup, false);
-                return new RecyclerViewViewHolder(view);
+                return new RecyclerViewViewHolder(view,listener);
             }
         }
 
@@ -97,13 +95,22 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 BlockedPeople user = (BlockedPeople) mBlockedPeople.get(i);
 
                 viewHolder.name.setText(String.format("%1$s %2$s", user.getFname() , user.getLname()));
+                if (user.getLname().equals(""))
+                    viewHolder.tvImage.setText(user.getFname().charAt(0) + "");
+                else
+                    viewHolder.tvImage.setText(user.getFname().charAt(0) + " " + user.getLname().charAt(0));
 
-                viewHolder.submit.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                       // RemoveBlock(user.getBlock_record_id(), mContext);
-                    }
-                });
+
+              //  viewHolder.submit.setTag(R.string.btn_view_position, i);
+              //  viewHolder.submit.onEvent(i);
+
+
+//                viewHolder.submit.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                       // RemoveBlock(user.getBlock_record_id(), mContext);
+//                    }
+//                });
             }
 
         } catch (Exception e) {
@@ -219,6 +226,16 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return null;
     }
 
+    public void deleteSelected(int position){
+        if(mBlockedPeople != null){
+            if(mBlockedPeople.size() > 0){
+                mBlockedPeople.remove(position);
+
+                notifyDataSetChanged();
+            }
+        }
+
+    }
 
    /*
    View Holders
@@ -226,19 +243,33 @@ public class BlockedUserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     */
 
 
-    class RecyclerViewViewHolder extends RecyclerView.ViewHolder {
+    class RecyclerViewViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
 
         TextView tvImage, name, submit;
+        OnBlockedListener listener;
 
-
-        public RecyclerViewViewHolder(@NonNull View itemView) {
+        public RecyclerViewViewHolder(@NonNull View itemView, OnBlockedListener listener) {
             super(itemView);
+            this.listener=listener;
             tvImage = itemView.findViewById(R.id.tvImage);
             name = itemView.findViewById(R.id.name);
             submit = itemView.findViewById(R.id.submit);
 
 
+            submit.setOnClickListener(this::onClick);
         }
+
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+
+                case R.id.submit:
+                    listener.onEvent(getAdapterPosition());
+                    break;
+            }
+        }
+
+
 
 
     }

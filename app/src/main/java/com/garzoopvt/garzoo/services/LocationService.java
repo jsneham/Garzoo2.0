@@ -93,7 +93,7 @@ public class LocationService extends Service {
         }
 
         LocationRequest locationRequest= new LocationRequest();
-        locationRequest.setInterval(4000);
+        locationRequest.setInterval(1000);
         locationRequest.setFastestInterval(2000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -160,7 +160,9 @@ public class LocationService extends Service {
                 sessionManager.setToSessionManager(SessionManager.LONGITUDE, String.valueOf(longitude));
 
 
-                Log.d("lat,long", String.valueOf(latitude + longitude));
+                Log.d("lat,long", String.valueOf(latitude) + "," +String.valueOf(longitude));
+
+                stopLocationService();
             }
 
         } catch (IOException e) {

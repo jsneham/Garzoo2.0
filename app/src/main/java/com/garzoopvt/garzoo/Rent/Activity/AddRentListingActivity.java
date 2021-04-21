@@ -1,14 +1,21 @@
 package com.garzoopvt.garzoo.Rent.Activity;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.inputmethodservice.KeyboardView;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,9 +23,14 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.speech.RecognizerIntent;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,6 +43,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,6 +51,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -55,13 +70,19 @@ import com.garzoopvt.garzoo.MapsActivity;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.Rent.ViewModel.RentViewModel;
 import com.garzoopvt.garzoo.Util.ImageCompression;
+import com.garzoopvt.garzoo.Util.MultiImageUtility;
 import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.Transaltion;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -80,125 +101,190 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AddRentListingActivity extends BaseActivity implements View.OnClickListener, View.OnKeyListener {
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-    private String TAG = "AddSellListingActivity";
+public class AddRentListingActivity extends BaseActivity implements View.OnClickListener, KeyboardView.OnKeyboardActionListener {
 
-    //View
-    @BindView(R.id.etTitle)
-    EditText etTitle;
-    @BindView(R.id.etDescription)
-    EditText etDescription;
-    @BindView(R.id.etPrice)
-    EditText etPrice;
-    @BindView(R.id.btnSubmit)
-    Button btnSubmit;
-    @BindView(R.id.ivImage)
-    ImageView ivImage;
-    @BindView(R.id.ivVdeo)
-    ImageView ivVdeo;
-    @BindView(R.id.rlLayout)
-    RelativeLayout rlLayout;
-    @BindView(R.id.rbMobile)
-    RadioGroup rbMobile;
-    @BindView(R.id.rbGroup)
-    RadioGroup rbGroup;
-    @BindView(R.id.rbLocation)
-    RadioGroup rbLocation;
-    @BindView(R.id.list)
-    RecyclerView list;
-    @BindView(R.id.gifDescription)
-    ImageView gifDescription;
-    @BindView(R.id.gifPrice)
-    ImageView gifPrice;
-    @BindView(R.id.gifTitle)
-    ImageView gifTitle;
-    @BindView(R.id.gifTaluka)
-    ImageView gifTaluka;
-    @BindView(R.id.gifArea)
-    ImageView gifArea;
-    @BindView(R.id.tvTaluka)
-    EditText tvTaluka;
-    @BindView(R.id.tvArea)
-    EditText tvArea;
-    @BindView(R.id.etCategory)
+    private uplaodDataToServer myAsyncTask;
+    private final int PERMISSION_REQUEST_CODE = 200;
+    String TAG = "VCTrim";
+    ProgressDialog progressDialog;
+    private ImageView ivImage, ivVdeo;
+    private RelativeLayout rlLayout;
+    private RadioGroup rbGroup;
+    private EditText etTitle, etDescription, etPrice;
     TextView etCategory;
-    @BindView(R.id.llHomeAddress)
-    LinearLayout llHomeAddress;
-    @BindView(R.id.llAddress)
-    LinearLayout llAddress;
-
-
-    //class
+    private TextInputLayout etCategoryText;
+    private Button btnSubmit;
+    private Context context = this;
+    private static final int REQ_CODE_SPEECH_INPUT = 100;
+    private static final int REQ_CODE_SPEECH_INPUT_Description = 200;
+    private String imagePath = "";
+    private SessionManager sessionManager;
+    private String selectedImagePath = "";
+    private String category_id = "";
+    private ArrayList<Category> filterCategoryArrayList;
+    private RecyclerView list;
     private ImageListAdapter adapter;
-    private RentViewModel mViewModel;
-
-    //Data
-    private ArrayList<Category> categoryArrayList=new ArrayList<>();
     private ArrayList<ImageVideo> imageList = new ArrayList<>();
     private ArrayList<String> images = new ArrayList<>();
     private ArrayList<String> videoList = new ArrayList<>();
     private ArrayList<String> flat_images = new ArrayList<>();
-    private Context context = this;
     private StringBuffer description = new StringBuffer("");
     private StringBuffer title = new StringBuffer("");
     private StringBuffer price = new StringBuffer("");
-    private ProgressDialog progressDialog;
-
-    //constant
-    private static final int REQ_CODE_SPEECH_INPUT = 100;
-    private static final int REQ_CODE_SPEECH_INPUT_Description = 200;
-    private static final int REQ_CODE_SPEECH_INPUT_PRICE = 300;
-    private String imagePath = "";
-    private String selectedImagePath = "";
-    private String user_id;
-    private String category_id, category_name;
+    private final int REQ_CODE_SPEECH_INPUT_PRICE = 300;
+    String listing_status = "2";
+    ImageView gifDescription, gifPrice, gifTitle, gifTaluka, gifArea;
     private String mobile_status = "0";
-    private String listing_status = "2";
-    private String available_status = "0";
-    private int image_count = 10;
+    private RadioGroup rbMobile;
+    KeyboardView mKeyboardView;
+    boolean requestCamera = false;
+    int image_count = 10;
+    private RadioGroup rbLocation;
+    private LinearLayout llAddress, llHomeAddress;
+    private EditText tvTaluka, tvArea;
+    private EditText tvHomeTaluka, tvHomeArea;
     private String Lat, Long;
     private String Taluka = "", Area = "";
-    private SessionManager sessionManager;
-    private int LocationSelectionMode = 2;
-    private boolean requestCamera = true;
+    private int LocationSelectionMode=2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_rent_listing);
-        sessionManager = new SessionManager(this);
-        mViewModel = ViewModelProviders.of(this).get(RentViewModel.class);
-        categoryArrayList= getIntent().getParcelableArrayListExtra("category");
-        ButterKnife.bind(this);
-        getSessionData();
-        getToolBar();
-        imagelist();
-
+        try {
+            init();
+            imagelist();
+            getToolBar();
+            setKeyboard();
+            if (checkPermission()) requestCamera = true;
+            else requestPermission();
+            DisableCopyPaste();
+            //loadFFMpegBinary(context);
+            //  etPrice.setFilters(new InputFilter[] { filter });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void getSessionData() {
-        Lat = sessionManager.getFromSessionManager(SessionManager.LATITUDE_FIXED);
-        Long = sessionManager.getFromSessionManager(SessionManager.LONGITUDE_FIXED);
-        Area = sessionManager.getFromSessionManager(SessionManager.Login_CITY);
-        Taluka = sessionManager.getFromSessionManager(SessionManager.Login_TALUKA);
-        user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
+    private void DisableCopyPaste() {
+        ActionMode.Callback callback = new ActionMode.Callback() {
 
-        tvArea.setText(Area);
-        tvTaluka.setText(Taluka);
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            public void onDestroyActionMode(ActionMode mode) {
+            }
+
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                return false;
+            }
+        };
+        etTitle.setCustomSelectionActionModeCallback(callback);
+        etDescription.setCustomSelectionActionModeCallback(callback);
+        etPrice.setCustomSelectionActionModeCallback(callback);
     }
+
+    private void setKeyboard() {
+        etTitle.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                SoftKeyMethod((AppCompatEditText) etTitle);
+            }
+        });
+
+        etDescription.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                SoftKeyMethod((AppCompatEditText) etDescription);
+            }
+        });
+        etPrice.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                SoftKeyMethod((AppCompatEditText) etPrice);
+            }
+        });
+
+//        etTitle.setShowSoftInputOnFocus(false);
+//        etDescription.setShowSoftInputOnFocus(false);
+//        etPrice.setShowSoftInputOnFocus(false);
+//        mCustomKeyboard = new EditCustomKeyboard(AddRentListingActivity.this, R.id.keyboardview, R.xml.numeric);
+//        mKeyboardView = (KeyboardView) findViewById(R.id.keyboardview);
+//        mKeyboardView.setKeyboard(new Keyboard(AddRentListingActivity.this, R.xml.numeric));
+//        mCustomKeyboard.registerEditText(R.id.etTitle);
+//        mCustomKeyboard.registerEditText(R.id.etDescription);
+//        mCustomKeyboard.registerEditText(R.id.etPrice);
+//        tvArea.setShowSoftInputOnFocus(false);
+//        tvTaluka.setShowSoftInputOnFocus(false);
+//        mCustomKeyboard.registerEditText(R.id.tvArea);
+//        mCustomKeyboard.registerEditText(R.id.tvTaluka);
+//        mKeyboardView.setOnKeyboardActionListener(this);
+    }
+
+    InputFilter filter = new InputFilter() {
+        public CharSequence filter(CharSequence source, int start,
+                                   int end, Spanned dest, int dstart, int dend) {
+
+            for (int i = start; i < end; i++) {
+                if (Character.isLetter(source.charAt(i))) {
+                    return "";
+                }
+            }
+            return null;
+        }
+    };
 
     private void getToolBar() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.abMain);
         setSupportActionBar(toolbar);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        // actionBar.setHomeAsUpIndicator(R.drawable.ic_close);
         actionBar.setTitle(R.string.regestration);
 
     }
 
-
     private void imagelist() {
+        list = (RecyclerView) findViewById(R.id.list);
         list.setHasFixedSize(true);
         // The number of Columns
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -208,218 +294,270 @@ public class AddRentListingActivity extends BaseActivity implements View.OnClick
         list.setAdapter(adapter);
     }
 
-    @OnClick(R.id.btnSubmit)
-    public void Submit() {
-        if (Validation()) {
 
-            uploadImage();
+    private void init() {
+        sessionManager = new SessionManager(context);
+        Lat = sessionManager.getFromSessionManager(SessionManager.LATITUDE_FIXED);
+        Long = sessionManager.getFromSessionManager(SessionManager.LONGITUDE_FIXED);
 
+        Area = sessionManager.getFromSessionManager(SessionManager.Login_CITY);
+        Taluka = sessionManager.getFromSessionManager(SessionManager.Login_TALUKA);
+        filterCategoryArrayList = new ArrayList<>();
+        filterCategoryArrayList= getIntent().getParcelableArrayListExtra("category");
+        rbGroup = findViewById(R.id.rbGroup);
+        rlLayout = findViewById(R.id.rlLayout);
+        etCategoryText = (TextInputLayout) findViewById(R.id.etCategoryText);
+        etCategory = (TextView) findViewById(R.id.etCategory);
+        etTitle = (EditText) findViewById(R.id.etTitle);
+        etDescription = (EditText) findViewById(R.id.etDescription);
+        etPrice = (EditText) findViewById(R.id.etPrice);
+        ivImage = (ImageView) findViewById(R.id.ivImage);
+        ivVdeo = (ImageView) findViewById(R.id.ivVdeo);
 
-        }
-    }
+        btnSubmit = (Button) findViewById(R.id.btnSubmit);
+//        tvCategoryName.setText(category_name);
 
-    private void uploadImage() {
-        try {
-            MultipartBody.Part videos = null;
-            if (videoList.size() > 0) {
-                MultipartBody.Part videoRequest = prepareFilePart("video_file", Uri.parse(videoList.get(0)), videoList.get(0));
-                videos= videoRequest;
-            }
-
-
-            MultipartBody.Part list[] = new MultipartBody.Part[flat_images.size()];
-
-//            for (String uri : flat_images) {
-            for (int j = 0; j < flat_images.size(); j++) {
-                // MultipartBody.Part imageRequest = prepareFilePart("file[]", Uri.parse(uri), uri);
-                // MultipartBody.Part imageRequest = prepareFilePart("picture", Uri.parse(uri), uri);
-                MultipartBody.Part imageRequest = prepareFilePart("image[]", Uri.parse(flat_images.get(j)), flat_images.get(j));
-                //list.add(imageRequest);
-                list[j] = imageRequest;
-            }
-
-            RequestBody rb_user_id = RequestBody.create(MultipartBody.FORM, user_id);
-            RequestBody rb_mobile_status = RequestBody.create(MultipartBody.FORM, mobile_status);
-            RequestBody rb_listing_status = RequestBody.create(MultipartBody.FORM, listing_status);
-            RequestBody rb_available_status = RequestBody.create(MultipartBody.FORM, available_status);
-            RequestBody rb_category_id = RequestBody.create(MultipartBody.FORM, category_id);
-            RequestBody title = RequestBody.create(MultipartBody.FORM, etTitle.getText().toString());
-            RequestBody description = RequestBody.create(MultipartBody.FORM, etDescription.getText().toString());
-            RequestBody price = RequestBody.create(MultipartBody.FORM, etPrice.getText().toString());
-            RequestBody address = RequestBody.create(MultipartBody.FORM, Area + " ," + Taluka);
-            RequestBody rb_Lat = RequestBody.create(MultipartBody.FORM, Lat);
-            RequestBody rb_Long = RequestBody.create(MultipartBody.FORM, Long);
-
-            Call<ResponseBody> call = mViewModel.uploadData(list, rb_user_id, rb_mobile_status, rb_category_id, title,
-                    description, price, rb_Lat, rb_Long, address, videos, rb_listing_status,rb_available_status); //.get(0)
-
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    if (response != null) {
-                        if (response.isSuccessful()) {
-                            try {
-                                String result = response.body().string();
-                                if (result.equals("success")) {
-                                    Utils.openSnackBar("यशस्वीरित्या अपलोड केले", rlLayout);
-                                    Log.d(TAG, "the message is ----> " + response.message());
-                                    //Log.e("main", "the error is ----> " + response.body().getError());
-                                    finish();
-                                } else {
-                                    Utils.openSnackBar("अयशस्वी, कृपया नंतर प्रयत्न करा !!", rlLayout);
-                                }
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-
-                    }
-
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                    Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
-
-                }
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d(TAG, "uploadImage:" + e.getMessage());
-        }
-
-    }
-
-    @NonNull
-    private MultipartBody.Part prepareFilePart(String partName, Uri fileUri, String filename) {
-        // create RequestBody instance from file
-        File file = new File("" + fileUri);
-        file.getName();
-
-//        MediaType m=   MediaType.parse(getContentResolver().getType(fileUri));
-//        Log.d(TAG, "prepareFilePart: "+ m);
-        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), filename);
-
-        // MultipartBody.Part is used to send also the actual file name
-        return MultipartBody.Part.createFormData(partName, file.getName(), requestFile);
-    }
-
-
-    @OnClick(R.id.etCategory)
-    public void etCategoryOnclick() {
-        if (categoryArrayList.size() > 0) openFilterSheet();
-    }
-
-    private void openFilterSheet() {
-        View view = getLayoutInflater().inflate(R.layout.filter_bottom_sheet, null);
-        ListView lv_languages = (ListView) view.findViewById(R.id.lv_languages);
-        FilterAdapter list_adapter = new FilterAdapter(categoryArrayList, context);
-        lv_languages.setAdapter(list_adapter);
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
-        bottomSheetDialog.setContentView(view);
-        bottomSheetDialog.show();
-
-        lv_languages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        rbMobile = findViewById(R.id.rbMobile);
+        rbMobile.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                etCategory.setText(categoryArrayList.get(i).getName());
-                category_id = categoryArrayList.get(i).getId();
-                bottomSheetDialog.dismiss();
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // RadioButton checkedRadioButton = (RadioButton)group.findViewById(checkedId);
+                //boolean isChecked = checkedRadioButton.isChecked();
+                if (checkedId == R.id.rbShow) {
+                    mobile_status = "0";
+                } else if (checkedId == R.id.rbHide) {
+                    mobile_status = "1";
+                }
+
+
             }
         });
+
+
+        etCategory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (filterCategoryArrayList.size() > 0) openFilterSheet();
+            }
+        });
+
+        ivImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (imageValidation()) {
+                    actionDialogBox(context);
+                }
+
+            }
+        });
+
+        ivVdeo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if ( videoValidation()) {
+                    actionDialogBoxForVideo(context);
+                }
+
+
+            }
+        });
+
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (Validation()) {
+                    uploadData(etTitle.getText().toString(), etTitle.getText().toString());
+                } else {
+                    //openSnackBar("कृपया किमान एक फोटो अपलोड करा");
+                }
+
+            }
+        });
+
+        gifArea = findViewById(R.id.gifArea);
+        gifTaluka = findViewById(R.id.gifTaluka);
+        gifArea.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.checkErrorPresent(context, tvArea);
+                startVoiceInput("gifArea", 555);
+            }
+        });
+
+        gifTaluka.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.checkErrorPresent(context, tvTaluka);
+                startVoiceInput("gifTaluka", 666);
+            }
+        });
+
+        gifDescription = findViewById(R.id.gifDescription);
+        gifPrice = findViewById(R.id.gifPrice);
+        gifTitle = findViewById(R.id.gifTitle);
+
+        gifTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.checkErrorPresent(context, etTitle);
+                startVoiceInput("etTitle", REQ_CODE_SPEECH_INPUT);
+            }
+        });
+        gifDescription.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.checkErrorPresent(context, etDescription);
+                startVoiceInput("etDescription", REQ_CODE_SPEECH_INPUT_Description);
+            }
+        });
+        gifPrice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Utils.checkErrorPresent(context, etPrice);
+                startVoiceInput("etPrice", REQ_CODE_SPEECH_INPUT_PRICE);
+
+            }
+        });
+
+
+        etDescription.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (etDescription.getText().toString().length() >= 1000) {
+                    //Show toast here
+                    etDescription.setError(getString(R.string.err_limit));
+                }
+            }
+        });
+        rbGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton checkedRadioButton = (RadioButton) group.findViewById(checkedId);
+                boolean isChecked = checkedRadioButton.isChecked();
+                if (checkedId == R.id.rbDene) {
+                    listing_status = "2";
+                } else if (checkedId == R.id.rbGhene) {
+                    listing_status = "3";
+                }
+
+
+            }
+        });
+
+        rbLocation = findViewById(R.id.rbLocation);
+        llHomeAddress = findViewById(R.id.llHomeAddress);
+        llAddress = findViewById(R.id.llAddress);
+        tvHomeTaluka = findViewById(R.id.tvHomeTaluka);
+        tvHomeArea = findViewById(R.id.tvHomeArea);
+        tvTaluka = findViewById(R.id.tvTaluka);
+        tvArea = findViewById(R.id.tvArea);
+
+        tvHomeTaluka.setText(Taluka);
+        tvHomeArea.setText(Area);
+        Transaltion.translateListing(sessionManager.getFromSessionManager(SessionManager.TALUKA), tvTaluka, "Taluka",context );
+        Transaltion.translateListing(sessionManager.getFromSessionManager(SessionManager.CITY), tvArea , "Area",context);
+        Area=sessionManager.getFromSessionManager(SessionManager.CITY_List);
+        Taluka=sessionManager.getFromSessionManager(SessionManager.TALUKA_List);
+
+
+        rbLocation.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // RadioButton checkedRadioButton = (RadioButton)group.findViewById(checkedId);
+                //boolean isChecked = checkedRadioButton.isChecked();
+                if (checkedId == R.id.rbHome) {
+                    LocationSelectionMode=1;
+                    llHomeAddress.setVisibility(View.VISIBLE);
+                    llAddress.setVisibility(View.GONE);
+                    Area=sessionManager.getFromSessionManager(SessionManager.Login_CITY);
+                    Taluka=sessionManager.getFromSessionManager(SessionManager.Login_TALUKA);
+                    tvHomeTaluka.setText(Taluka);
+                    tvHomeArea.setText(Area);
+
+                } else if (checkedId == R.id.rbCurrent) { tvTaluka.setText("");
+                    tvArea.setText("");
+                    llHomeAddress.setVisibility(View.GONE);
+                    llAddress.setVisibility(View.VISIBLE);
+                    Lat = sessionManager.getFromSessionManager(SessionManager.LATITUDE);
+                    Long = sessionManager.getFromSessionManager(SessionManager.LONGITUDE);
+                    Transaltion.translateListing(sessionManager.getFromSessionManager(SessionManager.TALUKA), tvTaluka, "Taluka",context );
+                    Transaltion.translateListing(sessionManager.getFromSessionManager(SessionManager.CITY), tvArea , "Area",context);
+                    Area=sessionManager.getFromSessionManager(SessionManager.CITY_List);
+                    Taluka=sessionManager.getFromSessionManager(SessionManager.TALUKA_List);
+                    LocationSelectionMode=2;
+                } else if (checkedId == R.id.rbSelect) { tvTaluka.setText("");
+                    tvArea.setText("");
+                    llHomeAddress.setVisibility(View.GONE);
+                    llAddress.setVisibility(View.VISIBLE);
+                    Intent in = new Intent(AddRentListingActivity.this, MapsActivity.class);
+                    in.putExtra("latitude", sessionManager.getFromSessionManager(SessionManager.LATITUDE));
+                    in.putExtra("longitude", sessionManager.getFromSessionManager(SessionManager.LONGITUDE));
+                    startActivityForResult(in, 777);
+                    LocationSelectionMode=3;
+                }
+
+
+            }
+        });
+
+
+
     }
 
 
+    private boolean imageValidation() {
 
-    @OnClick(R.id.gifTitle)
-    public void gifTitleOnclick() {
-        Utils.checkErrorPresent(context, etTitle);
-        startVoiceInput("etTitle", REQ_CODE_SPEECH_INPUT);
-    }
-
-    @OnClick(R.id.gifDescription)
-    public void gifDescriptionOnclick() {
-        Utils.checkErrorPresent(context, etDescription);
-        startVoiceInput("etDescription", REQ_CODE_SPEECH_INPUT_Description);
-    }
-
-    @OnClick(R.id.gifPrice)
-    public void gifPriceOnclick() {
-        Utils.checkErrorPresent(context, etPrice);
-        startVoiceInput("etPrice", REQ_CODE_SPEECH_INPUT_PRICE);
-    }
-
-    @OnClick(R.id.gifArea)
-    public void gifAreaOnclick() {
-        Utils.checkErrorPresent(context, tvArea);
-        startVoiceInput("gifArea", 555);
-    }
-
-
-    @OnClick(R.id.gifTaluka)
-    public void gifTalukaOnclick() {
-        Utils.checkErrorPresent(context, tvTaluka);
-        startVoiceInput("gifTaluka", 666);
-    }
-
-    private void startVoiceInput(String type, int code) {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, URLs.language);
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.help_text));
-        try {
-            startActivityForResult(intent, code);
-
-        } catch (ActivityNotFoundException a) {
-
+        if(requestCamera){
+            if(images.size() < image_count) return true;
+            else  openSnackBar(context.getString(R.string.image_error));
         }
+        else Toast.makeText(this, "Permission Denied, You cannot access camera.", Toast.LENGTH_LONG).show();
+
+        return false;
     }
 
-    @OnTextChanged(value = R.id.etTitle, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void etTitleChange(CharSequence text) {
-        SoftKeyMethod((AppCompatEditText) etTitle);
-    }
+    private boolean videoValidation() {
 
+        if(requestCamera){
 
-    @OnTextChanged(value = R.id.etDescription, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void etDescriptionChange(CharSequence text) {
-        SoftKeyMethod((AppCompatEditText) etDescription);
-    }
-
-
-    @OnTextChanged(value = R.id.etPrice, callback = OnTextChanged.Callback.AFTER_TEXT_CHANGED)
-    public void etPriceChange(CharSequence text) {
-        SoftKeyMethod((AppCompatEditText) etPrice);
-    }
-
-    @OnClick(R.id.ivImage)
-    public void ivImageClicked() {
-        if (requestCamera && images.size() < image_count) {
-            actionDialogBox(context);
-        } else {
-            Utils.openSnackBar(context.getString(R.string.image_error), rlLayout);
+            if(videoList.size() < 1)return true;
+            else  openSnackBar(context.getString(R.string.image_error));
         }
+        else Toast.makeText(this, "Permission Denied, You cannot access camera.", Toast.LENGTH_LONG).show();
+
+        return false;
     }
 
     public void actionDialogBox(final Context context) {
         final CharSequence[] options = {"Take Photo", "Choose from Gallery", "Cancel"};
-        final CharSequence[] options1 = {"फोटो घ्या", "गॅलरीमधून निवडा", "रद्द करा"};
+        final CharSequence[] options1 = {getString(R.string.takephoto),getString(R.string.choosegallery),getString(R.string.cancel)};
         AlertDialog.Builder builder = new AlertDialog.Builder(AddRentListingActivity.this);
-        builder.setTitle("फोटो जोडा!");
+        builder.setTitle(getString(R.string.takephoto));
         builder.setItems(options1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 if (options[item].equals("Take Photo")) {
+
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    File f = new File(Environment.getExternalStorageDirectory() + "/DCIM/", "image" + new Date().getTime() + ".jpg");
+                    File f = new File(android.os.Environment.getExternalStorageDirectory() + "/DCIM/", "image" + new Date().getTime() + ".jpg");
                     imagePath = f.getAbsolutePath();
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
                     startActivityForResult(intent, 1);
                 } else if (options[item].equals("Choose from Gallery")) {
+                    // Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    // startActivityForResult(intent, 2);
+
                     Intent intent = new Intent();
                     intent.setType("image/*");
                     intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
@@ -434,21 +572,11 @@ public class AddRentListingActivity extends BaseActivity implements View.OnClick
         builder.show();
     }
 
-
-    @OnClick(R.id.ivVdeo)
-    public void ivVdeoClicked() {
-        if (requestCamera && images.size() < image_count) {
-            actionDialogBoxForVideo(context);
-        } else {
-            Utils.openSnackBar(context.getString(R.string.image_error), rlLayout);
-        }
-    }
-
     public void actionDialogBoxForVideo(final Context context) {
-        final CharSequence[] options1 = {"व्हिडिओ घ्या", "गॅलरीमधून निवडा", "रद्द करा"};
+        final CharSequence[] options1 = {getString(R.string.takevideo),getString(R.string.choosegallery),getString(R.string.cancel)};
         final CharSequence[] options = {"Take Video", "Choose from Gallery", "Cancel"};
         AlertDialog.Builder builder = new AlertDialog.Builder(AddRentListingActivity.this);
-        builder.setTitle("हिडिओ जोडा!");
+        builder.setTitle(getString(R.string.takevideo));
         builder.setItems(options1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
@@ -460,6 +588,7 @@ public class AddRentListingActivity extends BaseActivity implements View.OnClick
                     intent.setType("video/*");
                     intent.setAction(Intent.ACTION_GET_CONTENT);
                     startActivityForResult(Intent.createChooser(intent, "Select Video"), 3);
+
                 } else if (options[item].equals("Cancel")) {
                     dialog.dismiss();
                 }
@@ -469,188 +598,54 @@ public class AddRentListingActivity extends BaseActivity implements View.OnClick
     }
 
 
-    @OnClick({R.id.rbDene, R.id.rbGhene})
-    public void setListingStatus(RadioButton radioButton) {
-        // Is the button now checked?
-        boolean checked = radioButton.isChecked();
-
-        // Check which radio button was clicked
-        switch (radioButton.getId()) {
-            case R.id.rbGhene:
-                if (checked) {
-                    listing_status = "3";
-                }
-                break;
-            case R.id.rbDene:
-                if (checked) {
-                    listing_status = "2";
-                }
-                break;
+    private boolean Validation() {
+        if (TextUtils.isEmpty(etTitle.getText().toString())|| etTitle.getText().toString().trim().equals("")) {
+            etTitle.setError(getString(R.string.err_title));
+            etTitle.requestFocus();
+            return false;
+        } else if (TextUtils.isEmpty(etDescription.getText().toString())|| etDescription.getText().toString().trim().equals("")) {
+            etDescription.setError(getString(R.string.err_description));
+            etDescription.requestFocus();
+            return false;
+        } else if (category_id.equals("")) {
+            etCategory.setError(getString(R.string.err_category));
+            etCategory.requestFocus();
+            return false;
+        } else if (flat_images.size() == 0) {
+            if (listing_status.equals("3")) return true;
+            else {
+                openSnackBar("कृपया किमान एक फोटो अपलोड करा");
+                return false;
+            }
+        }
+        else if (tvArea.getText().toString().equals("unnamed") || tvArea.getText().toString().equals("")) {
+            openSnackBar(getString(R.string.err_address));
+            return false;
+        } else if (tvTaluka.getText().toString().equals("unnamed") || tvTaluka.getText().toString().equals("")) {
+            openSnackBar(getString(R.string.err_address));
+            return false;
+        } else {
+            Area= tvArea.getText().toString();
+            Taluka=tvTaluka.getText().toString();
+            return true;
         }
     }
 
 
-    @OnClick({R.id.rbShow, R.id.rbHide})
-    public void setMobileStatus(RadioButton radioButton) {
-        // Is the button now checked?
-        boolean checked = radioButton.isChecked();
+    private void startVoiceInput(String type, int code) {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        String  mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, mLanguageCode+ URLs.language);
 
-        // Check which radio button was clicked
-        switch (radioButton.getId()) {
-            case R.id.rbShow:
-                if (checked) {
-                    mobile_status = "0";
-                }
-                break;
-            case R.id.rbHide:
-                if (checked) {
-                    mobile_status = "1";
-                }
-                break;
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.help_text));
+        try {
+            startActivityForResult(intent, code);
+        } catch (ActivityNotFoundException a) {
+
         }
     }
-
-    @OnClick({R.id.rbCurrent, R.id.rbSelect})
-    public void setLocation(RadioButton radioButton) {
-        // Is the button now checked?
-        boolean checked = radioButton.isChecked();
-
-        // Check which radio button was clicked
-        switch (radioButton.getId()) {
-            case R.id.rbCurrent:
-                if (checked) {
-                    tvTaluka.setText("");
-                    tvArea.setText("");
-                    llHomeAddress.setVisibility(View.GONE);
-                    llAddress.setVisibility(View.VISIBLE);
-                    Lat = sessionManager.getFromSessionManager(SessionManager.LATITUDE);
-                    Long = sessionManager.getFromSessionManager(SessionManager.LONGITUDE);
-                    Transaltion.translateListing(sessionManager.getFromSessionManager(SessionManager.TALUKA), tvTaluka, "Taluka", context);
-                    Transaltion.translateListing(sessionManager.getFromSessionManager(SessionManager.CITY), tvArea, "Area", context);
-                    Area = sessionManager.getFromSessionManager(SessionManager.CITY_List);
-                    Taluka = sessionManager.getFromSessionManager(SessionManager.TALUKA_List);
-                    LocationSelectionMode = 2;
-                }
-                break;
-            case R.id.rbSelect:
-                if (checked) {
-                    tvTaluka.setText("");
-                    tvArea.setText("");
-                    llHomeAddress.setVisibility(View.GONE);
-                    llAddress.setVisibility(View.VISIBLE);
-                    Intent in = new Intent(AddRentListingActivity.this, MapsActivity.class);
-                    in.putExtra("latitude", sessionManager.getFromSessionManager(SessionManager.LATITUDE));
-                    in.putExtra("longitude", sessionManager.getFromSessionManager(SessionManager.LONGITUDE));
-                    startActivityForResult(in, 777);
-                    LocationSelectionMode = 3;
-                }
-                break;
-        }
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQ_CODE_SPEECH_INPUT) {
-            if (resultCode == RESULT_OK && null != data) {
-                int pos = etTitle.getSelectionStart();
-                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                title.insert(pos, result.get(0));
-                title.append(" ");
-                etTitle.setText(title);
-                etTitle.setSelection(etTitle.getText().toString().length());
-                etTitle.requestFocus();
-            }
-
-        } else if (requestCode == REQ_CODE_SPEECH_INPUT_Description) {
-            if (resultCode == RESULT_OK && null != data) {
-                int pos = etDescription.getSelectionStart();
-                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                description.insert(pos, result.get(0));
-                description.append(" ");
-                etDescription.setText(description);
-                etDescription.setSelection(etDescription.getText().toString().length());
-                etDescription.requestFocus();
-            }
-
-        } else if (requestCode == REQ_CODE_SPEECH_INPUT_PRICE) {
-            if (resultCode == RESULT_OK && null != data) {
-                int pos = etPrice.getSelectionStart();
-                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                price.insert(pos, result.get(0));
-                price.append(" ");
-                etPrice.setText(price);
-                etPrice.setSelection(etPrice.getText().toString().length());
-                etPrice.requestFocus();
-            }
-
-        } else if (requestCode == 555) {
-            if (resultCode == RESULT_OK && null != data) {
-                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                tvArea.setText(result.get(0));
-                tvArea.setSelection(tvArea.getText().toString().length());
-                tvArea.requestFocus();
-                Area = tvArea.getText().toString();
-            }
-
-        } else if (requestCode == 666) {
-            if (resultCode == RESULT_OK && null != data) {
-                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                tvTaluka.setText(result.get(0));
-                tvTaluka.setSelection(tvTaluka.getText().toString().length());
-                tvTaluka.requestFocus();
-                Taluka = tvTaluka.getText().toString();
-            }
-
-        } else if (requestCode == 777) {
-            Transaltion.translate(data.getStringExtra("taluka"), tvTaluka);
-            Transaltion.translate(data.getStringExtra("area"), tvArea);
-            Area = tvArea.getText().toString();
-            Taluka = tvTaluka.getText().toString();
-            Lat = data.getStringExtra("lat");
-            Long = data.getStringExtra("lang");
-
-
-        } else if (requestCode == 1) {
-            try {
-                selectedImagePath = getImagePath();
-                String ImagePath = ImageCompression.compressImage(selectedImagePath, context);
-                images.add(ImagePath);
-                fillImageList(ImagePath, "image", "");
-                flat_images.add(ImagePath);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (requestCode == 2) {
-            getMultipleImagesfromGallery(data);
-
-        } else if (requestCode == 3) {
-            Uri selectedVieo = data.getData();
-            String filePath = generatePath(selectedVieo, context);
-            selectedImagePath = filePath;
-            selectedImagePath = trimVideo(filePath);
-
-        } else if (requestCode == 4) {
-            try {
-                Uri selectedVieo = data.getData();
-                String filePath = generatePath(selectedVieo, context);
-                selectedImagePath = filePath;
-                selectedImagePath = trimVideo(filePath);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
-
-    public String getImagePath() {
-        return imagePath;
-    }
-
 
     private void fillImageList(String selectedImagePath, String type, String image_id) {
         imageList.add(new ImageVideo(selectedImagePath, type, image_id));
@@ -658,56 +653,105 @@ public class AddRentListingActivity extends BaseActivity implements View.OnClick
 
     }
 
-    private void getMultipleImagesfromGallery(Intent data) {
-
-        int no_of_image = 0;
-        ClipData clipData = data.getClipData();
-        if (clipData != null) {
-            //multiple images selecetd
-            no_of_image = clipData.getItemCount() > 10 ? 10 : clipData.getItemCount();
-
-            for (int i = 0; i < no_of_image; i++) {
-                Uri imageUri = clipData.getItemAt(i).getUri();
-                Log.d("URI", imageUri.toString());
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 1) {
                 try {
-                    selectedImagePath = getRealPathFromURI(imageUri);
+                    selectedImagePath = getImagePath();
                     String ImagePath = ImageCompression.compressImage(selectedImagePath, context);
                     images.add(ImagePath);
                     fillImageList(ImagePath, "image", "");
                     flat_images.add(ImagePath);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if (requestCode == 2) {
+
+                getMultipleImagesfromGallery(data);
+
+
+            } else if (requestCode == 3) {
+                Uri selectedVieo = data.getData();
+                String filePath = generatePath(selectedVieo, context);
+                selectedImagePath = filePath;
+                selectedImagePath = trimVideo(filePath);
+
+            } else if (requestCode == 4) {
+                try {
+                    Uri selectedVieo = data.getData();
+                    String filePath = generatePath(selectedVieo, context);
+                    selectedImagePath = filePath;
+                    selectedImagePath = trimVideo(filePath);
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-
-
-        } else {
-            //single image selected
-            Uri imageUri = data.getData();
-            Log.d("URI", imageUri.toString());
-            try {
-                selectedImagePath = getRealPathFromURI(imageUri);
-                String ImagePath = ImageCompression.compressImage(selectedImagePath, context);
-                images.add(ImagePath);
-                fillImageList(ImagePath, "image", "");
-                flat_images.add(ImagePath);
-
-                Path path = null;
-                long bytes = 0;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    path = Paths.get(ImagePath);
-                    bytes = Files.size(path);
+            }  else if (requestCode == REQ_CODE_SPEECH_INPUT) {
+                if (data != null) {
+                    int pos = etTitle.getSelectionStart();
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    title.insert(pos, result.get(0));
+                    title.append(" ");
+                    etTitle.setText(title);
+                    etTitle.setSelection(etTitle.getText().toString().length());
+                    etTitle.requestFocus();
                 }
 
-                Log.d(TAG, "Filesize: " + bytes);
+            } else if (requestCode == REQ_CODE_SPEECH_INPUT_Description) {
+                if (data != null) {
+                    int pos = etDescription.getSelectionStart();
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    description.insert(pos, result.get(0));
+                    description.append(" ");
+                    etDescription.setText(description);
+                    etDescription.setSelection(etDescription.getText().toString().length());
+                    etDescription.requestFocus();
+                }
 
-            } catch (Exception e) {
-                e.printStackTrace();
+            } else if (requestCode == REQ_CODE_SPEECH_INPUT_PRICE) {
+                if (data != null) {
+                    int pos = etPrice.getSelectionStart();
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    price.insert(pos, result.get(0));
+                    price.append(" ");
+                    etPrice.setText(price);
+                    etPrice.setSelection(etPrice.getText().toString().length());
+                    etPrice.requestFocus();
+                }
+
+            } else if (requestCode == 555) {
+                if (resultCode == RESULT_OK && null != data) {
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    tvArea.setText(result.get(0));
+                    tvArea.setSelection(tvArea.getText().toString().length());
+                    tvArea.requestFocus();
+                    Area = tvArea.getText().toString();
+                }
+
+            } else if (requestCode == 666) {
+                if (resultCode == RESULT_OK && null != data) {
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    tvTaluka.setText(result.get(0));
+                    tvTaluka.setSelection(tvTaluka.getText().toString().length());
+                    tvTaluka.requestFocus();  Taluka = tvTaluka.getText().toString();
+                }
+
+            } else if (requestCode == 777) {
+                Transaltion.translate(data.getStringExtra("taluka"), tvTaluka,context);
+                Transaltion.translate(data.getStringExtra("area"), tvArea,context);
+                Area = tvArea.getText().toString();
+                Taluka = tvTaluka.getText().toString();
+                Lat = data.getStringExtra("lat");
+                Long = data.getStringExtra("lang");
+
             }
 
         }
+
     }
+
 
 
     public String getRealPathFromURI(Uri contentUri) {
@@ -746,174 +790,106 @@ public class AddRentListingActivity extends BaseActivity implements View.OnClick
         return filePath;
     }
 
+    private void getMultipleImagesfromGallery(Intent data) {
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+        int no_of_image = 0;
+        ClipData clipData = data.getClipData();
+
+        if (clipData != null) {
+            //multiple images selecetd
+            no_of_image = clipData.getItemCount() > 10 ? 10 : clipData.getItemCount();
+
+            for (int i = 0; i < no_of_image; i++) {
+                Uri imageUri = clipData.getItemAt(i).getUri();
+                Log.d("URI", imageUri.toString());
+                try {
+                    selectedImagePath = getRealPathFromURI(imageUri);
+                    String ImagePath = ImageCompression.compressImage(selectedImagePath, context);
+                    images.add(ImagePath);
+                    fillImageList(ImagePath, "image", "");
+                    flat_images.add(ImagePath);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+        } else {
+            //single image selected
+            Uri imageUri = data.getData();
+            Log.d("URI", imageUri.toString());
+            try {
+                selectedImagePath = getRealPathFromURI(imageUri);
+                String ImagePath = ImageCompression.compressImage(selectedImagePath, context);
+                images.add(ImagePath);
+                fillImageList(ImagePath, "image", "");
+                flat_images.add(ImagePath);
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
-        return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onBackPressed() {
-        this.finish();
-    }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.remove:
-                final int i = (int) v.getTag(R.string.btn_view_position);
-                removeImageFromList(i);
-                break;
+    private void checkListenerKeys(EditText texType, StringBuffer bufferType, ArrayList<String> result) {
+        if (texType.getText().toString().equals("")) {
+            bufferType.delete(0, bufferType.length());
+            bufferType.append(result.get(0));
+        } else {
+            int pos = texType.getSelectionStart();
+            String text = String.format("%1$s %2$s %3$s", "", result.get(0), "");
+            bufferType.insert(pos, text);
+            // return pos;
         }
+
+        //return 0;
+
     }
 
-    private void removeImageFromList(int i) {
+
+    private String trimVideo(String scrPath) {
+        String finalFile = null;
         try {
-            ImageVideo path = imageList.get(i);
-            if (path.getType().equals("video")) videoList.remove(0);
-            else images.remove(i);
-            imageList.remove(i);
-            adapter.notifyDataSetChanged();
-            flat_images.remove(i);
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setMessage(getString(R.string.video_uploading));
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setIndeterminate(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setProgress(0);
+            progressDialog.setMax(100);
+            progressDialog.show();
+            File file = new File(scrPath);
+            int file_size = Integer.parseInt(String.valueOf(file.length() / 1024));
+            if (file_size > 10000) {
+                File moviesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                String filePrefix = "trim_garzoo_video";
+                String fileExtn = ".mp4";
+                File dest = new File(moviesDir, filePrefix + fileExtn);
+                int fileNo = 0;
+                while (dest.exists()) {
+                    fileNo++;
+                    dest = new File(moviesDir, filePrefix + fileNo + fileExtn);
+                }
+                String filePath = dest.getAbsolutePath();
+                compressTrimVideo(scrPath, filePath);
+            } else {
+                finalFile = scrPath;
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    fillImageList(selectedImagePath, "video", "");
+                    videoList.add(selectedImagePath);
+                    // Toast.makeText(context, "codec complete path =" + destMp4Path, Toast.LENGTH_SHORT).show();
+                });
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-    }
-
-
-    @Override
-    public boolean onKey(View v, int keyCode, KeyEvent event) {
-        View focusCurrent = getWindow().getCurrentFocus();
-        if (focusCurrent == null || focusCurrent.getClass() != AppCompatEditText.class)
-            return false;
-        AppCompatEditText edittext = (AppCompatEditText) focusCurrent;
-        Editable editable = edittext.getText();
-        int start = edittext.getSelectionStart();
-
-        switch (keyCode) {
-            case 55006:
-                if (editable != null) editable.clear();
-                DeleteMethod(edittext);
-                break;
-            case -5:
-                if (editable != null && start > 0) editable.delete(start - 1, start);
-                BackSpaceMethod(edittext);
-                break;
-            default:
-                editable.insert(start, Character.toString((char) keyCode));
-                SoftKeyMethod(edittext);
-                break;
-        }
-
-        return false;
-    }
-
-
-    private void BackSpaceMethod(AppCompatEditText edittext) {
-        int editTextId = edittext.getId();
-        String editTextData = edittext.getText().toString();
-
-        switch (editTextId) {
-            case R.id.etTitle:
-                title.delete(0, title.length());
-                title.append(editTextData);
-                title.append("");
-                break;
-            case R.id.etDescription:
-                description.delete(0, description.length());
-                description.append(editTextData);
-                description.append("");
-                break;
-
-        }
-    }
-
-    private void SoftKeyMethod(AppCompatEditText edittext) {
-        int editTextId = edittext.getId();
-        String editTextData = edittext.getText().toString();
-
-
-        switch (editTextId) {
-            case R.id.etTitle:
-                title.delete(0, title.length());
-                title.append(editTextData);
-                title.append("");
-                break;
-            case R.id.etDescription:
-                description.delete(0, description.length());
-                description.append(editTextData);
-                description.append("");
-                break;
-
-            case R.id.etPrice:
-                price.delete(0, price.length());
-                price.append(editTextData);
-                price.append("");
-                break;
-        }
-
-    }
-
-    private void DeleteMethod(AppCompatEditText edittext) {
-        int editTextId = edittext.getId();
-        String editTextData = edittext.getText().toString();
-
-        switch (editTextId) {
-            case R.id.etTitle:
-                title.delete(0, title.length());
-                break;
-            case R.id.etDescription:
-                description.delete(0, description.length());
-                break;
-            case R.id.etPrice:
-                price.delete(0, price.length());
-                break;
-
-        }
-
-    }
-
-
-    private boolean Validation() {
-        if (TextUtils.isEmpty(etTitle.getText().toString()) || etTitle.getText().toString().trim().equals("")) {
-            etTitle.setError(getString(R.string.err_title));
-            etTitle.requestFocus();
-            return false;
-        } else if (TextUtils.isEmpty(etDescription.getText().toString()) || etDescription.getText().toString().trim().equals("")) {
-            etDescription.setError(getString(R.string.err_description));
-            etDescription.requestFocus();
-            return false;
-        } else if (flat_images.size() == 0) {
-            if (listing_status.equals("3")) return true;
-            else {
-                Utils.openSnackBar("कृपया किमान एक फोटो अपलोड करा",rlLayout);
-                return false;
-            }
-        } else if (category_id.equals("")) {
-            etCategory.setError(getString(R.string.err_category));
-            etCategory.requestFocus();
-            return false;
-        }
-        else if (tvArea.getText().toString().equals("unnamed") || tvArea.getText().toString().equals("")) {
-            Utils.openSnackBar(getString(R.string.err_address), rlLayout);
-            return false;
-        } else if (tvTaluka.getText().toString().equals("unnamed") || tvTaluka.getText().toString().equals("")) {
-            Utils.openSnackBar(getString(R.string.err_address), rlLayout);
-            return false;
-        } else {
-            Area = tvArea.getText().toString();
-            Taluka = tvTaluka.getText().toString();
-            return true;
-        }
-
+        return finalFile;
     }
 
 
@@ -922,12 +898,12 @@ public class AddRentListingActivity extends BaseActivity implements View.OnClick
                 .rotation(Rotation.NORMAL)
                 .size(300, 300)
                 .fillMode(FillMode.PRESERVE_ASPECT_FIT)
-                .trim(0, 30000)
+                .trim(0, 60000)
                 .listener(new Mp4Composer.Listener() {
                     @Override
                     public void onProgress(double progress) {
                         Log.d(TAG, "onProgress = " + progress);
-                        progressDialog.setProgress((int) progress);
+                        runOnUiThread(() -> progressDialog.setProgress((int) (progress * 100)));
                     }
 
                     @Override
@@ -961,46 +937,6 @@ public class AddRentListingActivity extends BaseActivity implements View.OnClick
         return destMp4Path;
     }
 
-    private String trimVideo(String scrPath) {
-        String finalFile = null;
-        try {
-            progressDialog = new ProgressDialog(context);
-            progressDialog.setMessage(getString(R.string.video_uploading));
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progressDialog.setIndeterminate(false);
-            progressDialog.setProgress(0);
-            progressDialog.setMax(100);
-            progressDialog.show();
-            File file = new File(scrPath);
-
-            int file_size = Integer.parseInt(String.valueOf(file.length() / 1024));
-            if (file_size > 10000) {
-                File moviesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                String filePrefix = "cut_video";
-                String fileExtn = ".mp4";
-                File dest = new File(moviesDir, filePrefix + fileExtn);
-                int fileNo = 0;
-                while (dest.exists()) {
-                    fileNo++;
-                    dest = new File(moviesDir, filePrefix + fileNo + fileExtn);
-                }
-                String filePath = dest.getAbsolutePath();
-                 compressTrimVideo(scrPath, filePath);
-            } else {
-                finalFile = scrPath;
-                runOnUiThread(() -> {
-                    progressDialog.dismiss();
-                    fillImageList(selectedImagePath, "video", "");
-                    videoList.add(selectedImagePath);
-                    // Toast.makeText(context, "codec complete path =" + destMp4Path, Toast.LENGTH_SHORT).show();
-                });
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return finalFile;
-    }
 
     public String generatePath(Uri uri, Context context) {
         String filePath = null;
@@ -1051,4 +987,527 @@ public class AddRentListingActivity extends BaseActivity implements View.OnClick
         }
         return filePath;
     }
+
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+
+
+
+    private void openFilterSheet() {
+        View view = getLayoutInflater().inflate(R.layout.filter_bottom_sheet, null);
+        ListView lv_languages = (ListView) view.findViewById(R.id.lv_languages);
+        FilterAdapter list_adapter = new FilterAdapter(filterCategoryArrayList, context);
+        lv_languages.setAdapter(list_adapter);
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(context);
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
+
+        lv_languages.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                etCategory.setText(filterCategoryArrayList.get(i).getName());
+                category_id = filterCategoryArrayList.get(i).getId();
+                bottomSheetDialog.dismiss();
+            }
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void openSnackBar(String response) {
+        Snackbar snackbar;
+        snackbar = Snackbar.make(rlLayout, response, Snackbar.LENGTH_LONG);
+        snackbar.show();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.remove:
+                final int i = (int) v.getTag(R.string.btn_view_position);
+                removeImageFromList(i);
+                break;
+        }
+    }
+
+    private void removeImageFromList(int i) {
+        try {
+            ImageVideo path = imageList.get(i);
+            if (path.getType().equals("video")) videoList.remove(0);
+            else images.remove(i);
+            imageList.remove(i);
+            adapter.notifyDataSetChanged();
+            flat_images.remove(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void uploadData(final String name, final String address) {
+        myAsyncTask = new uplaodDataToServer(etTitle, etDescription, etPrice);
+        myAsyncTask.execute();
+
+//        final String URL = URLs.api_rent_add_record;
+//        new  AsyncTask<String, String, String>() {
+//            @Override
+//            protected void onPreExecute() {
+//                super.onPreExecute();
+//                progressDialog = new ProgressDialog(context);
+//                progressDialog.setTitle("अपलोड करीत आहे ");
+//                progressDialog.setMessage("कृपया थांबा...");
+//                progressDialog.setCanceledOnTouchOutside(false);
+//                progressDialog.show();
+//                //write code here eg: ProgressBar, this is first method to execute
+//            }
+//
+//            @Override
+//            protected String doInBackground(String... strings) {
+//                try {
+//
+//                    //  File file = new File(selectedImagePath);
+//                    MultiImageUtility multipartUtility = new MultiImageUtility(URL, "utf-8");
+//                    multipartUtility.addHeaderField("User-Agent", "CodeJava");
+//                    multipartUtility.addHeaderField("Connection", "close");
+//
+//                    File file_upload[] = new File[flat_images.size()];    //  For Multiple Images
+//                    //  For Multiple Images
+//
+//                    if (flat_images.size() > 0) {
+//                        for (int i = 0; i < flat_images.size(); i++) {
+//                            File f = new File(flat_images.get(i));
+//                            file_upload[i] = f;
+////                            int file_size = Integer.parseInt(String.valueOf(f.length() / 1024));
+////                            if (file_size > 1000) {
+////                                File _image = saveBitmapToFile(f);
+////                                file_upload[i] = _image;
+////                            }else{
+//// }
+//
+//                            multipartUtility.addFilePart("image[]", file_upload[i]);   // for multiple image (check paramter (Key []))
+//                        }
+//                    }
+//
+//                    if (videoList.size() > 0) {
+//                        File view_file = new File(videoList.get(0));
+//                        multipartUtility.addFilePart("video_file", view_file); //video
+//                    }
+//
+//                    // if you want to send any other string value to serevr.
+//                    multipartUtility.addFormField("user_id", sessionManager.getFromSessionManager(SessionManager.USER_ID));
+//                    multipartUtility.addFormField("category_id", category_id);
+//                    multipartUtility.addFormField("mobile_status", mobile_status);
+//                    multipartUtility.addFormField("title", etTitle.getText().toString());
+//                    multipartUtility.addFormField("description", etDescription.getText().toString());
+//                    multipartUtility.addFormField("price", etPrice.getText().toString());
+//                    multipartUtility.addFormField("latitude", sessionManager.getFromSessionManager(SessionManager.LATITUDE));
+//                    multipartUtility.addFormField("longitude", sessionManager.getFromSessionManager(SessionManager.LONGITUDE));
+//                    multipartUtility.addFormField("listing_status", listing_status); //
+//                    String address=  checkAddress();
+//                    multipartUtility.addFormField("address", address);
+//
+//                    return multipartUtility.finish();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//
+//
+//                return null;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(String s) {
+//                super.onPostExecute(s);
+//                try {
+//                    //  progressDialog.dismiss();
+//                    Log.e("Toast", s);
+//                    if (s.equals("success")) {
+//                        progressDialog.dismiss();
+//                        openSnackBar("success");
+//                        etTitle.setText("");
+//                        etDescription.setText("");
+//                        etPrice.setText("");
+//                        flat_images.clear();
+//                        videoList.clear();
+//                        imageList.clear();
+//                        adapter.notifyDataSetChanged();
+//                        // Glide.with(context).load(R.drawable.ic_baseline_linked_camera_24).into(ivImage);
+//                        finish();
+//
+//                    } else {
+//                        //Glide.with(context).load(R.drawable.ic_baseline_linked_camera_24).into(ivImage);
+//                        openSnackBar("अयशस्वी, कृपया नंतर प्रयत्न करा !!");
+//                        progressDialog.dismiss();
+//
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }.execute();
+    }
+
+
+    private String checkAddress() {
+        String address = null;
+        String area = sessionManager.getFromSessionManager(SessionManager.CITY);
+        String location = sessionManager.getFromSessionManager(SessionManager.LOCATION);
+        if (area.equals("") || area.contains("unnamed") || location.contains("unnamed")) {
+            address = String.format("%1$s , %2$s", sessionManager.getFromSessionManager(SessionManager.Login_TALUKA), sessionManager.getFromSessionManager(SessionManager.Login_CITY));
+        } else {
+            address = String.format("%1$s , %2$s", sessionManager.getFromSessionManager(SessionManager.TALUKA), sessionManager.getFromSessionManager(SessionManager.CITY));
+        }
+        return address;
+    }
+
+
+    @Override
+    public void onBackPressed() {
+//        if (mCustomKeyboard.isCustomKeyboardVisible()) mCustomKeyboard.hideCustomKeyboard();
+//        else
+
+        this.finish();
+    }
+
+
+    @Override
+    public void onPress(int primaryCode) {
+
+    }
+
+    @Override
+    public void onRelease(int primaryCode) {
+
+    }
+
+    @Override
+    public void onKey(int primaryCode, int[] keyCodes) {
+        View focusCurrent = getWindow().getCurrentFocus();
+        if (focusCurrent == null || focusCurrent.getClass() != AppCompatEditText.class) return;
+        AppCompatEditText edittext = (AppCompatEditText) focusCurrent;
+        Editable editable = edittext.getText();
+        int start = edittext.getSelectionStart();
+
+        switch (primaryCode) {
+            case 55006:
+                if (editable != null) editable.clear();
+                DeleteMethod(edittext);
+                break;
+            case -5:
+                if (editable != null && start > 0) editable.delete(start - 1, start);
+                BackSpaceMethod(edittext);
+                break;
+            default:
+                editable.insert(start, Character.toString((char) primaryCode));
+                SoftKeyMethod(edittext);
+                break;
+        }
+
+
+    }
+
+    private void BackSpaceMethod(AppCompatEditText edittext) {
+        int editTextId = edittext.getId();
+        String editTextData = edittext.getText().toString();
+
+        switch (editTextId) {
+            case R.id.etTitle:
+                title.delete(0, title.length());
+                title.append(editTextData);
+                title.append("");
+                break;
+            case R.id.etDescription:
+                description.delete(0, description.length());
+                description.append(editTextData);
+                description.append("");
+                break;
+
+        }
+    }
+
+    private void SoftKeyMethod(AppCompatEditText edittext) {
+        int editTextId = edittext.getId();
+        String editTextData = edittext.getText().toString();
+
+
+        switch (editTextId) {
+            case R.id.etTitle:
+                title.delete(0, title.length());
+                title.append(editTextData);
+                title.append("");
+                break;
+            case R.id.etDescription:
+                description.delete(0, description.length());
+                description.append(editTextData);
+                description.append("");
+                break;
+            case R.id.etPrice:
+                price.delete(0, price.length());
+                price.append(editTextData);
+                price.append("");
+                break;
+        }
+
+    }
+
+    private void DeleteMethod(AppCompatEditText edittext) {
+        int editTextId = edittext.getId();
+        String editTextData = edittext.getText().toString();
+
+        switch (editTextId) {
+            case R.id.etTitle:
+                title.delete(0, title.length());
+                break;
+            case R.id.etDescription:
+                description.delete(0, description.length());
+                break;
+
+        }
+
+    }
+
+    @Override
+    public void onText(CharSequence text) {
+
+    }
+
+    @Override
+    public void swipeLeft() {
+
+    }
+
+    @Override
+    public void swipeRight() {
+
+    }
+
+    @Override
+    public void swipeDown() {
+
+    }
+
+    @Override
+    public void swipeUp() {
+
+    }
+
+    //    ---------------------------------Permission--------------------
+
+    private boolean checkPermission() {
+        int result1 = ContextCompat.checkSelfPermission(getApplicationContext(), CAMERA);
+        int result2 = ContextCompat.checkSelfPermission(getApplicationContext(), READ_EXTERNAL_STORAGE);
+        int result3 = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
+
+        return result1 == PackageManager.PERMISSION_GRANTED
+                && result2 == PackageManager.PERMISSION_GRANTED && result3 == PackageManager.PERMISSION_GRANTED;
+    }
+
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{CAMERA, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0) {
+
+
+                    boolean cameraAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean readAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean writeAccepted = grantResults[2] == PackageManager.PERMISSION_GRANTED;
+
+
+//                    &&locationAccepted1
+
+                    if (cameraAccepted && readAccepted && writeAccepted) {
+//                        Toast.makeText(this, "Permission Granted, Now you can access location data and camera.", Toast.LENGTH_LONG).show();
+                        //  DenyAndDontASk = true;
+                        requestCamera = true;
+                    } else {
+                        // DenyAndDontASk = false;
+//                        Toast.makeText(this, "Permission Denied, You cannot access location data and camera.", Toast.LENGTH_LONG).show();
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            if (shouldShowRequestPermissionRationale(CAMERA) ||
+                                    shouldShowRequestPermissionRationale(READ_EXTERNAL_STORAGE) ||
+                                    shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) {
+                                showMessageOKCancel("You need to allow access to all the permissions",
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                                    requestPermissions(new String[]{CAMERA, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE},
+                                                            PERMISSION_REQUEST_CODE);
+                                                }
+                                            }
+                                        });
+                                return;
+                            }
+                        }
+
+                    }
+                }
+
+
+                break;
+        }
+    }
+
+    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+        new AlertDialog.Builder(AddRentListingActivity.this)
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton("OK", okListener)
+                // .setNegativeButton("Cancel", null)
+                .create()
+                .show();
+    }
+
+    //--------------------------------Permission End--------------------------
+    //--------------------------------Upload Start--------------------------
+    private class uplaodDataToServer extends AsyncTask<String, String, String> {
+        private WeakReference<EditText> etTitle, etDescription, etPrice;
+        private ProgressDialog progressDialog;
+
+
+        public uplaodDataToServer(EditText title, EditText etDescription, EditText etPrice) {
+            this.etTitle = new WeakReference<>(title);
+            this.etDescription = new WeakReference<>(etDescription);
+            this.etPrice = new WeakReference<>(etPrice);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(context);
+            progressDialog.setTitle("Loading");
+            progressDialog.setMessage("Please wait...");
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
+            //write code here eg: ProgressBar, this is first method to execute
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+
+                String URL = URLs.api_rent_add_record;
+                MultiImageUtility multipartUtility = new MultiImageUtility(URL, "utf-8");
+                multipartUtility.addHeaderField("User-Agent", "CodeJava");
+                multipartUtility.addHeaderField("Connection", "close");
+
+                File file_upload[] = new File[flat_images.size()];    //  For Multiple Images
+
+                if (flat_images.size() > 0) {
+                    for (int i = 0; i < flat_images.size(); i++) {
+                        File f = new File(flat_images.get(i));
+                        file_upload[i] = f;
+                        multipartUtility.addFilePart("image[]", file_upload[i]);   // for multiple image (check paramter (Key []))
+                    }
+                }
+
+                if (videoList.size() > 0) {
+                    File view_file = new File(videoList.get(0));
+                    multipartUtility.addFilePart("video_file", view_file); //video
+                }
+
+                // if you want to send any other string value to serevr.
+                multipartUtility.addFormField("user_id", sessionManager.getFromSessionManager(SessionManager.USER_ID));
+                multipartUtility.addFormField("category_id", category_id);
+                multipartUtility.addFormField("mobile_status", mobile_status);
+                multipartUtility.addFormField("title", etTitle.get().getText().toString());
+                multipartUtility.addFormField("description", etDescription.get().getText().toString());
+                multipartUtility.addFormField("price", etPrice.get().getText().toString());
+                multipartUtility.addFormField("listing_status", listing_status); //
+                multipartUtility.addFormField("latitude", Lat);
+                multipartUtility.addFormField("longitude", Long);
+//                String address = checkAddress();
+                String address = Area + " ," + Taluka;
+                multipartUtility.addFormField("address", address);
+                multipartUtility.addFormField("available_status", "0");
+
+                return multipartUtility.finish();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            return "failed";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            try {
+                //  progressDialog.dismiss();
+                Log.e("Toast", s);
+                if (s.equals("success")) {
+                    if (progressDialog != null) progressDialog.dismiss();
+                    openSnackBar(getString(R.string.sucess_msg));
+                    etTitle.get().setText("");
+                    etDescription.get().setText("");
+                    etPrice.get().setText("");
+                    flat_images.clear();
+                    videoList.clear();
+                    imageList.clear();
+                    adapter.notifyDataSetChanged();
+                    finish();
+
+                } else {
+                    //Glide.with(context).load(R.drawable.ic_baseline_linked_camera_24).into(ivImage);
+                    openSnackBar(getString(R.string.failed_msg));
+                    if (progressDialog != null) progressDialog.dismiss();
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            if (progressDialog != null) {
+                progressDialog.setProgress(Integer.parseInt(values[0]));
+                progressDialog.show();
+            }
+        }
+
+        private void openSnackBar(String response) {
+            Snackbar snackbar;
+            snackbar = Snackbar.make(rlLayout, response, Snackbar.LENGTH_LONG);
+            snackbar.show();
+        }
+
+    }
+
+
+    //--------------------------------Upload End--------------------------
+
+
+    @Override
+    protected void onDestroy() {
+        if (myAsyncTask != null) myAsyncTask.cancel(true);
+       
+        super.onDestroy();
+    }
+
+
+  
+   
 }

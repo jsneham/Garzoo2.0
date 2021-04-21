@@ -12,10 +12,17 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" /> -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION " />
+
+    <permission
+        android:name="com.garzoopvt.garzoo.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.garzoopvt.garzoo.permission.C2D_MESSAGE" />
 
     <application
         android:name=".AppController"
@@ -24,24 +31,55 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".Util.ExoPlayerActivity" />
+        <service
+            android:name=".services.SmsBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"></service>
+        <!-- android:requestLegacyExternalStorage="true" -->
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
 
-
-        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
-     See README(https://goo.gl/l4GJaQ) for more. -->
+                <category android:name="com.gnirt69.gcmexample" />
+            </intent-filter>
+        </receiver> <!-- GCM Receiver Service -->
+        <service
+            android:name=".Chat.Receiver.GCMPushReceiverService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service> <!-- GCM Registration Intent Service -->
+        <service
+            android:name=".Chat.Receiver.GCMRegistrationIntentService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+            </intent-filter>
+        </service>
+        <!--
+     Set custom default icon. This is used when no icon is set for incoming notification messages.
+     See README(https://goo.gl/l4GJaQ) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_garzoo_tm" />
-        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
-             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <!--
+ Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorPrimary" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
@@ -95,6 +133,12 @@
             android:name=".Chat.Activity.IndividualChatActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".Chat.Activity.ChatRoomListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Chat.Activity.GroupChatListingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".BuySell.Activity.AddSellListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -103,7 +147,6 @@
         <activity
             android:name=".BuySell.Activity.DbEditSellListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".Rent.Activity.AddRentListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -119,7 +162,6 @@
         <activity
             android:name=".Employement.Activity.AddEmpReqListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".Employement.Activity.EditEmpListingActivity"
             android:theme="@style/AppTheme.NoActionBar" />

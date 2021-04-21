@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/gray"
     tools:context=".Notification.Fragment.NotificationFragment">
 
 
@@ -15,9 +16,27 @@
         android:clipToPadding="false" />
 
 
-    <RelativeLayout
-        android:id="@+id/bannerAdContainer"
+    <LinearLayout
+        android:id="@+id/llad"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true" />
+        android:layout_alignParentBottom="true"
+        android:background="@color/white">
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/bannerAdContainer"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentBottom="true"
+            />
+
+        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-5826510987412325/6048736164"></com.google.android.gms.ads.AdView>
+    </LinearLayout>
 </RelativeLayout>

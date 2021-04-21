@@ -101,10 +101,15 @@ public class Promotion implements Parcelable {
     @ColumnInfo(name = "timestamp")
     private int timestamp;
 
+
+    @ColumnInfo(name = "block_status")
+    private String block_status;
+
     public Promotion() {
     }
 
-    public Promotion(@NonNull String id, String distance, String image_id, String video, String interest_status, String address, String media_url, String mobile_status, String admin_id, String user_id, String title, String description, String image, String images, String latitude, String longitude, String pd_status, String status, String last_modified, String dt, String fname, String lname, String mobile, String area, String taluka, int timestamp) {
+    public Promotion(@NonNull String id, String distance, String image_id, String video, String interest_status, String address, String media_url, String mobile_status, String admin_id, String user_id, String title, String description, String image, String images, String latitude, String longitude, String pd_status, String status, String last_modified, String dt, String fname, String lname, String mobile, String area, String taluka, int timestamp,
+                     String block_status) {
         this.id = id;
         this.distance = distance;
         this.image_id = image_id;
@@ -131,6 +136,7 @@ public class Promotion implements Parcelable {
         this.area = area;
         this.taluka = taluka;
         this.timestamp = timestamp;
+        this.block_status = block_status;
     }
 
     protected Promotion(Parcel in) {
@@ -160,6 +166,7 @@ public class Promotion implements Parcelable {
         area = in.readString();
         taluka = in.readString();
         timestamp = in.readInt();
+        block_status = in.readString();
     }
 
     public static final Creator<Promotion> CREATOR = new Creator<Promotion>() {
@@ -383,6 +390,14 @@ public class Promotion implements Parcelable {
         this.timestamp = timestamp;
     }
 
+    public String getBlock_status() {
+        return block_status;
+    }
+
+    public void setBlock_status(String block_status) {
+        this.block_status = block_status;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -416,6 +431,7 @@ public class Promotion implements Parcelable {
         parcel.writeString(area);
         parcel.writeString(taluka);
         parcel.writeInt(timestamp);
+        parcel.writeString(block_status);
     }
 
     @Override
@@ -447,6 +463,7 @@ public class Promotion implements Parcelable {
                 ", area='" + area + '\'' +
                 ", taluka='" + taluka + '\'' +
                 ", timestamp=" + timestamp +
+                ", block_status='" + block_status + '\'' +
                 '}';
     }
 }

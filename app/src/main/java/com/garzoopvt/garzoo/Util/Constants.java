@@ -16,5 +16,6 @@ public class Constants {
     public static final int READ_TIMEOUT = 2; // 2 seconds
     public static final int WRITE_TIMEOUT = 2; // 2 seconds
 
-    public static final int Chat_REFRESH_TIME = 60 * 60 * 24 * 1; // 1 days (in seconds)
+    //public static final int REFRESH_TIME = 60 * 60 * 24 * 1; // 1 days (in seconds)
+    public static final int REFRESH_TIME = 60 ; // (60  seconds)
 }

@@ -76,6 +76,10 @@ public class RentViewModel extends AndroidViewModel {
         pageNumber= page;
     }
 
+    public void setPerformingQuery(boolean query) {
+        isPerformingQuery= query;
+    }
+
 
     public LiveData<Resource<List<Rent>>> getRent(){
         return rentList;
@@ -84,7 +88,7 @@ public class RentViewModel extends AndroidViewModel {
 
 
     public void getRentListApi(String user_id , int page_no, String search_name, String latitude, String longitude, String category_id){
-        if(!isPerformingQuery){
+//        if(!isPerformingQuery){
             if(pageNumber == 0){
                 pageNumber = 1;
             }
@@ -92,7 +96,7 @@ public class RentViewModel extends AndroidViewModel {
             this.query = search_name;
             isQueryExhausted = false;
             executeList(user_id, pageNumber,query, latitude,longitude,category_id);
-        }
+//        }
     }
 
 
@@ -166,9 +170,9 @@ public class RentViewModel extends AndroidViewModel {
 
 
 
-    public void getCategoryListApi(){
+    public void getCategoryListApi(String language_code){
 
-        final LiveData<Resource<List<Category>>> repositorySource = rentRepository.getCategoryList();
+        final LiveData<Resource<List<Category>>> repositorySource = rentRepository.getCategoryList(language_code);
         categoryList.addSource(repositorySource, new Observer<Resource<List<Category>>>() {
             @Override
             public void onChanged(@Nullable Resource<List<Category>> listResource) {
@@ -219,10 +223,50 @@ public class RentViewModel extends AndroidViewModel {
 
     }
 
-    public Call<ResponseBody> interest( RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
-                                        RequestBody listing_id, RequestBody type, RequestBody listing_title){
+    public  Call<ResponseBody> interest( RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
+                 RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type, RequestBody language){
 
-        return rentRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title);
+
+//        final LiveData<Resource<List<Rent>>> repositorySource = rentRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title,listing_type);
+//
+//        rentList.addSource(repositorySource, new Observer<Resource<List<Rent>>>() {
+//            @Override
+//            public void onChanged(@Nullable Resource<List<Rent>> listResource) {
+//                if(!cancelRequest) {
+//                    if (listResource != null) {
+//                        rentList.setValue(listResource);
+//                        if (listResource.status == Resource.Status.SUCCESS) {
+//                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+//                            isPerformingQuery = false;
+//                            if (listResource.data != null) {
+//                                if (listResource.data.size() == 0) {
+//                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+//                                    rentList.setValue(new Resource<List<Rent>>(
+//                                            Resource.Status.ERROR,
+//                                            listResource.data,
+//                                            QUERY_EXHAUSTED
+//                                    ));
+//                                    isPerformingQuery = true;
+//                                }
+//                            }
+//                            // must remove or it will keep listening to repository
+//                            rentList.removeSource(repositorySource);
+//                        } else if (listResource.status == Resource.Status.ERROR) {
+//                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+//                            isPerformingQuery = false;
+//                            rentList.removeSource(repositorySource);
+//                        }
+//                    } else {
+//                        rentList.removeSource(repositorySource);
+//                    }
+//                }
+//                else{
+//                    rentList.removeSource(repositorySource);
+//                }
+//            }
+//        });
+
+        return rentRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title,listing_type,language);
 
     }
 
@@ -232,19 +276,90 @@ public class RentViewModel extends AndroidViewModel {
 
     }
 
+    public void updateImage(String image_id, String path, String post_id, String dashboard){
+
+        rentRepository.updateImage(image_id, path, post_id,dashboard);
+
+    }
+
     public Call<ResponseBody> block(String self_user_id, String to_user_id){
 
         return rentRepository.block( self_user_id,to_user_id);
 
     }
-    public Call<ResponseBody> deletePost (String to_user_id){
+    public void deletePost (String post_id){
+        final LiveData<Resource<List<Rent>>> repositorySource = rentRepository.deletePost(post_id);
 
-        return rentRepository.deletePost(to_user_id);
+        rentList.addSource(repositorySource, new Observer<Resource<List<Rent>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<Rent>> listResource) {
+                if(!cancelRequest) {
+                    if (listResource != null) {
+                        rentList.setValue(listResource);
+                        if (listResource.status == Resource.Status.SUCCESS) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            if (listResource.data != null) {
+                                if (listResource.data.size() == 0) {
+                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+                                    rentList.setValue(new Resource<List<Rent>>(
+                                            Resource.Status.ERROR,
+                                            listResource.data,
+                                            QUERY_EXHAUSTED
+                                    ));
+                                    isPerformingQuery = true;
+                                }
+                            }
+                            // must remove or it will keep listening to repository
+                            rentList.removeSource(repositorySource);
+                        } else if (listResource.status == Resource.Status.ERROR) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            rentList.removeSource(repositorySource);
+                        }
+                    } else {
+                        rentList.removeSource(repositorySource);
+                    }
+                }
+                else{
+                    rentList.removeSource(repositorySource);
+                }
+            }
+        });
+
+
+//        return rentRepository.deletePost(to_user_id);
 
     }
     public Call<ResponseBody> ReportPost(String user_id, String post_id, String employment_id,String business_id,String report){
 
         return rentRepository.ReportPost(user_id, post_id, employment_id,business_id, report);
+
+    }
+
+
+    public Call<ResponseBody> available( String unique_id, String user_id, String listing_id){
+
+        return rentRepository.available(unique_id, user_id,listing_id);
+
+    }
+
+    public Call<ResponseBody> unavailable( String unique_id, String user_id, String listing_id){
+
+        return rentRepository.unavailable(unique_id, user_id,listing_id);
+
+    }
+
+    public Call<ResponseBody> logActivity(String post_id, String post_user_id, String user_id,String type){
+
+        return rentRepository.logActivity(post_id,post_user_id,user_id,type);
+
+    }
+
+    public void blockRemovefromDb(String to_user_id) {
+
+        rentRepository.blockRemovefromDb(to_user_id);
+
 
     }
 }

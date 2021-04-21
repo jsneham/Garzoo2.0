@@ -3,33 +3,51 @@ package com.garzoopvt.garzoo.Util;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.garzoopvt.garzoo.Chat.Activity.IndividualChatActivity;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 import com.garzoopvt.garzoo.Login.Activity.LoginActivity;
 import com.garzoopvt.garzoo.R;
 import com.google.android.material.snackbar.Snackbar;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 
 
 public class Utils {
     public static ProgressDialog mProgressDialog;
     public static Toast toast = null;
+    public static  String fileUri = null;
 
 
 
@@ -154,11 +172,11 @@ public class Utils {
         String fromFormat="yyyy-MM-dd HH:mm:ss";
 
 //        01 Aug 2017  dd MMM yyyy
-        SimpleDateFormat sdfg = new SimpleDateFormat(fromFormat);
+        SimpleDateFormat sdfg = new SimpleDateFormat(fromFormat, new Locale ( "en" , "IN" ));
         Date d1;
         try {
             d1 = sdfg.parse(date);
-            return new SimpleDateFormat(toFormat).format(d1).toString();
+            return new SimpleDateFormat(toFormat, new Locale ( "en", "IN" )).format(d1).toString();
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -167,7 +185,7 @@ public class Utils {
 
     public static void openSnackBar(String response, View rootView) {
         Snackbar snackbar;
-        snackbar = Snackbar.make(rootView, response, Snackbar.LENGTH_SHORT);
+        snackbar = Snackbar.make(rootView, response, Snackbar.LENGTH_LONG);
 
         snackbar.show();
     }
@@ -189,6 +207,92 @@ public class Utils {
 
     }
 
+    public static void shareIntent(Context context, String imagePath) {
+
+//        try {
+//            Picasso.get().load(imagePath).into(new Target() {
+//                @Override public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+//                    Intent i = new Intent(Intent.ACTION_SEND);
+//                    i.setType("image/*");
+//                    i.putExtra(Intent.EXTRA_STREAM, getLocalBitmapUri(bitmap, context));
+//                    context.startActivity(Intent.createChooser(i, "Select App to Share"));
+//                }
+//
+//                @Override
+//                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+//
+//                }
+//
+//                @Override
+//                public void onPrepareLoad(Drawable placeHolderDrawable) {
+//
+//                }
+//
+//            });
+//
+//        } catch (Exception e) {
+//
+//            e.printStackTrace();
+//        }
+
+
+
+            Picasso.get().load(imagePath).into(new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    try {
+                        File mydir = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/Garzoo");
+                        if (!mydir.exists()) {
+                            mydir.mkdirs();
+                        }
+
+                       fileUri = mydir.getAbsolutePath() + File.separator + System.currentTimeMillis() + ".jpg";
+                        FileOutputStream outputStream = new FileOutputStream(fileUri);
+
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                        outputStream.flush();
+                        outputStream.close();
+                    } catch(IOException e) {
+                        e.printStackTrace();
+                    }
+                    Uri uri= Uri.parse(MediaStore.Images.Media.insertImage(context.getContentResolver(), BitmapFactory.decodeFile(fileUri),null,null));
+                    // use intent to share image
+                    Intent share = new Intent(Intent.ACTION_SEND);
+                    share.setType("image/*");
+                    share.putExtra(Intent.EXTRA_STREAM, uri);
+                    context.startActivity(Intent.createChooser(share, "Share Image"));
+                }
+
+                @Override
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+
+            });
+
+
+
+    }
+
+    static public Uri getLocalBitmapUri(Bitmap bmp, Context context) {
+        Uri bmpUri = null;
+        try {
+            File file =  new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+            FileOutputStream out = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.close();
+            bmpUri = Uri.fromFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmpUri;
+    }
+
     public static void openCallFunction(String number, Context context) {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + number));
@@ -198,10 +302,56 @@ public class Utils {
 
 
     public static void openLogin(Context context) {
-       Intent in= new Intent(context, LoginActivity.class);
-       context.startActivity(in);
+       openLoginPopup(context);
     }
 
+    private static void openLoginPopup(Context context) {
+
+        View view = LayoutInflater.from(context).inflate(R.layout.loginpopup, null);
+
+        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        builder.setView(view);
+        final android.app.AlertDialog alertDialog = builder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        alertDialog.setCancelable(true);
+        alertDialog.show();
+
+        TextView tvNo= view.findViewById(R.id.tvNo);
+        Button login= view.findViewById(R.id.login);
+        login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+                Intent in= new Intent(context, LoginActivity.class);
+                context.startActivity(in);
+            }
+        });
+
+        tvNo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
+
+
+
+
+    }
+
+
+
+    public static void downLoadIntent(Context context, String image_path) {
+
+        try {
+//            new SaveFile().execute(URLs.IMAGE_URL + image_path);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+
+    }
 
 
 

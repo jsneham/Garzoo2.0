@@ -30,10 +30,10 @@ public interface ChatIndividualDao {
 
     // NOTE: The SQL query sometimes won't return EXACTLY what the api does since the API might use a different query
     // or even a different database. But they are very very close.
-    @Query("SELECT * FROM chatindividual WHERE to_uid LIKE '%' || :query || '%' LIMIT (:pageNumber * 50)")
-    LiveData<List<ChatIndividual>> searchList(String query, int pageNumber);
+    @Query("SELECT * FROM chatindividual WHERE to_uid LIKE '%' || :query || '%' ")
+    LiveData<List<ChatIndividual>> searchList(String query);
 
-    @Query("SELECT * FROM chatindividual WHERE (from_uid = :from_id AND to_uid =:to_uid ) OR (from_uid = :to_uid AND to_uid =:from_id )")
+    @Query("SELECT * FROM chatindividual WHERE (from_uid = :from_id AND to_uid =:to_uid ) OR (from_uid = :to_uid AND to_uid =:from_id )  ORDER BY dt ASC")
     LiveData<List<ChatIndividual>> getLIst(String from_id, String to_uid);
 
 //    @Query("SELECT * FROM chatindividual WHERE from_uid = :from_id AND to_uid=:to_uid")

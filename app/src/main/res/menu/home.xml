@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:icon="@drawable/ic_twotone_home_24"
         android:id="@+id/action_home"
@@ -10,14 +11,14 @@
     <item
         android:icon="@drawable/ic_outline_notifications_24"
         android:id="@+id/action_notification"
-
+        app:actionLayout="@layout/notification"
         android:title="Notification"
         app:showAsAction="always" />
 
-    <!--     app:actionLayout="@layout/notification"  app:actionLayout="@layout/chat"-->
+    <!--    android:icon="@drawable/ic_baseline_chat_24"-->
     <item
-
-        android:icon="@drawable/ic_outline_chat_bubble_24"
+        app:actionLayout="@layout/chat"
+        android:icon="@drawable/ic_outline_chat_bubble_outline_24"
         app:showAsAction="always"
         android:id="@+id/action_chat"
         android:title="Chat"

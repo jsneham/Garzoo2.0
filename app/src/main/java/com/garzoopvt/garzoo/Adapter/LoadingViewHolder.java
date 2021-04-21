@@ -3,12 +3,12 @@ package com.garzoopvt.garzoo.Adapter;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 
-import com.allattentionhere.autoplayvideos.AAH_CustomViewHolder;
 
 
-public class LoadingViewHolder extends AAH_CustomViewHolder {
+public class LoadingViewHolder extends RecyclerView.ViewHolder {
 
     public LoadingViewHolder(@NonNull View itemView) {
         super(itemView);

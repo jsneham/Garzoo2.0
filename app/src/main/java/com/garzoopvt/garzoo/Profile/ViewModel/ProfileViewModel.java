@@ -56,6 +56,7 @@ public class ProfileViewModel extends AndroidViewModel {
     public static final String QUERY_EXHAUSTED = "Query is exhausted.";
     private MediatorLiveData<Resource<List<DashboardList>>> dashbordlist = new MediatorLiveData<>();
     private MediatorLiveData<Resource<List<DashboardList>>> mylist = new MediatorLiveData<>();
+    private MediatorLiveData<Resource<List<DashboardList>>> UserMorelist = new MediatorLiveData<>();
     private MediatorLiveData<Resource<List<BlockedPeople>>> blockedlist = new MediatorLiveData<>();
 
     public int getPageNumber() {
@@ -146,9 +147,56 @@ public class ProfileViewModel extends AndroidViewModel {
 
     //  Add  Interest
     public Call<ResponseBody> interest(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
-                                       RequestBody listing_id, RequestBody type, RequestBody listing_title) {
+           RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type, RequestBody language) {
 
-        return repository.interest(unique_id, user_id, to_user_id, full_name, listing_id, type, listing_title);
+
+
+        return repository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title,listing_type,language);
+
+    }
+
+    public void interest1(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
+                                       RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type) {
+
+
+        final LiveData<Resource<List<DashboardList>>> repositorySource = repository.interest1(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title,listing_type);
+        dashbordlist.addSource(repositorySource, new Observer<Resource<List<DashboardList>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<DashboardList>> listResource) {
+                if(!cancelRequest) {
+                    if (listResource != null) {
+                        dashbordlist.setValue(listResource);
+                        if (listResource.status == Resource.Status.SUCCESS) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            if (listResource.data != null) {
+                                if (listResource.data.size() == 0) {
+                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+                                    dashbordlist.setValue(new Resource<List<DashboardList>>(
+                                            Resource.Status.ERROR,
+                                            listResource.data,
+                                            QUERY_EXHAUSTED
+                                    ));
+                                    isPerformingQuery = true;
+                                }
+                            }
+                            // must remove or it will keep listening to repository
+                            dashbordlist.removeSource(repositorySource);
+                        } else if (listResource.status == Resource.Status.ERROR) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            dashbordlist.removeSource(repositorySource);
+                        }
+                    } else {
+                        dashbordlist.removeSource(repositorySource);
+                    }
+                }
+                else{
+                    dashbordlist.removeSource(repositorySource);
+                }
+            }
+        });
+
 
     }
 
@@ -229,7 +277,7 @@ public class ProfileViewModel extends AndroidViewModel {
     }
 
     public void getMyListApi(String user_id, int page_no, String search_name, String latitude, String longitude, String type) {
-        if (!isPerformingQuery) {
+//        if (!isPerformingQuery) {
             if (pageNumber == 0) {
                 pageNumber = 1;
             }
@@ -237,7 +285,7 @@ public class ProfileViewModel extends AndroidViewModel {
             this.query = type;
             isQueryExhausted = false;
             executeListMyList(user_id, pageNumber, query, latitude, longitude,type);
-        }
+//        }
     }
 
     public void searchMyListNextPage(String user_id, String search_name, String latitude, String longitude, String type) {
@@ -316,4 +364,150 @@ public Call<ResponseBody> user_mobile_update(String mobile,
         return  repository.user_mobile_update(mobile,  user_id);
     }
 
+
+
+    //Start UserMore List
+    public LiveData<Resource<List<DashboardList>>> getUserMoreList() {
+        return UserMorelist;
+    }
+
+    public void getUserMoreListApi(String user_id, int page_no, String search_name, String latitude, String longitude, String type) {
+        if (!isPerformingQuery) {
+            if (pageNumber == 0) {
+                pageNumber = 1;
+            }
+            this.pageNumber = page_no;
+            this.query = type;
+            isQueryExhausted = false;
+            executeListUserMoreList(user_id, pageNumber, query, latitude, longitude,type);
+        }
+    }
+
+    public void searchUserMoreListNextPage(String user_id, String search_name, String latitude, String longitude, String type) {
+        if (!isQueryExhausted && !isPerformingQuery) {
+            pageNumber++;
+            executeListUserMoreList(user_id, pageNumber, search_name, latitude, longitude,type);
+        }
+    }
+
+    private void executeListUserMoreList(String user_id, int page_no, String search_name, String latitude, String longitude, String type) {
+        requestStartTime = System.currentTimeMillis();
+        isPerformingQuery = true;
+        cancelRequest = false;
+
+        final LiveData<Resource<List<DashboardList>>> repositorySource = repository.getUserMoreListApi(user_id, page_no, search_name, latitude, longitude,type);
+        UserMorelist.addSource(repositorySource, new Observer<Resource<List<DashboardList>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<DashboardList>> listResource) {
+                if (!cancelRequest) {
+                    if (listResource != null) {
+                        UserMorelist.setValue(listResource);
+                        if (listResource.status == Resource.Status.SUCCESS) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            if (listResource.data != null) {
+                                if (listResource.data.size() == 0) {
+                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+                                    UserMorelist.setValue(new Resource<List<DashboardList>>(
+                                            Resource.Status.ERROR,
+                                            listResource.data,
+                                            QUERY_EXHAUSTED
+                                    ));
+                                    isPerformingQuery = true;
+                                }
+                            }
+                            // must remove or it will keep listening to repository
+                            UserMorelist.removeSource(repositorySource);
+                        } else if (listResource.status == Resource.Status.ERROR) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            UserMorelist.removeSource(repositorySource);
+                        }
+                    } else {
+                        UserMorelist.removeSource(repositorySource);
+                    }
+                } else {
+                    UserMorelist.removeSource(repositorySource);
+                }
+            }
+        });
+
+    }
+
+    // End UserMore List
+
+    public Call<ResponseBody> logActivity(String post_id, String post_user_id, String user_id,String type){
+
+        return repository.logActivity(post_id,post_user_id,user_id,type);
+
+    }
+
+    public Call<ResponseBody> RemoveBlock(String record_id){
+
+        return repository.RemoveBlock(record_id);
+
+    }
+
+    public Call<ResponseBody> renew(String type, String record_id){
+
+        return repository.renew(type, record_id);
+
+    }
+
+    public void deletePost(String type, String to_user_id, String master_id){
+
+        final LiveData<Resource<List<DashboardList>>> repositorySource = repository.deletePost1( type,to_user_id, master_id);
+        mylist.addSource(repositorySource, new Observer<Resource<List<DashboardList>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<DashboardList>> listResource) {
+                if(!cancelRequest) {
+                    if (listResource != null) {
+                        mylist.setValue(listResource);
+                        if (listResource.status == Resource.Status.SUCCESS) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            if (listResource.data != null) {
+                                if (listResource.data.size() == 0) {
+                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+                                    mylist.setValue(new Resource<List<DashboardList>>(
+                                            Resource.Status.ERROR,
+                                            listResource.data,
+                                            QUERY_EXHAUSTED
+                                    ));
+                                    isPerformingQuery = true;
+                                }
+                            }
+                            // must remove or it will keep listening to repository
+                            mylist.removeSource(repositorySource);
+                        } else if (listResource.status == Resource.Status.ERROR) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            mylist.removeSource(repositorySource);
+                        }
+                    } else {
+                        mylist.removeSource(repositorySource);
+                    }
+                }
+                else{
+                    mylist.removeSource(repositorySource);
+                }
+            }
+        });
+
+
+
+        // return repository.deletePost( type,to_user_id);
+
+    }
+
+    public void addRemoveFromFrav(String id, String interest_status) {
+
+        repository.addRemoveFromFrav( id,interest_status);
+    }
+
+    public Call<ResponseBody> uploadToken(String user_id, String username, String token, String IMEINumber, String language ){
+
+        return repository.uploadToken( user_id,username,token,IMEINumber,language);
+
+    }
 }

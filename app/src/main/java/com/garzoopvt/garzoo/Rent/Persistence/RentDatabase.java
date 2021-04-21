@@ -24,7 +24,7 @@ public abstract  class RentDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     RentDatabase.class,
                     DATABASE_NAME
-            ).build();
+            ).allowMainThreadQueries().build();
         }
         return instance;
     }

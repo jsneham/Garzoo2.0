@@ -28,7 +28,7 @@ public abstract  class DashboardListDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     DashboardListDatabase.class,
                     DATABASE_NAME
-            ).build();
+            ).allowMainThreadQueries().build();
         }
         return instance;
     }

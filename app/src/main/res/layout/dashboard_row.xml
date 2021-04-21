@@ -216,6 +216,29 @@
                 android:background="@color/gray" />
 
 
+
+            <FrameLayout
+                android:clickable="true"
+                android:id="@+id/flVideo"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp200">
+
+                <ImageView
+                    android:src="@drawable/ic_baseline_more_horiz_24"
+                    android:id="@+id/image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+                <ImageView
+                    android:clickable="false"
+                    android:id="@+id/img_playback"
+                    android:layout_width="@dimen/dp60"
+                    android:layout_height="@dimen/dp60"
+                    android:layout_gravity="center"
+                    android:layout_margin="8dp"
+                    android:src="@drawable/ic_play"
+                    />
+
+            </FrameLayout>
             <include layout="@layout/video_view"></include>
             <View
                 android:visibility="gone"
@@ -254,7 +277,7 @@
                     android:background="@drawable/btn_shape"
                     android:backgroundTint="@color/white"
                     android:drawableLeft="@drawable/ic_outline_thumb_up_24"
-                    android:text="@string/interestd"
+                    android:text="@string/like"
                     android:textColor="@color/black"
                     android:textAllCaps="false"
                     android:textSize="13sp">

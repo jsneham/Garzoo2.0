@@ -1,5 +1,6 @@
 package com.garzoopvt.garzoo.BuySell.Fragment;
 
+import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,17 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -33,7 +24,17 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
@@ -41,29 +42,31 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
-import com.garzoopvt.garzoo.Business.Activity.BusinessInnerActivity;
-import com.garzoopvt.garzoo.Business.Activity.EditBusinessListingActivity;
-import com.garzoopvt.garzoo.Business.Model.Business;
 import com.garzoopvt.garzoo.BuySell.Activity.BuyInnerActivity;
 import com.garzoopvt.garzoo.BuySell.Activity.EditSellListingActivity;
 import com.garzoopvt.garzoo.BuySell.Adapter.BuyAdapter;
-import com.garzoopvt.garzoo.BuySell.Adapter.CategoryAdapter;
+import com.garzoopvt.garzoo.BuySell.Adapter.BuySubCategoryAdapter;
 import com.garzoopvt.garzoo.BuySell.Adapter.OnCategoryListener;
 import com.garzoopvt.garzoo.BuySell.Model.Buy;
 import com.garzoopvt.garzoo.BuySell.Model.Category;
+import com.garzoopvt.garzoo.BuySell.Persistence.BuyDao;
+import com.garzoopvt.garzoo.BuySell.Persistence.BuyDatabase;
 import com.garzoopvt.garzoo.BuySell.ViewModel.BuyViewModel;
-import com.garzoopvt.garzoo.Dashboard.Adapter.CategoryViewHolder;
+import com.garzoopvt.garzoo.Chat.Activity.ChatRoomListingActivity;
 import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
 import com.garzoopvt.garzoo.Dashboard.Adapter.RecycleAdapter_GridHome;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
-import com.garzoopvt.garzoo.Employement.Activity.EditEmpListingActivity;
-import com.garzoopvt.garzoo.Promotion.Activity.EditPromoListingActivity;
 import com.garzoopvt.garzoo.R;
-import com.garzoopvt.garzoo.Rent.Activity.EditRentListingActivity;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
+import com.garzoopvt.garzoo.Util.ExoPlayerActivity;
 import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
+import com.garzoopvt.garzoo.services.LocationService;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +85,7 @@ import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_
 public class BuyFragment extends Fragment implements NativeAdsManager.Listener, OnDashboardListener, OnCategoryListener {
 
     //view
+    private ImageView ivClose, ivShare, ivAdvanceSearch, ivMic;
     private View view;
     private Context context;
     private RecyclerView rvList, rvTabs;
@@ -95,21 +99,23 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
     //instances
     private BuyViewModel mViewModel;
     private BuyAdapter mAdapter;
-    private CategoryAdapter mCatAdapter;
+    private BuySubCategoryAdapter mCatAdapter;
     private RecycleAdapter_GridHome mRecycleAdapter_GridHome;
     private List<DashboardList> dashboardLists = new ArrayList<>();
     private NativeAdsManager mNativeAdsManager;
 
 
     //Data
+    private String mLanguageCode = "en";
     private String category_id = "1";
-    private String user_id = "0";  private String username="Sneha";
+    private String user_id = "0";
+    private String username="";
     private String search_name = "";
-    private String latitude = "19.108589";
-    private String longitude = "72.827072";
+    private String latitude = "";
+    private String longitude = "";
     private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
-
+    private final int REQ_CODE_SPEECH_INPUT = 100;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -125,14 +131,87 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         context = getContext();
         mViewModel = ViewModelProviders.of(this).get(BuyViewModel.class);
         sessionManager =new SessionManager(context);
+
+        startLocationService();
         getSessionData();
         fbNativeAds();
         initView();
         initRecyclerView();
         subscribeObservers();
-
         initSearchView();
+        getBannerAdv();
+        setRefreshListLayout();
+
         return view;
+    }
+
+
+    private void setRefreshListLayout() {
+        SwipeRefreshLayout swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        getBuyList();
+                        swipeContainer.setRefreshing(false);
+                    }
+                }, 3000); // Delay in millis
+
+            }
+        });
+    }
+
+    private void getBannerAdv() {
+
+//        final AdView adView = new AdView(context);
+//        adView.setAdSize(AdSize.BANNER);
+//        adView.setAdUnitId(BANNER_ID);
+        AdView adView = view.findViewById(R.id.adView);
+        adView.loadAd(new AdRequest.Builder().build());
+
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                //Toast.makeText(getContext(), "Loaded", Toast.LENGTH_SHORT).show();
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
+                // Code to be executed when an ad request fails.
+                //  Toast.makeText(getContext(), adError.getCode() + ", "+ adError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAdOpened() {
+                //Toast.makeText(getContext(), "onAdOpened", Toast.LENGTH_SHORT).show();
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Toast.makeText(getContext(), "onAdClicked", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                //Toast.makeText(getContext(), "onAdLeftApplication", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Toast.makeText(getContext(), "onAdClosed", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+
     }
 
     @Override
@@ -144,12 +223,18 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
     @Override
     public void onDestroy() {
         mViewModel.cancelSearchRequest(true);
+        stopLocationService();
         super.onDestroy();
     }
 
     private void getSessionData() {
+        mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
         if(user_id.isEmpty()) user_id="0";
+        latitude = sessionManager.getFromSessionManager(SessionManager.LATITUDE);
+        if (latitude.isEmpty()) latitude = "0";
+        longitude = sessionManager.getFromSessionManager(SessionManager.LONGITUDE);
+        if (longitude.isEmpty()) longitude = "0";
     }
 
     private void initView() {
@@ -157,8 +242,47 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         rvList = view.findViewById(R.id.rvList);
         rvTabs = view.findViewById(R.id.rvTabs);
         searchView = view.findViewById(R.id.etSearchBox);
+        ivAdvanceSearch = view.findViewById(R.id.ivAdvanceSearch);
+        ivMic = view.findViewById(R.id.ivMic);
+        ivShare = view.findViewById(R.id.ivShare);
+        ivClose = view.findViewById(R.id.ivClose);
+        ivAdvanceSearch.setVisibility(View.GONE);
+
+        ivMic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startVoiceInput(REQ_CODE_SPEECH_INPUT);
+            }
+        });
+
+        ivClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchView.setText("");
+            }
+        });
+        ivShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Utils.shareIntent(context);
+            }
+        });
 
     }
+    private void startVoiceInput(int code) {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        String  mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, mLanguageCode+ URLs.language);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.help_text));
+        try {
+            startActivityForResult(intent, code);
+        } catch (ActivityNotFoundException a) {
+
+        }
+    }
+
+
 
     private void initRecyclerView() {
         ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
@@ -180,7 +304,7 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         rvList.setAdapter(mAdapter);
 
 
-        mCatAdapter = new CategoryAdapter(context,this::onCategoryItemClick);
+        mCatAdapter = new BuySubCategoryAdapter(context,this::onCategoryItemClick);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getActivity(), 3);
         rvTabs.setLayoutManager(mLayoutManager);
         rvTabs.setItemAnimator(new DefaultItemAnimator());
@@ -228,7 +352,7 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
-                                Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
+                                //    Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
                                 if (listResource.message.equals(QUERY_EXHAUSTED)) {
                                     mAdapter.setQueryExhausted();
@@ -273,7 +397,11 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
     }
 
     private void getBuyList() {
-        mViewModel.getCategoryListApi();
+        mViewModel.getCategoryListApi(mLanguageCode);
+        mViewModel.getBuyListApi(user_id, page_no, search_name, latitude, longitude, category_id);
+    }
+
+    private void getOnlyBuyList() {
         mViewModel.getBuyListApi(user_id, page_no, search_name, latitude, longitude, category_id);
     }
 
@@ -320,10 +448,11 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         Buy dl = mAdapter.getSelected(position);
         if (!dl.getUser_id().equals(user_id)) {
             if (dl.getMobile_status().equals("0")) {
+                logActivity(dl.getId(), dl.getUser_id(), user_id, "1");
                 String number = dl.getMobile();
                 Intent intent = new Intent(Intent.ACTION_DIAL);
                 intent.setData(Uri.parse("tel:" + number));
-                context.startActivity(intent);
+                startActivity(intent);
             } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
         }
     }
@@ -335,7 +464,14 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
     @Override
     public void onChatClick(int position) {
         if(!(user_id.equals("0")|| user_id.isEmpty())) {
-
+            Buy dl = mAdapter.getSelected(position);
+            if (!dl.getUser_id().equals(user_id)) {
+                Intent intent= new Intent(context, ChatRoomListingActivity.class);
+                intent.putExtra("tuid" , dl.getUser_id());
+                intent.putExtra("phone_no" , dl.getMobile());
+                intent.putExtra("to_name" , dl.getFname() + " " + dl.getLname());
+                startActivity(intent);
+            }
         }
         else{
             Utils.openLogin(context);
@@ -344,6 +480,8 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
 
     @Override
     public void onShareClick(int position) {
+        Buy dl = mAdapter.getSelected(position);
+        logActivity(dl.getId(), dl.getUser_id(), user_id, "3");
         Utils.shareIntent(context);
     }
 
@@ -359,7 +497,7 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
                     ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_thumb_up_24, 0, 0, 0);
                     dl.setInterest_status("yes");
                 }
-                interest(dl.getId(), dl.getUser_id(), "L", dl.getTitle());
+                interest(dl.getId(), dl.getUser_id(), "L", dl.getTitle(),  dl.getInterest_status());
             }
         }
         else{
@@ -367,7 +505,7 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         }
     }
 
-    private void interest(String id, String to_user_id, String data_type, String title) {
+    private void interest(String id, String to_user_id, String data_type, String title, String interest_status) {
 
 
         RequestBody unique_id = RequestBody.create(MultipartBody.FORM, URLs.unique_id);
@@ -378,9 +516,14 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         RequestBody rb_type = RequestBody.create(MultipartBody.FORM, data_type);
         RequestBody rb_listing_title = RequestBody.create(MultipartBody.FORM, title);
 
+        RequestBody rb_type_listing = RequestBody.create(MultipartBody.FORM, "S");
+        RequestBody language = RequestBody.create(MultipartBody.FORM, sessionManager.getFromSessionManager(SessionManager.LANGUAGE));
+//        mViewModel.interest(unique_id,rb_user_id , rb_to_user_id, rb_full_name,rb_listing_id,rb_type,rb_listing_title, rb_type_listing, category_id);
+//        logActivity(id, to_user_id, user_id, "2");
+
 
         Call<ResponseBody> call = mViewModel.interest(unique_id,rb_user_id , rb_to_user_id,
-                rb_full_name,rb_listing_id,rb_type,rb_listing_title);
+                rb_full_name,rb_listing_id,rb_type,rb_listing_title,rb_type_listing,language, category_id);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -390,7 +533,9 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
                         try {
                             String result = response.body().string();
                             Utils.openSnackBar(result, view);
-
+                            BuyDao dao = BuyDatabase.getInstance(context).getListDao();
+                            dao.updateInterestStatusList(id, interest_status);
+                            logActivity(id, to_user_id, user_id, "2");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -413,9 +558,10 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
     @Override
     public void onItemClick(int position) {
         Buy dl = mAdapter.getSelected(position);
+        logActivity(dl.getId(), dl.getUser_id(), user_id, "4");
         Intent intent = new Intent(context, BuyInnerActivity.class);
         intent.putExtra("data", dl);
-        context.startActivity(intent);
+        startActivity(intent);
     }
 
     @Override
@@ -423,6 +569,7 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
         Category ct = mCatAdapter.getSelected(position);
         mViewModel.setPageNumber(1);
         mAdapter.clearList();
+        category_id= ct.getId();
         mViewModel.getBuyListApi(user_id, page_no, search_name, latitude, longitude, ct.getId());
     }
 
@@ -469,7 +616,7 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
     public void openEditPage(Buy dl) {
         Intent intent = new Intent(context, EditSellListingActivity.class);
         intent.putExtra("data", dl);
-        context.startActivity(intent);
+        startActivity(intent);
 
     }
 
@@ -614,8 +761,15 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
                     if (response.isSuccessful()) {
                         try {
                             String result = response.body().string();
-                            Utils.openSnackBar(result, view);
-                            mAdapter.deleteSelected(position);
+                            if(result.equals("success")) {
+                                Utils.openSnackBar(getString(R.string.block_sucess_response), view);
+                                mAdapter.deleteSelected(position);
+                                mViewModel.blockRemovefromDb(to_user_id);
+                                getOnlyBuyList();
+                            }
+                            else
+                                Utils.openSnackBar(getString(R.string.block_fail_response), view);
+
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -636,35 +790,38 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
     }
 
     private void deletePost(String post_id, int position) {
+        mViewModel.deletePost(post_id,  category_id);
+        mAdapter.deleteSelected(position);
 
-        Call<ResponseBody> call =mViewModel.deletePost(post_id);
-
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response != null) {
-                    if (response.isSuccessful()) {
-                        try {
-                            String result = response.body().string();
-                            Utils.openSnackBar(result, view);
-                            mAdapter.deleteSelected(position);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
-
-            }
-        });
+//
+//        Call<ResponseBody> call =mViewModel.deletePost(post_id,  category_id);
+//
+//        call.enqueue(new Callback<ResponseBody>() {
+//            @Override
+//            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                if (response != null) {
+//                    if (response.isSuccessful()) {
+//                        try {
+//                            String result = response.body().string();
+//                            Utils.openSnackBar(result, view);
+//                            mAdapter.deleteSelected(position);
+//
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+//                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+//
+//            }
+//        });
     }
 
     private  void ReportPost(String post_id, String employment_id,String business_id,String report, int position) {
@@ -680,7 +837,7 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
 
                             String result = response.body().string();
                             Utils.openSnackBar(result, view);
-                            mAdapter.deleteSelected(position);
+                           // mAdapter.deleteSelected(position);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -703,17 +860,93 @@ public class BuyFragment extends Fragment implements NativeAdsManager.Listener, 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == 1) {
-                int pos = etEnquiry.getSelectionStart();
-                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                //title.insert(pos, result.get(0));
-                // title.append(" ");
-                etEnquiry.setText(result.get(0));
-                etEnquiry.setSelection(etEnquiry.getText().toString().length());
-                etEnquiry.requestFocus();
-                text[0] = text[0] + " " + etEnquiry.getText().toString();
-            }
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT:
+                if (resultCode == RESULT_OK && null != data) {
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    searchView.setText(result.get(0));
+                }
+                break;
+
+            case 1:
+                if (resultCode == RESULT_OK && null != data) {
+                    int pos = etEnquiry.getSelectionStart();
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    etEnquiry.setText(result.get(0));
+                    etEnquiry.setSelection(etEnquiry.getText().toString().length());
+                    etEnquiry.requestFocus();
+                    text[0] = text[0] + " " + etEnquiry.getText().toString();
+                }
+                break;
         }
     }
+
+    private void logActivity(String post_id, String post_user_id, String userId, String type) {
+        mViewModel.logActivity(post_id,post_user_id,userId,type);
+    }
+
+    private void startLocationService() {
+        if (!isLocationServiceRunning()) {
+            Intent intent = new Intent(context, LocationService.class);
+            intent.setAction(URLs.ACTION_START_LOCATION_SERVICE);
+            context.startService(intent);
+
+
+        }
+    }
+
+
+    private void stopLocationService() {
+        if (isLocationServiceRunning()) {
+            Intent intent = new Intent(context, LocationService.class);
+            intent.setAction(URLs.ACTION_STOP_LOCATION_SERVICE);
+            context.startService(intent);
+        }
+    }
+
+
+
+    private boolean isLocationServiceRunning() {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (activityManager != null) {
+            for (ActivityManager.RunningServiceInfo serviceInfo : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+                if (LocationService.class.getName().equals(serviceInfo.service.getClassName())) {
+                    if (serviceInfo.foreground) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    @Override
+    public void onVideoClick(int position) {
+        Buy dl = mAdapter.getSelected(position);
+        openVideoActivity(context, dl);
+    }
+
+    private void openVideoActivity(Context context, Buy productArrayList) {
+        Intent mIntent = ExoPlayerActivity.getStartIntent(context, productArrayList.getVideo());
+        mIntent.putExtra("data", productArrayList.getVideo());
+        mIntent.putExtra("listing_status", productArrayList.getListing_status());
+        mIntent.putExtra("data_type", "L");
+        mIntent.putExtra("emp_status", "L");
+        mIntent.putExtra("pd_status", "L");
+        mIntent.putExtra("getCategory_id", productArrayList.getCategory_id());
+        mIntent.putExtra("username", productArrayList.getFname() + " " + productArrayList.getLname());
+        mIntent.putExtra("location", productArrayList.getAddress());
+        mIntent.putExtra("description", productArrayList.getDescription());
+        mIntent.putExtra("title", productArrayList.getTitle());
+        mIntent.putExtra("price", productArrayList.getPrice());
+        mIntent.putExtra("timestamp", Utils.formateDate(productArrayList.getDt()));
+
+
+//        VideoViewPlay.openVideo(context, list.getVideo(),list.getListing_status(),list.getData_type(),list.getPd_status(),list.getCategory_id(),
+//                list.getFname() + " " + list.getLname(),list.getAddress(),list.getDescription(),
+//                list.getTitle(),list.getPrice(),Utils.formateDate(list.getDt()), list.getEmp_status());
+        context.startActivity(mIntent);
+    }
+
 }

@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    android:padding="@dimen/dp10"
-    android:orientation="horizontal"
-    android:weightSum="4"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
     android:id="@+id/llfoot"
-    android:background="@android:color/transparent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true">
+    android:layout_alignParentBottom="true"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
+<LinearLayout
+    android:orientation="vertical"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
 
+    >
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
+        android:padding="@dimen/dp10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp5" />
+    <LinearLayout
+        android:padding="@dimen/dp10"
+        android:orientation="horizontal"
+        android:weightSum="4"
+        android:background="@android:color/transparent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+       >
     <LinearLayout
         android:layout_weight="3.5"
         android:weightSum="4"
@@ -38,23 +53,38 @@
             android:layout_gravity="center"
             android:layout_weight="0.5"
             android:src="@drawable/ic_baseline_attach_file_24" />
-        <ImageView
-            android:id="@+id/btnSend"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/dp30"
-            android:layout_gravity="center"
+
+        <pl.droidsonroids.gif.GifImageView
             android:layout_weight="0.5"
-            android:src="@drawable/ic_baseline_send_24" />
+            android:id="@+id/btnMic"
+            android:layout_width="@dimen/dp25"
+            android:layout_height="@dimen/dp25"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center"
+            android:src="@drawable/mic" />
+
     </LinearLayout>
 
 
-    <pl.droidsonroids.gif.GifImageView
-        android:layout_weight="0.5"
-        android:id="@+id/btnMic"
-        android:layout_width="@dimen/dp25"
-        android:layout_height="@dimen/dp25"
-        android:layout_alignParentRight="true"
-        android:layout_gravity="center"
-        android:src="@drawable/mic" />
+        <ImageView
+            android:layout_alignParentRight="true"
+            android:id="@+id/btnSend"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:src="@drawable/ic_baseline_send_24" />
+
+<!--    <pl.droidsonroids.gif.GifImageView-->
+<!--        android:layout_weight="0.5"-->
+<!--       -->
+<!--        android:layout_width="@dimen/dp25"-->
+<!--        android:layout_height="@dimen/dp25"-->
+<!--       -->
+<!--        android:layout_gravity="center"-->
+<!--        android:src="@drawable/mic" />-->
+    </LinearLayout>
 
 </LinearLayout>
+
+</androidx.cardview.widget.CardView>

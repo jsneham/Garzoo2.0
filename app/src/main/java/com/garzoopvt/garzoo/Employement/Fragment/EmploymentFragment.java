@@ -1,5 +1,6 @@
 package com.garzoopvt.garzoo.Employement.Fragment;
 
+import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -32,6 +34,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
@@ -41,6 +44,9 @@ import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
 import com.garzoopvt.garzoo.Business.Activity.EditBusinessListingActivity;
 import com.garzoopvt.garzoo.BuySell.Activity.EditSellListingActivity;
+import com.garzoopvt.garzoo.BuySell.Persistence.BuyDao;
+import com.garzoopvt.garzoo.BuySell.Persistence.BuyDatabase;
+import com.garzoopvt.garzoo.Chat.Activity.ChatRoomListingActivity;
 import com.garzoopvt.garzoo.Dashboard.Activity.DashboardInnerActivity;
 import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
@@ -50,15 +56,25 @@ import com.garzoopvt.garzoo.Employement.Activity.EditEmpListingActivity;
 import com.garzoopvt.garzoo.Employement.Activity.EmpInnerActivity;
 import com.garzoopvt.garzoo.Employement.Adapter.EmploymentAdapter;
 import com.garzoopvt.garzoo.Employement.Model.Employment;
+import com.garzoopvt.garzoo.Employement.Persistence.EmploymentDao;
+import com.garzoopvt.garzoo.Employement.Persistence.EmploymentDatabase;
 import com.garzoopvt.garzoo.Employement.ViewModel.EmploymentViewModel;
 import com.garzoopvt.garzoo.Promotion.Activity.EditPromoListingActivity;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.Rent.Activity.EditRentListingActivity;
 import com.garzoopvt.garzoo.Rent.Model.Rent;
+import com.garzoopvt.garzoo.Rent.Persistence.RentDao;
+import com.garzoopvt.garzoo.Rent.Persistence.RentDatabase;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
+import com.garzoopvt.garzoo.Util.ExoPlayerActivity;
 import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
+import com.garzoopvt.garzoo.services.LocationService;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,6 +94,7 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
 
     //view
+    private ImageView ivClose, ivShare, ivAdvanceSearch, ivMic;
     private View view;
     private Context context;
     private RecyclerView rvList, rvTabs;
@@ -100,11 +117,11 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
     private String user_id = "0";
     private String username;
     private String search_name = "";
-    private String latitude = "19.108589";
-    private String longitude = "72.827072";
+    private String latitude = "";
+    private String longitude = "";
     private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
-
+    private final int REQ_CODE_SPEECH_INPUT = 100;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -120,6 +137,7 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
         context = getContext();
         mViewModel = ViewModelProviders.of(this).get(EmploymentViewModel.class);
         sessionManager = new SessionManager(context);
+        startLocationService();
         getSessionData();
 
         fbNativeAds();
@@ -128,8 +146,81 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
         subscribeObservers();
 
         initSearchView();
+        getBannerAdv();
+        setRefreshListLayout();
+
         return view;
     }
+
+
+    private void setRefreshListLayout() {
+        SwipeRefreshLayout swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        getEmploymentList();
+                        swipeContainer.setRefreshing(false);
+                    }
+                }, 3000); // Delay in millis
+
+            }
+        });
+    }
+
+    private void getBannerAdv() {
+
+//        final AdView adView = new AdView(context);
+//        adView.setAdSize(AdSize.BANNER);
+//        adView.setAdUnitId(BANNER_ID);
+        AdView adView = view.findViewById(R.id.adView);
+        adView.loadAd(new AdRequest.Builder().build());
+
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                //Toast.makeText(getContext(), "Loaded", Toast.LENGTH_SHORT).show();
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
+                // Code to be executed when an ad request fails.
+                //  Toast.makeText(getContext(), adError.getCode() + ", "+ adError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAdOpened() {
+                //Toast.makeText(getContext(), "onAdOpened", Toast.LENGTH_SHORT).show();
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Toast.makeText(getContext(), "onAdClicked", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                //Toast.makeText(getContext(), "onAdLeftApplication", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Toast.makeText(getContext(), "onAdClosed", Toast.LENGTH_SHORT).show();
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+
+    }
+
 
     @Override
     public void onResume() {
@@ -141,6 +232,10 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
         username = sessionManager.getFromSessionManager(SessionManager.USERNAME);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
         if (user_id.isEmpty()) user_id = "0";
+        latitude = sessionManager.getFromSessionManager(SessionManager.LATITUDE);
+        if (latitude.isEmpty()) latitude = "0";
+        longitude = sessionManager.getFromSessionManager(SessionManager.LONGITUDE);
+        if (longitude.isEmpty()) longitude = "0";
     }
 
     private void initView() {
@@ -161,6 +256,45 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
                 openAddRegisterSheet();
             }
         });
+        ivMic = view.findViewById(R.id.ivMic);
+        ivShare = view.findViewById(R.id.ivShare);
+        ivClose = view.findViewById(R.id.ivClose);
+         ivAdvanceSearch = view.findViewById(R.id.ivAdvanceSearch);
+        ivAdvanceSearch.setVisibility(View.GONE);
+
+        ivMic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startVoiceInput(REQ_CODE_SPEECH_INPUT);
+            }
+        });
+
+        ivClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchView.setText("");
+            }
+        });
+        ivShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Utils.shareIntent(context);
+            }
+        });
+    }
+
+    private void startVoiceInput(int code) {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        String  mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, mLanguageCode+ URLs.language);
+
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.help_text));
+        try {
+            startActivityForResult(intent, code);
+        } catch (ActivityNotFoundException a) {
+
+        }
     }
 
     private void openAddReqSheet() {
@@ -248,7 +382,7 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
-                                Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
+                                //      Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
                                 if (listResource.message.equals(QUERY_EXHAUSTED)) {
                                     mAdapter.setQueryExhausted();
@@ -323,10 +457,11 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
         Employment dl = mAdapter.getSelected(position);
         if (!dl.getUser_id().equals(user_id)) {
             if (dl.getMobile_status().equals("0")) {
+                logActivity(dl.getId(), dl.getUser_id(), user_id, "1");
                 String number = dl.getMobile();
                 Intent intent = new Intent(Intent.ACTION_DIAL);
                 intent.setData(Uri.parse("tel:" + number));
-                context.startActivity(intent);
+                startActivity(intent);
             } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
         } else {
             Utils.openLogin(context);
@@ -337,6 +472,16 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
     public void onChatClick(int position) {
         if (!(user_id.equals("0") || user_id.isEmpty())) {
 
+            Employment dl = mAdapter.getSelected(position);
+            if (!dl.getUser_id().equals(user_id)) {
+
+                Intent intent= new Intent(context, ChatRoomListingActivity.class);
+                intent.putExtra("tuid" , dl.getUser_id());
+                intent.putExtra("phone_no" , dl.getMobile());
+                intent.putExtra("to_name" , dl.getFname() + " " + dl.getLname());
+                startActivity(intent);
+            }
+
         } else {
             Utils.openLogin(context);
         }
@@ -344,6 +489,8 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
     @Override
     public void onShareClick(int position) {
+        Employment dl = mAdapter.getSelected(position);
+        logActivity(dl.getId(), dl.getUser_id(), user_id, "3");
         Utils.shareIntent(context);
     }
 
@@ -358,13 +505,13 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
                 ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_thumb_up_24, 0, 0, 0);
                 dl.setInterest_status("yes");
             }
-            interest(dl.getId(), dl.getUser_id(), "E", dl.getTitle());
+            interest(dl.getId(), dl.getUser_id(), "E", dl.getTitle(),dl.getInterest_status());
         } else {
             Utils.openLogin(context);
         }
     }
 
-    private void interest(String id, String to_user_id, String data_type, String title) {
+    private void interest(String id, String to_user_id, String data_type, String title, String interest_status) {
 
 
         RequestBody unique_id = RequestBody.create(MultipartBody.FORM, URLs.unique_id);
@@ -374,10 +521,13 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
         RequestBody rb_listing_id = RequestBody.create(MultipartBody.FORM, id);
         RequestBody rb_type = RequestBody.create(MultipartBody.FORM, data_type);
         RequestBody rb_listing_title = RequestBody.create(MultipartBody.FORM, title);
-
+        RequestBody language = RequestBody.create(MultipartBody.FORM, sessionManager.getFromSessionManager(SessionManager.LANGUAGE));
+//        mViewModel.interest(unique_id, rb_user_id, rb_to_user_id,
+//                rb_full_name, rb_listing_id, rb_type, rb_listing_title,rb_type);
+//        logActivity(id, to_user_id, user_id, "2");
 
         Call<ResponseBody> call = mViewModel.interest(unique_id, rb_user_id, rb_to_user_id,
-                rb_full_name, rb_listing_id, rb_type, rb_listing_title);
+                rb_full_name, rb_listing_id, rb_type, rb_listing_title,rb_type,language);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -387,7 +537,9 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
                         try {
                             String result = response.body().string();
                             Utils.openSnackBar(result, view);
-
+                            EmploymentDao dao = EmploymentDatabase.getInstance(context).getListDao();
+                            dao.updateInterestStatusList(id, interest_status);
+                            logActivity(id, to_user_id, user_id, "2");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -411,9 +563,10 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
     public void onItemClick(int position) {
 
         Employment dl = mAdapter.getSelected(position);
+      logActivity(dl.getId(), dl.getUser_id(), user_id, "4");
         Intent intent = new Intent(context, EmpInnerActivity.class);
         intent.putExtra("data", dl);
-        context.startActivity(intent);
+        startActivity(intent);
 
     }
 
@@ -461,7 +614,7 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
     public void openEditPage(Employment dl) {
         Intent intent = new Intent(context, EditEmpListingActivity.class);
         intent.putExtra("data", dl);
-        context.startActivity(intent);
+        startActivity(intent);
 
     }
 
@@ -551,7 +704,8 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
             public void onClick(View v) {
                 Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, URLs.language);
+                String  mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, mLanguageCode+ URLs.language);
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.help_text));
                 try {
 //                    ((Activity) context).startActivityForResult(intent, 1);
@@ -596,10 +750,7 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
     private void AddBlock(String self_user_id, String to_user_id, int position) {
 
-
-
         Call<ResponseBody> call =mViewModel.block(self_user_id,to_user_id);
-
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -607,8 +758,15 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
                     if (response.isSuccessful()) {
                         try {
                             String result = response.body().string();
-                            Utils.openSnackBar(result, view);
-                            mAdapter.deleteSelected(position);
+                            if(result.equals("success")) {
+                                Utils.openSnackBar(getString(R.string.block_sucess_response), view);
+                                mAdapter.deleteSelected(position);
+                                mViewModel.blockRemovefromDb(to_user_id);
+                                getEmploymentList();
+                            }
+                            else
+                                Utils.openSnackBar(getString(R.string.block_fail_response), view);
+
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -630,34 +788,36 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
     private void deletePost( String post_id, int position) {
 
-        Call<ResponseBody> call =mViewModel.deletePost(post_id);
+        mViewModel.deletePost(post_id);
+        mAdapter.deleteSelected(position);
 
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response != null) {
-                    if (response.isSuccessful()) {
-                        try {
-                            String result = response.body().string();
-                            Utils.openSnackBar(result, view);
-                            mAdapter.deleteSelected(position);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
-
-            }
-        });
+//        Call<ResponseBody> call =mViewModel.deletePost(post_id);
+//        call.enqueue(new Callback<ResponseBody>() {
+//            @Override
+//            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                if (response != null) {
+//                    if (response.isSuccessful()) {
+//                        try {
+//                            String result = response.body().string();
+//                            Utils.openSnackBar(result, view);
+//                            mAdapter.deleteSelected(position);
+//
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+//                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+//
+//            }
+//        });
     }
 
     private  void ReportPost(String post_id, String employment_id,String business_id,String report, int position) {
@@ -673,7 +833,7 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
 
                             String result = response.body().string();
                             Utils.openSnackBar(result, view);
-                            mAdapter.deleteSelected(position);
+//                            mAdapter.deleteSelected(position);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -696,17 +856,99 @@ public class EmploymentFragment extends Fragment implements NativeAdsManager.Lis
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == 1) {
-                int pos = etEnquiry.getSelectionStart();
-                ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                //title.insert(pos, result.get(0));
-                // title.append(" ");
-                etEnquiry.setText(result.get(0));
-                etEnquiry.setSelection(etEnquiry.getText().toString().length());
-                etEnquiry.requestFocus();
-                text[0] = text[0] + " " + etEnquiry.getText().toString();
-            }
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT:
+                if (resultCode == RESULT_OK && null != data) {
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    searchView.setText(result.get(0));
+                }
+                break;
+
+            case 1:
+                if (resultCode == RESULT_OK && null != data) {
+                    int pos = etEnquiry.getSelectionStart();
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    etEnquiry.setText(result.get(0));
+                    etEnquiry.setSelection(etEnquiry.getText().toString().length());
+                    etEnquiry.requestFocus();
+                    text[0] = text[0] + " " + etEnquiry.getText().toString();
+                }
+                break;
         }
+    }
+
+    private void logActivity(String post_id, String post_user_id, String userId, String type) {
+        mViewModel.logActivity(post_id,post_user_id,userId,type);
+    }
+
+
+    private void startLocationService() {
+        if (!isLocationServiceRunning()) {
+            Intent intent = new Intent(context, LocationService.class);
+            intent.setAction(URLs.ACTION_START_LOCATION_SERVICE);
+            context.startService(intent);
+
+
+        }
+    }
+
+
+    private void stopLocationService() {
+        if (isLocationServiceRunning()) {
+            Intent intent = new Intent(context, LocationService.class);
+            intent.setAction(URLs.ACTION_STOP_LOCATION_SERVICE);
+            context.startService(intent);
+        }
+    }
+
+
+
+    private boolean isLocationServiceRunning() {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        if (activityManager != null) {
+            for (ActivityManager.RunningServiceInfo serviceInfo : activityManager.getRunningServices(Integer.MAX_VALUE)) {
+                if (LocationService.class.getName().equals(serviceInfo.service.getClassName())) {
+                    if (serviceInfo.foreground) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+    @Override
+    public void onDestroy() {
+        mViewModel.cancelSearchRequest(true);
+        stopLocationService();
+        super.onDestroy();
+    }
+
+    public void onVideoClick(int position) {
+        Employment dl = mAdapter.getSelected(position);
+        openVideoActivity(context, dl);
+    }
+
+    private void openVideoActivity(Context context, Employment productArrayList) {
+        Intent mIntent = ExoPlayerActivity.getStartIntent(context, productArrayList.getVideo());
+        mIntent.putExtra("data", productArrayList.getVideo());
+        mIntent.putExtra("listing_status", "E");
+        mIntent.putExtra("data_type", "e");
+        mIntent.putExtra("emp_status", productArrayList.getEmp_status());
+        mIntent.putExtra("pd_status", "E");
+        mIntent.putExtra("getCategory_id", productArrayList.getCategory_id());
+        mIntent.putExtra("username", productArrayList.getFname() + " " + productArrayList.getLname());
+        mIntent.putExtra("location", productArrayList.getAddress());
+        mIntent.putExtra("description", productArrayList.getDescription());
+        mIntent.putExtra("title", productArrayList.getTitle());
+        mIntent.putExtra("price", productArrayList.getPrice());
+        mIntent.putExtra("timestamp", Utils.formateDate(productArrayList.getDt()));
+
+
+//        VideoViewPlay.openVideo(context, list.getVideo(),list.getListing_status(),list.getData_type(),list.getPd_status(),list.getCategory_id(),
+//                list.getFname() + " " + list.getLname(),list.getAddress(),list.getDescription(),
+//                list.getTitle(),list.getPrice(),Utils.formateDate(list.getDt()), list.getEmp_status());
+        context.startActivity(mIntent);
     }
 }

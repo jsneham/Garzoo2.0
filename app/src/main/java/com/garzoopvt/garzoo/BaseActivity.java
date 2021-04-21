@@ -1,12 +1,21 @@
 package com.garzoopvt.garzoo;
 
 
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Build;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.garzoopvt.garzoo.Util.SessionManager;
+
+import java.util.Locale;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -27,5 +36,37 @@ public abstract class BaseActivity extends AppCompatActivity {
         mProgressBar.setVisibility(visibility ? View.VISIBLE : View.INVISIBLE);
     }
 
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(updateBaseContextLocale(base));
+    }
 
+    private Context updateBaseContextLocale(Context context) {
+        String language = SessionManager.getInstance(context).getSavedLanguage();
+//        String language = "en";
+        Locale locale = new Locale(language);
+        Locale.setDefault(locale);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            return updateResourcesLocale(context, locale);
+        }
+
+        return updateResourcesLocaleLegacy(context, locale);
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    private Context updateResourcesLocale(Context context, Locale locale) {
+        Configuration configuration = context.getResources().getConfiguration();
+        configuration.setLocale(locale);
+        return context.createConfigurationContext(configuration);
+    }
+
+    @SuppressWarnings("deprecation")
+    private Context updateResourcesLocaleLegacy(Context context, Locale locale) {
+        Resources resources = context.getResources();
+        Configuration configuration = resources.getConfiguration();
+        configuration.locale = locale;
+        resources.updateConfiguration(configuration, resources.getDisplayMetrics());
+        return context;
+    }
 }

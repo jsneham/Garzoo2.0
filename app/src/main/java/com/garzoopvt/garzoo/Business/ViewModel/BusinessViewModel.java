@@ -163,16 +163,59 @@ public class BusinessViewModel extends AndroidViewModel {
     }
 
 
-    public Call<ResponseBody> interest( RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
-                                        RequestBody listing_id, RequestBody type, RequestBody listing_title){
+    public  Call<ResponseBody> interest( RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
+                                        RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type, RequestBody language){
+//        final LiveData<Resource<List<Business>>> repositorySource = businessRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title,listing_type);
+//        list.addSource(repositorySource, new Observer<Resource<List<Business>>>() {
+//            @Override
+//            public void onChanged(@Nullable Resource<List<Business>> listResource) {
+//                if(!cancelRequest) {
+//                    if (listResource != null) {
+//                        list.setValue(listResource);
+//                        if (listResource.status == Resource.Status.SUCCESS) {
+//                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+//                            isPerformingQuery = false;
+//                            if (listResource.data != null) {
+//                                if (listResource.data.size() == 0) {
+//                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+//                                    list.setValue(new Resource<List<Business>>(
+//                                            Resource.Status.ERROR,
+//                                            listResource.data,
+//                                            QUERY_EXHAUSTED
+//                                    ));
+//                                    isPerformingQuery = true;
+//                                }
+//                            }
+//                            // must remove or it will keep listening to repository
+//                            list.removeSource(repositorySource);
+//                        } else if (listResource.status == Resource.Status.ERROR) {
+//                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+//                            isPerformingQuery = false;
+//                            list.removeSource(repositorySource);
+//                        }
+//                    } else {
+//                        list.removeSource(repositorySource);
+//                    }
+//                }
+//                else{
+//                    list.removeSource(repositorySource);
+//                }
+//            }
+//        });
 
-        return businessRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title);
+        return businessRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title,listing_type,language);
 
     }
 
     public Call<ResponseBody> deleteImage( String image_id, String path){
 
         return businessRepository.deleteImage(image_id, path);
+
+    }
+
+    public void updateImage(String image_id, String path, String post_id, String dashboard){
+
+        businessRepository.updateImage(image_id, path, post_id,dashboard);
 
     }
 
@@ -190,16 +233,68 @@ public class BusinessViewModel extends AndroidViewModel {
         return businessRepository.block( self_user_id,to_user_id);
 
     }
-    public Call<ResponseBody> deletePost (String to_user_id){
 
-        return businessRepository.deletePost(to_user_id);
+
+    public void deletePost (String to_user_id){
+
+        final LiveData<Resource<List<Business>>> repositorySource = businessRepository.deletePost(to_user_id);
+        list.addSource(repositorySource, new Observer<Resource<List<Business>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<Business>> listResource) {
+                if(!cancelRequest) {
+                    if (listResource != null) {
+                        list.setValue(listResource);
+                        if (listResource.status == Resource.Status.SUCCESS) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            if (listResource.data != null) {
+                                if (listResource.data.size() == 0) {
+                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+                                    list.setValue(new Resource<List<Business>>(
+                                            Resource.Status.ERROR,
+                                            listResource.data,
+                                            QUERY_EXHAUSTED
+                                    ));
+                                    isPerformingQuery = true;
+                                }
+                            }
+                            // must remove or it will keep listening to repository
+                            list.removeSource(repositorySource);
+                        } else if (listResource.status == Resource.Status.ERROR) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            list.removeSource(repositorySource);
+                        }
+                    } else {
+                        list.removeSource(repositorySource);
+                    }
+                }
+                else{
+                    list.removeSource(repositorySource);
+                }
+            }
+        });
+
+//        return businessRepository.deletePost(to_user_id);
 
     }
+
     public Call<ResponseBody> ReportPost(String user_id, String post_id, String employment_id,String business_id,String report){
 
         return businessRepository.ReportPost(user_id, post_id, employment_id,business_id, report);
 
     }
 
+    public Call<ResponseBody> logActivity(String post_id, String post_user_id, String user_id,String type){
 
+        return businessRepository.logActivity(post_id,post_user_id,user_id,type);
+
+    }
+
+    public void blockRemovefromDb(String to_user_id) {
+
+        businessRepository.blockRemovefromDb(to_user_id);
+
+
+    }
 }

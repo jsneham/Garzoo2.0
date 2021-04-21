@@ -118,22 +118,22 @@ public class MyListCategoryFragment extends Fragment {
 
                 switch (position) {
                     case 0:
-                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("S"),"MyListingFragment").commit();
+                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("S")).addToBackStack("MyListingFragment").commit();
                         break;
                     case 1:
-                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("R"),"MyListingFragment").commit();
+                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("R")).addToBackStack("MyListingFragment").commit();
                         break;
                     case 2:
-                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("E"),"MyListingFragment").commit();
+                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("E")).addToBackStack("MyListingFragment").commit();
                         break;
                     case 3:
-                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("B"),"MyListingFragment").commit();
+                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("B")).addToBackStack("MyListingFragment").commit();
                         break;
                     case 4:
-                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("P"),"MyListingFragment").commit();
+                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("P")).addToBackStack("MyListingFragment").commit();
                         break;
                     default:
-                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("S"),"MyListingFragment").commit();
+                        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_home, new MyListingFragment("S")).addToBackStack("MyListingFragment").commit();
                 }
 
 

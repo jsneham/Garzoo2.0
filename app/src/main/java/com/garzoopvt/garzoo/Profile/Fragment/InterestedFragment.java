@@ -2,69 +2,46 @@ package com.garzoopvt.garzoo.Profile.Fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SearchView;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-
-import com.allattentionhere.autoplayvideos.AAH_CustomRecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
-import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
 import com.garzoopvt.garzoo.Chat.Activity.ChatRoomListingActivity;
 import com.garzoopvt.garzoo.Dashboard.Activity.DashboardInnerActivity;
-import com.garzoopvt.garzoo.Dashboard.Adapter.DashboardAdapter;
 import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
-
 import com.garzoopvt.garzoo.Profile.Adapter.InterestedAdapter;
 import com.garzoopvt.garzoo.Profile.ViewModel.ProfileViewModel;
-import com.garzoopvt.garzoo.Promotion.ViewModel.PromotionViewModel;
 import com.garzoopvt.garzoo.R;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
+import com.garzoopvt.garzoo.Util.ExoPlayerActivity;
 import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
 
-
-import org.json.JSONArray;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -93,7 +70,6 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
     private Button btnRetry;
 
 
-
     private static final int PAGE_START = 1;
     private boolean isLoading = false;
     private boolean isLastPage = false;
@@ -103,37 +79,35 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
     private LinearLayout llNodata;
 
 
-
     private NativeAdsManager mNativeAdsManager;
-    private String user_id="0";
-    private String username="";
-    private String search_name="";
+    private String user_id = "0";
+    private String username = "";
+    private String search_name = "";
     private String latitude;
     private String longitude;
-    private int page_no=1;
+    private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
 
-    public InterestedFragment(){
-       // this.setHasOptionsMenu(true);
+    public InterestedFragment() {
+        // this.setHasOptionsMenu(true);
     }
-
 
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        view= inflater.inflate(R.layout.fragment_interested, container, false);
+        view = inflater.inflate(R.layout.fragment_interested, container, false);
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         init();
         fbNativeAds();
         initRecyclerView();
         subscribeObservers();
-
+        checkInternet(context);
         return view;
     }
 
     private void init() {
-        context=getContext();
+        context = getContext();
         rvList = view.findViewById(R.id.rv_main);
         sessionManager = new SessionManager(context);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
@@ -162,7 +136,7 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
         mNativeAdsManager.setListener(this);
     }
 
-    private RequestManager initGlide(){
+    private RequestManager initGlide() {
         RequestOptions options = new RequestOptions()
                 .placeholder(R.drawable.white_background);
 
@@ -171,11 +145,10 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
 
 
     private void initRecyclerView() {
-        ViewPreloadSizeProvider<String> viewPreloader=new ViewPreloadSizeProvider<>();
-        mAdapter = new InterestedAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader,user_id);
+        ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
+        mAdapter = new InterestedAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader, user_id);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
-
 
 
         rvList.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -184,15 +157,15 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
 
-                if(!rvList.canScrollVertically(1)){
+                if (!rvList.canScrollVertically(1)) {
                     // search for the next page
-                    mViewModel.searchNextPage(user_id, search_name, latitude,longitude);
+                    mViewModel.searchNextPage(user_id, search_name, latitude, longitude);
 
                 }
             }
         });
 
-       // autoplayVideoRVWork();
+        // autoplayVideoRVWork();
         rvList.setAdapter(mAdapter);
     }
 
@@ -208,25 +181,22 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
     }
 
 
-
-
-    private void subscribeObservers(){
+    private void subscribeObservers() {
 
         mViewModel.getInterested().observe(this, new Observer<Resource<List<DashboardList>>>() {
             @Override
             public void onChanged(@Nullable Resource<List<DashboardList>> listResource) {
-                if(listResource != null){
+                if (listResource != null) {
                     Log.d(TAG, "onChanged: status: " + listResource.status);
 
-                    if(listResource.data != null){
+                    if (listResource.data != null) {
                         // Testing.printRecipess("data: ", listResource.data);
 
                         switch (listResource.status) {
                             case LOADING: {
-                                if(mViewModel.getPageNumber() > 1){
+                                if (mViewModel.getPageNumber() > 1) {
                                     mAdapter.displayLoading();
-                                }
-                                else{
+                                } else {
                                     mAdapter.displayOnlyLoading();
                                 }
                                 break;
@@ -240,13 +210,13 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
                             }
                             case ERROR: {
                                 Log.e(TAG, "onChanged: cannot refresh cache.");
-                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message );
+                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message);
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
-                                Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
+                                //      Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
-                                if(listResource.message.equals(QUERY_EXHAUSTED)){
+                                if (listResource.message.equals(QUERY_EXHAUSTED)) {
                                     mAdapter.setQueryExhausted();
                                 }
                                 break;
@@ -261,8 +231,6 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
         });
 
 
-
-
 //        mViewModel.getDashboard().observe(this, new Observer<List<DashboardList>>() {
 //            @Override
 //            public void onChanged(@Nullable List<DashboardList> list) {
@@ -275,12 +243,9 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
 //        });
     }
 
-    private void getDashboardList(){
-        mViewModel.getInterestedListApi(user_id, 1, search_name, latitude,longitude );
+    private void getDashboardList() {
+        mViewModel.getInterestedListApi(user_id, 1, search_name, latitude, longitude);
     }
-
-
-
 
 
     @Override
@@ -293,7 +258,7 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
     @Override
     public void onResume() {
         super.onResume();
-        checkInternet(context);
+
     }
 
 
@@ -309,35 +274,41 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
     }
 
 
-
-
-
-
     @Override
     public void onCallClick(int position) {
 
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
             DashboardList dl = mAdapter.getSelected(position);
             if (!dl.getUser_id().equals(user_id)) {
                 if (dl.getMobile_status().equals("0")) {
                     String number = dl.getMobile();
                     Intent intent = new Intent(Intent.ACTION_DIAL);
                     intent.setData(Uri.parse("tel:" + number));
-                    context.startActivity(intent);
+                    startActivity(intent);
                 } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
             }
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
 
+
     @Override
     public void onChatClick(int position) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
-        }
-        else{
+            DashboardList dl = mAdapter.getSelected(position);
+            if (!dl.getUser_id().equals(user_id)) {
+
+                Intent intent = new Intent(context, ChatRoomListingActivity.class);
+                intent.putExtra("record_id", dl.getListing_id());
+                intent.putExtra("tuid", dl.getUser_id());
+                intent.putExtra("phone_no", dl.getMobile());
+                intent.putExtra("to_name", dl.getFname() + " " + dl.getLname());
+                startActivity(intent);
+            }
+
+        } else {
             Utils.openLogin(context);
         }
     }
@@ -349,7 +320,7 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
 
     @Override
     public void onLikeClick(int position, Button ivInterested) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
             DashboardList dl = mAdapter.getSelected(position);
             if (!dl.getUser_id().equals(user_id)) {
@@ -361,15 +332,14 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
                     dl.setInterest_status("yes");
                 }
 
-                interest(dl.getId(), dl.getUser_id(), dl.getData_type(), dl.getTitle());
+                interest(dl.getListing_id(), dl.getUser_id(), dl.getData_type(), dl.getTitle(), position, dl.getInterest_status());
             }
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
 
-    private void interest(String id, String to_user_id, String data_type, String title) {
+    private void interest(String id, String to_user_id, String data_type, String title, int position, String interest_status) {
 
 
         RequestBody unique_id = RequestBody.create(MultipartBody.FORM, URLs.unique_id);
@@ -379,10 +349,14 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
         RequestBody rb_listing_id = RequestBody.create(MultipartBody.FORM, id);
         RequestBody rb_type = RequestBody.create(MultipartBody.FORM, data_type);
         RequestBody rb_listing_title = RequestBody.create(MultipartBody.FORM, title);
+        RequestBody rb_type_listing = RequestBody.create(MultipartBody.FORM, "D");
+        RequestBody language = RequestBody.create(MultipartBody.FORM, sessionManager.getFromSessionManager(SessionManager.LANGUAGE));
+//        mViewModel.interest1(unique_id,rb_user_id , rb_to_user_id,
+//                rb_full_name,rb_listing_id,rb_type,rb_listing_title,rb_type_listing);
+//        logActivity(id, to_user_id, user_id, "2");
 
-
-        Call<ResponseBody> call = mViewModel.interest(unique_id,rb_user_id , rb_to_user_id,
-                rb_full_name,rb_listing_id,rb_type,rb_listing_title);
+        Call<ResponseBody> call = mViewModel.interest(unique_id, rb_user_id, rb_to_user_id,
+                rb_full_name, rb_listing_id, rb_type, rb_listing_title, rb_type_listing,language);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -391,7 +365,14 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
                     if (response.isSuccessful()) {
                         try {
                             String result = response.body().string();
-                            Utils.openSnackBar(result, view);
+
+                            mAdapter.deleteSelected(position);
+                            mViewModel.addRemoveFromFrav(id, interest_status);
+
+//                            Utils.openSnackBar(getString(R.string.sucess_msg), view);
+
+//                            logActivity(id, to_user_id, user_id, "2");
+
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -411,12 +392,15 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
         });
     }
 
+    private void logActivity(String post_id, String post_user_id, String userId, String type) {
+        mViewModel.logActivity(post_id, post_user_id, userId, type);
+    }
+
     @Override
     public void onEditClick(int position, View view) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
-        }
-        else{
+        } else {
             Utils.openLogin(context);
         }
     }
@@ -426,7 +410,7 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
         DashboardList dl = mAdapter.getSelected(position);
         Intent intent = new Intent(context, DashboardInnerActivity.class);
         intent.putExtra("data", dl);
-        context.startActivity(intent);
+        startActivity(intent);
     }
 
 
@@ -438,5 +422,32 @@ public class InterestedFragment extends Fragment implements OnDashboardListener,
     @Override
     public void onAdError(AdError adError) {
 
+    }
+
+    public void onVideoClick(int position) {
+        DashboardList dl = mAdapter.getSelected(position);
+        openVideoActivity(context, dl);
+    }
+
+    private void openVideoActivity(Context context, DashboardList productArrayList) {
+        Intent mIntent = ExoPlayerActivity.getStartIntent(context, productArrayList.getVideo());
+        mIntent.putExtra("data", productArrayList.getVideo());
+        mIntent.putExtra("listing_status", productArrayList.getListing_status());
+        mIntent.putExtra("data_type", productArrayList.getData_type());
+        mIntent.putExtra("emp_status", productArrayList.getEmp_status());
+        mIntent.putExtra("pd_status", productArrayList.getPd_status());
+        mIntent.putExtra("getCategory_id", productArrayList.getCategory_id());
+        mIntent.putExtra("username", productArrayList.getFname() + " " + productArrayList.getLname());
+        mIntent.putExtra("location", productArrayList.getAddress());
+        mIntent.putExtra("description", productArrayList.getDescription());
+        mIntent.putExtra("title", productArrayList.getTitle());
+        mIntent.putExtra("price", productArrayList.getPrice());
+        mIntent.putExtra("timestamp", Utils.formateDate(productArrayList.getDt()));
+
+
+//        VideoViewPlay.openVideo(context, list.getVideo(),list.getListing_status(),list.getData_type(),list.getPd_status(),list.getCategory_id(),
+//                list.getFname() + " " + list.getLname(),list.getAddress(),list.getDescription(),
+//                list.getTitle(),list.getPrice(),Utils.formateDate(list.getDt()), list.getEmp_status());
+        context.startActivity(mIntent);
     }
 }

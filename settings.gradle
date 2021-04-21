@@ -1,4 +1,5 @@
-include ':app', ':autoplayvideos'
+include ':app'
 rootProject.name = "Garzoo2.0"
 
 
+//, ':autoplayvideos'

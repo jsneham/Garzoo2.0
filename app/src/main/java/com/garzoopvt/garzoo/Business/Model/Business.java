@@ -109,11 +109,13 @@ public class Business implements Parcelable {
     @ColumnInfo(name = "timestamp")
     private int timestamp;
 
+    @ColumnInfo(name = "block_status")
+    private String block_status;
 
     public Business() {
     }
 
-    public Business(@NonNull String id, String distance, String image_id, String video, String interest_status, String media_url, String mobile_status, String mobile, String admin_id, String category_id, String user_id, String title, String description, String address, String price, String image, String images, String latitude, String longitude, String status, String last_modified, String dt, String fname, String lname, String category, String area, String taluka, int timestamp) {
+    public Business(@NonNull String id, String distance, String image_id, String video, String interest_status, String media_url, String mobile_status, String mobile, String admin_id, String category_id, String user_id, String title, String description, String address, String price, String image, String images, String latitude, String longitude, String status, String last_modified, String dt, String fname, String lname, String category, String area, String taluka, int timestamp,String block_status) {
         this.id = id;
         this.distance = distance;
         this.image_id = image_id;
@@ -142,6 +144,7 @@ public class Business implements Parcelable {
         this.area = area;
         this.taluka = taluka;
         this.timestamp = timestamp;
+        this.block_status = block_status;
     }
 
     protected Business(Parcel in) {
@@ -173,6 +176,7 @@ public class Business implements Parcelable {
         area = in.readString();
         taluka = in.readString();
         timestamp = in.readInt();
+        block_status = in.readString();
     }
 
     public static final Creator<Business> CREATOR = new Creator<Business>() {
@@ -412,6 +416,13 @@ public class Business implements Parcelable {
         this.timestamp = timestamp;
     }
 
+    public String getBlock_status() {
+        return block_status;
+    }
+
+    public void setBlock_status(String block_status) {
+        this.block_status = block_status;
+    }
 
     @Override
     public int describeContents() {
@@ -448,5 +459,41 @@ public class Business implements Parcelable {
         parcel.writeString(area);
         parcel.writeString(taluka);
         parcel.writeInt(timestamp);
+        parcel.writeString(block_status);
+    }
+
+    @Override
+    public String toString() {
+        return "Business{" +
+                "id='" + id + '\'' +
+                ", distance='" + distance + '\'' +
+                ", image_id='" + image_id + '\'' +
+                ", video='" + video + '\'' +
+                ", interest_status='" + interest_status + '\'' +
+                ", media_url='" + media_url + '\'' +
+                ", mobile_status='" + mobile_status + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", admin_id='" + admin_id + '\'' +
+                ", category_id='" + category_id + '\'' +
+                ", user_id='" + user_id + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", address='" + address + '\'' +
+                ", price='" + price + '\'' +
+                ", image='" + image + '\'' +
+                ", images='" + images + '\'' +
+                ", latitude='" + latitude + '\'' +
+                ", longitude='" + longitude + '\'' +
+                ", status='" + status + '\'' +
+                ", last_modified='" + last_modified + '\'' +
+                ", dt='" + dt + '\'' +
+                ", fname='" + fname + '\'' +
+                ", lname='" + lname + '\'' +
+                ", category='" + category + '\'' +
+                ", area='" + area + '\'' +
+                ", taluka='" + taluka + '\'' +
+                ", timestamp=" + timestamp +
+                ", block_status='" + block_status + '\'' +
+                '}';
     }
 }

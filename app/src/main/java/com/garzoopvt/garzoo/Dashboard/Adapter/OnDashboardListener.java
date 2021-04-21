@@ -11,4 +11,5 @@ public interface OnDashboardListener {
     void onLikeClick(int position, Button ivInterested);
     void onEditClick(int position, View view);
     void onItemClick(int position);
+    void onVideoClick(int position);
 }

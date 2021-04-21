@@ -91,18 +91,15 @@ public class GroupChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             switch (viewType) {
                 case LIST_TYPE:
                     ChatGroup chat = (ChatGroup) userArrayList.get(position);
-                    ChatAdapter.RecyclerViewViewHolder viewHolder = (ChatAdapter.RecyclerViewViewHolder) holder;
+                    RecyclerViewViewHolder viewHolder = (RecyclerViewViewHolder) holder;
                     randomAndroidColor = androidColors[new Random().nextInt(androidColors.length)];
-                    viewHolder.txtView_title.setText(chat.getFname() + " " + chat.getLname());
+                    viewHolder.txtView_title.setText(chat.getTitle());
+                    viewHolder.tvImage.setText(chat.getTitle().charAt(0) + "");
                     viewHolder.date.setText(chat.getDt().split(" ")[1].substring(0, 5));
 
-                    viewHolder.count.setVisibility(View.GONE);
+                    viewHolder.llcounter.setVisibility(View.GONE);
 
                     viewHolder.msg.setText(chat.getLast_message());
-                    if (chat.getLname().equals(""))
-                        viewHolder.tvImage.setText(chat.getFname().charAt(0) + "");
-                    else
-                        viewHolder.tvImage.setText(chat.getFname().charAt(0) + " " + chat.getLname().charAt(0));
 
                     bgShape = (GradientDrawable) viewHolder.tvImage.getBackground();
                     bgShape.setColor(randomAndroidColor);
@@ -123,12 +120,17 @@ public class GroupChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public int getItemViewType(int position) {
         int type = 1;
         if (userArrayList.size() > position) {
-            if (userArrayList.get(position).getFname().equals("LOADING...")) {
-                return LOADING_TYPE;
-            } else if (userArrayList.get(position).getFname().equals("EXHAUSTED...")) {
-                return EXHAUSTED_TYPE;
-            } else {
-                return LIST_TYPE;
+            if(userArrayList.get(position).getTitle()!= null) {
+                if (userArrayList.get(position).getTitle().equals("LOADING...")) {
+                    return LOADING_TYPE;
+                } else if (userArrayList.get(position).getTitle().equals("EXHAUSTED...")) {
+                    return EXHAUSTED_TYPE;
+                } else {
+                    return LIST_TYPE;
+                }
+            }
+            else {
+                return EndList_TYPE;
             }
         } else {
             type = EndList_TYPE;
@@ -140,19 +142,19 @@ public class GroupChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void setQueryExhausted() {
         hideLoading();
         ChatGroup exhaustedRecipe = new ChatGroup();
-        exhaustedRecipe.setFname("EXHAUSTED...");
+        exhaustedRecipe.setTitle("EXHAUSTED...");
         userArrayList.add(exhaustedRecipe);
         notifyDataSetChanged();
     }
 
     public void hideLoading() {
         if (isLoading()) {
-            if (userArrayList.get(0).getFname().equals("LOADING...")) {
+            if (userArrayList.get(0).getTitle().equals("LOADING...")) {
                 userArrayList.remove(userArrayList.size() - 1);
             }
         }
         if (isLoading()) {
-            if (userArrayList.get(userArrayList.size() - 1).getFname().equals("LOADING...")) {
+            if (userArrayList.get(userArrayList.size() - 1).getTitle().equals("LOADING...")) {
                 userArrayList.remove(userArrayList.size() - 1);
             }
         }
@@ -162,7 +164,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void displayOnlyLoading() {
         clearRecipesList();
         ChatGroup recipe = new ChatGroup();
-        recipe.setFname("LOADING...");
+        recipe.setTitle("LOADING...");
         userArrayList.add(recipe);
         notifyDataSetChanged();
     }
@@ -183,7 +185,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
         if (!isLoading()) {
             ChatGroup recipe = new ChatGroup();
-            recipe.setFname("LOADING...");
+            recipe.setTitle("LOADING...");
             userArrayList.add(recipe); // loading at bottom of screen
             notifyDataSetChanged();
         }
@@ -192,7 +194,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private boolean isLoading() {
         if (userArrayList != null) {
             if (userArrayList.size() > 0) {
-                if (userArrayList.get(userArrayList.size() - 1).getFname().equals("LOADING...")) {
+                if (userArrayList.get(userArrayList.size() - 1).getTitle().equals("LOADING...")) {
                     return true;
                 }
             }
@@ -223,7 +225,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     class RecyclerViewViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         PorterShapeImageView imgView_icon;
         TextView txtView_title, date, count, tvImage, msg;
-        LinearLayout llRow;
+        LinearLayout llRow,llcounter;
         OnItemListener onItemListener;
 
         public RecyclerViewViewHolder(@NonNull View itemView,  OnItemListener onItemListener) {
@@ -236,6 +238,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             msg = itemView.findViewById(R.id.msg);
             tvImage = itemView.findViewById(R.id.tvImage);
             llRow = itemView.findViewById(R.id.llRow);
+            llcounter = itemView.findViewById(R.id.llcounter);
 
             llRow.setOnClickListener(this::onClick);
         }

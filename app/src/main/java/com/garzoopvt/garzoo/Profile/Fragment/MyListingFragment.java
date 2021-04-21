@@ -1,7 +1,9 @@
 package com.garzoopvt.garzoo.Profile.Fragment;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,15 +35,24 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
 import com.facebook.ads.AdError;
 import com.facebook.ads.NativeAdsManager;
+import com.garzoopvt.garzoo.Business.Activity.DbEditBusinessListingActivity;
+import com.garzoopvt.garzoo.BuySell.Activity.DbEditSellListingActivity;
+import com.garzoopvt.garzoo.Chat.Activity.ChatRoomListingActivity;
 import com.garzoopvt.garzoo.Dashboard.Activity.DashboardInnerActivity;
 import com.garzoopvt.garzoo.Dashboard.Adapter.OnDashboardListener;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 
+import com.garzoopvt.garzoo.Dashboard.Persistence.DashboardListDao;
+import com.garzoopvt.garzoo.Dashboard.Persistence.DashboardListDatabase;
+import com.garzoopvt.garzoo.Employement.Activity.DbEditEmpListingActivity;
 import com.garzoopvt.garzoo.Profile.Adapter.InterestedAdapter;
 import com.garzoopvt.garzoo.Profile.Adapter.MyListingAdapter;
+import com.garzoopvt.garzoo.Profile.Adapter.OnMyListListener;
 import com.garzoopvt.garzoo.Profile.ViewModel.ProfileViewModel;
+import com.garzoopvt.garzoo.Promotion.Activity.DbEditPromoListingActivity;
 import com.garzoopvt.garzoo.R;
 
+import com.garzoopvt.garzoo.Rent.Activity.DbEditRentListingActivity;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.URLs;
@@ -65,7 +76,7 @@ import retrofit2.Response;
 
 import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_EXHAUSTED;
 
-public class MyListingFragment extends Fragment implements OnDashboardListener, NativeAdsManager.Listener {
+public class MyListingFragment extends Fragment implements OnMyListListener, NativeAdsManager.Listener {
 
     private ProfileViewModel mViewModel;
 
@@ -83,7 +94,6 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
     private Button btnRetry;
 
 
-
     private static final int PAGE_START = 1;
     private boolean isLoading = false;
     private boolean isLastPage = false;
@@ -93,32 +103,28 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
     private LinearLayout llNodata;
 
 
-
     private NativeAdsManager mNativeAdsManager;
-    private String user_id="0";
-    private String username="";
-    private String search_name="";
+    private String user_id = "0";
+    private String username = "";
+    private String search_name = "";
     private String latitude;
     private String longitude;
     private String type;
-    private int page_no=1;
+    private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
 
 
-
-
-    public MyListingFragment(String type){
-        this.type=type;
-        this.search_name=type;
-       // this.setHasOptionsMenu(true);
+    public MyListingFragment(String type) {
+        this.type = type;
+        this.search_name = type;
+        // this.setHasOptionsMenu(true);
     }
-
 
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        view= inflater.inflate(R.layout.fragment_interested, container, false);
+        view = inflater.inflate(R.layout.fragment_interested, container, false);
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         init();
         fbNativeAds();
@@ -128,7 +134,7 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
     }
 
     private void init() {
-        context=getContext();
+        context = getContext();
         rvList = view.findViewById(R.id.rv_main);
         sessionManager = new SessionManager(context);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
@@ -157,7 +163,7 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
         mNativeAdsManager.setListener(this);
     }
 
-    private RequestManager initGlide(){
+    private RequestManager initGlide() {
         RequestOptions options = new RequestOptions()
                 .placeholder(R.drawable.white_background);
 
@@ -166,11 +172,10 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
 
 
     private void initRecyclerView() {
-        ViewPreloadSizeProvider<String> viewPreloader=new ViewPreloadSizeProvider<>();
-        mAdapter = new MyListingAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader,user_id);
+        ViewPreloadSizeProvider<String> viewPreloader = new ViewPreloadSizeProvider<>();
+        mAdapter = new MyListingAdapter(this, context, mNativeAdsManager, initGlide(), viewPreloader, user_id);
         rvList.setNestedScrollingEnabled(false);
         rvList.setLayoutManager(new LinearLayoutManager(context));
-
 
 
         rvList.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -179,9 +184,9 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
 
-                if(!rvList.canScrollVertically(1)){
+                if (!rvList.canScrollVertically(1)) {
                     // search for the next page
-                    mViewModel.searchMyListNextPage(user_id, search_name, latitude,longitude,type);
+                    mViewModel.searchMyListNextPage(user_id, search_name, latitude, longitude, type);
 
                 }
             }
@@ -192,24 +197,22 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
     }
 
 
-
-    private void subscribeObservers(){
+    private void subscribeObservers() {
 
         mViewModel.getMyList().observe(this, new Observer<Resource<List<DashboardList>>>() {
             @Override
             public void onChanged(@Nullable Resource<List<DashboardList>> listResource) {
-                if(listResource != null){
+                if (listResource != null) {
                     Log.d(TAG, "onChanged: status: " + listResource.status);
 
-                    if(listResource.data != null){
+                    if (listResource.data != null) {
                         // Testing.printRecipess("data: ", listResource.data);
 
                         switch (listResource.status) {
                             case LOADING: {
-                                if(mViewModel.getPageNumber() > 1){
+                                if (mViewModel.getPageNumber() > 1) {
                                     mAdapter.displayLoading();
-                                }
-                                else{
+                                } else {
                                     mAdapter.displayOnlyLoading();
                                 }
                                 break;
@@ -223,13 +226,13 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
                             }
                             case ERROR: {
                                 Log.e(TAG, "onChanged: cannot refresh cache.");
-                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message );
+                                Log.e(TAG, "onChanged: ERROR message: " + listResource.message);
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
-                                Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
+                                //     Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
-                                if(listResource.message.equals(QUERY_EXHAUSTED)){
+                                if (listResource.message.equals(QUERY_EXHAUSTED)) {
                                     mAdapter.setQueryExhausted();
                                 }
                                 break;
@@ -244,8 +247,6 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
         });
 
 
-
-
 //        mViewModel.getDashboard().observe(this, new Observer<List<DashboardList>>() {
 //            @Override
 //            public void onChanged(@Nullable List<DashboardList> list) {
@@ -258,18 +259,8 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
 //        });
     }
 
-    private void getDashboardList(){
-        mViewModel.getMyListApi(user_id, 1, search_name, latitude,longitude,type );
-    }
-
-
-
-
-    @Override
-    public void onDestroy() {
-        mViewModel.cancelSearchRequest(true);
-        super.onDestroy();
-
+    private void getDashboardList() {
+        mViewModel.getMyListApi(user_id, 1, search_name, latitude, longitude, type);
     }
 
     @Override
@@ -277,7 +268,6 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
         super.onResume();
         checkInternet(context);
     }
-
 
     private void checkInternet(Context context) {
         if (Utils.isConnectedToInternet(context)) {
@@ -290,113 +280,66 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
         }
     }
 
+    @Override
+    public void onDestroy() {
+        mViewModel.cancelSearchRequest(true);
+        super.onDestroy();
+
+    }
+
 
     @Override
-    public void onCallClick(int position) {
+    public void onDeleteClick(int position) {
+        DashboardList dl = mAdapter.getSelected(position);
+        deletePostCheck(dl, position);
 
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
-            DashboardList dl = mAdapter.getSelected(position);
-            if (!dl.getUser_id().equals(user_id)) {
-                if (dl.getMobile_status().equals("0")) {
-                    String number = dl.getMobile();
-                    Intent intent = new Intent(Intent.ACTION_DIAL);
-                    intent.setData(Uri.parse("tel:" + number));
-                    context.startActivity(intent);
-                } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
-            }
-        }
-        else{
-            Utils.openLogin(context);
-        }
     }
 
     @Override
-    public void onChatClick(int position) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
-
-        }
-        else{
-            Utils.openLogin(context);
-        }
+    public void onRenewClick(int position) {
+        DashboardList dl = mAdapter.getSelected(position);
+        mViewModel.renew(dl.getData_type(), dl.getListing_id());
     }
 
-    @Override
-    public void onShareClick(int position) {
-        Utils.shareIntent(context);
-    }
 
     @Override
-    public void onLikeClick(int position, Button ivInterested) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
+    public void onEditClick(int position) {
+        if (!(user_id.equals("0") || user_id.isEmpty())) {
 
             DashboardList dl = mAdapter.getSelected(position);
-            if (!dl.getUser_id().equals(user_id)) {
-                if (dl.getInterest_status().equalsIgnoreCase("yes")) {
-                    ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_outline_thumb_up_24, 0, 0, 0);
-                    dl.setInterest_status("no");
-                } else {
-                    ivInterested.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_baseline_thumb_up_24, 0, 0, 0);
-                    dl.setInterest_status("yes");
-                }
-
-                interest(dl.getId(), dl.getUser_id(), dl.getData_type(), dl.getTitle());
-            }
-        }
-        else{
+            openEditPage(dl);
+        } else {
             Utils.openLogin(context);
         }
     }
 
-    private void interest(String id, String to_user_id, String data_type, String title) {
+    public void openEditPage(DashboardList productArrayList) {
+        String data_type = productArrayList.getData_type();
+        String listing_status = productArrayList.getListing_status();
+        Intent EditIntent = null;
+        switch (data_type) {
+            case "E":
+                EditIntent = new Intent(context, DbEditEmpListingActivity.class);
 
-
-        RequestBody unique_id = RequestBody.create(MultipartBody.FORM, URLs.unique_id);
-        RequestBody rb_user_id = RequestBody.create(MultipartBody.FORM, user_id);
-        RequestBody rb_to_user_id = RequestBody.create(MultipartBody.FORM, to_user_id);
-        RequestBody rb_full_name = RequestBody.create(MultipartBody.FORM, username);
-        RequestBody rb_listing_id = RequestBody.create(MultipartBody.FORM, id);
-        RequestBody rb_type = RequestBody.create(MultipartBody.FORM, data_type);
-        RequestBody rb_listing_title = RequestBody.create(MultipartBody.FORM, title);
-
-
-        Call<ResponseBody> call = mViewModel.interest(unique_id,rb_user_id , rb_to_user_id,
-                rb_full_name,rb_listing_id,rb_type,rb_listing_title);
-
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response != null) {
-                    if (response.isSuccessful()) {
-                        try {
-                            String result = response.body().string();
-                            Utils.openSnackBar(result, view);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
-                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
-
-            }
-        });
-    }
-
-    @Override
-    public void onEditClick(int position,View  view) {
-        if(!(user_id.equals("0")|| user_id.isEmpty())) {
-
+                break;
+            case "B":
+                EditIntent = new Intent(context, DbEditBusinessListingActivity.class);
+                break;
+            case "P":
+                EditIntent = new Intent(context, DbEditPromoListingActivity.class);
+                break;
+            case "S":
+                EditIntent = new Intent(context, DbEditSellListingActivity.class);
+                break;
+            case "R":
+                EditIntent = new Intent(context, DbEditRentListingActivity.class);
+                break;
         }
-        else{
-            Utils.openLogin(context);
-        }
+
+        EditIntent.putExtra("data", productArrayList);
+        EditIntent.putExtra("from_page", "mylist");
+        context.startActivity(EditIntent);
+
     }
 
     @Override
@@ -404,7 +347,7 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
         DashboardList dl = mAdapter.getSelected(position);
         Intent intent = new Intent(context, DashboardInnerActivity.class);
         intent.putExtra("data", dl);
-        context.startActivity(intent);
+        startActivity(intent);
     }
 
 
@@ -416,6 +359,93 @@ public class MyListingFragment extends Fragment implements OnDashboardListener, 
     @Override
     public void onAdError(AdError adError) {
 
+    }
+
+
+    public void deletePostCheck(DashboardList productArrayList, int position) {
+        String data_type = productArrayList.getData_type();
+        String listing_status = productArrayList.getListing_status();
+        String post_id = productArrayList.getListing_id();
+        String master_id = productArrayList.getId();
+        switch (data_type) {
+            case "E":
+                ConfirmationPoup("E", post_id, position,master_id);
+                break;
+            case "B":
+                ConfirmationPoup("B", post_id, position,master_id);
+                break;
+            case "P":
+                ConfirmationPoup("P", post_id, position,master_id);
+                break;
+            case "S":
+
+                ConfirmationPoup("S", post_id, position,master_id);
+                break;
+            case "R":
+                ConfirmationPoup("R", post_id, position,master_id);
+
+                break;
+        }
+
+
+    }
+
+    public void ConfirmationPoup(String type, String post_id, int position,String master_id) {
+
+        androidx.appcompat.app.AlertDialog alertDialog = new androidx.appcompat.app.AlertDialog.Builder(context)
+                .setIcon(R.mipmap.ic_launcher)
+                .setTitle(R.string.app_name)
+                .setMessage(R.string.delete_post)
+                .setPositiveButton(R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                deletePost(type, post_id, position,master_id);
+                            }
+
+                        }).setNegativeButton(R.string.No, null).show();
+
+        alertDialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(Color.BLUE);
+
+        alertDialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.DKGRAY);
+
+    }
+
+    private void deletePost(String type, String post_id, int position,String master_id) {
+        mViewModel.deletePost(type, post_id,master_id);
+        mAdapter.deleteSelected(position);
+
+        DashboardListDao dao = DashboardListDatabase.getInstance(context).getDashboardListDao();
+        dao.updateList(master_id,"1");
+
+//        Call<ResponseBody> call = mViewModel.deletePost(type, post_id);
+//        call.enqueue(new Callback<ResponseBody>() {
+//            @Override
+//            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+//                if (response != null) {
+//                    if (response.isSuccessful()) {
+//                        try {
+//                            String result = response.body().string();
+//                            Utils.openSnackBar(result, view);
+//                            mAdapter.deleteSelected(position);
+//
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+//                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+//
+//            }
+//        });
     }
 
 }

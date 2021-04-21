@@ -14,9 +14,12 @@ import androidx.lifecycle.Observer;
 
 import com.garzoopvt.garzoo.BuySell.Model.Buy;
 import com.garzoopvt.garzoo.BuySell.Model.Category;
+import com.garzoopvt.garzoo.BuySell.Persistence.BuyDao;
+import com.garzoopvt.garzoo.BuySell.Persistence.BuyDatabase;
 import com.garzoopvt.garzoo.BuySell.Services.BuyRepository;
 
-import com.garzoopvt.garzoo.RetrofitService.AddResponse;
+import com.garzoopvt.garzoo.Dashboard.Persistence.DashboardListDao;
+import com.garzoopvt.garzoo.Dashboard.Persistence.DashboardListDatabase;
 import com.garzoopvt.garzoo.RetrofitService.Resource;
 
 import java.util.List;
@@ -25,7 +28,6 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.Response;
 
 
 public class BuyViewModel extends AndroidViewModel {
@@ -89,7 +91,7 @@ public class BuyViewModel extends AndroidViewModel {
 
 
  public void getBuyListApi(String user_id , int page_no, String search_name, String latitude, String longitude, String category_id){
-        if(!isPerformingQuery){
+//        if(!isPerformingQuery){
             if(pageNumber == 0){
                 pageNumber = 1;
             }
@@ -97,7 +99,7 @@ public class BuyViewModel extends AndroidViewModel {
             this.query = search_name;
             isQueryExhausted = false;
             executeList(user_id, pageNumber,query, latitude,longitude,category_id);
-        }
+//        }
     }
 
 
@@ -172,9 +174,9 @@ public class BuyViewModel extends AndroidViewModel {
 
 
 
-    public void getCategoryListApi(){
+    public void getCategoryListApi(String language_code){
 
-        final LiveData<Resource<List<Category>>> repositorySource = buyRepository.getCategoryList();
+        final LiveData<Resource<List<Category>>> repositorySource = buyRepository.getCategoryList(language_code);
         categoryList.addSource(repositorySource, new Observer<Resource<List<Category>>>() {
             @Override
             public void onChanged(@Nullable Resource<List<Category>> listResource) {
@@ -226,31 +228,130 @@ public class BuyViewModel extends AndroidViewModel {
     }
 
     public Call<ResponseBody> interest( RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
-                                        RequestBody listing_id, RequestBody type, RequestBody listing_title){
+                                        RequestBody listing_id, RequestBody type, RequestBody listing_title,RequestBody listing_type,RequestBody language, String category_id){
 
-        return buyRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title);
+//        final LiveData<Resource<List<Buy>>> repositorySource = buyRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title,listing_type,  pageNumber, category_id );
+//        buyList.addSource(repositorySource, new Observer<Resource<List<Buy>>>() {
+//            @Override
+//            public void onChanged(@Nullable Resource<List<Buy>> listResource) {
+//                if(!cancelRequest) {
+//                    if (listResource != null) {
+//                        buyList.setValue(listResource);
+//                        if (listResource.status == Resource.Status.SUCCESS) {
+//                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+//                            isPerformingQuery = false;
+//                            if (listResource.data != null) {
+//                                if (listResource.data.size() == 0) {
+//                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+//                                    buyList.setValue(new Resource<List<Buy>>(
+//                                            Resource.Status.ERROR,
+//                                            listResource.data,
+//                                            QUERY_EXHAUSTED
+//                                    ));
+//                                    isPerformingQuery = true;
+//                                }
+//                            }
+//                            // must remove or it will keep listening to repository
+//                            buyList.removeSource(repositorySource);
+//                        } else if (listResource.status == Resource.Status.ERROR) {
+//                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+//                            isPerformingQuery = false;
+//                            buyList.removeSource(repositorySource);
+//                        }
+//                    } else {
+//                        buyList.removeSource(repositorySource);
+//                    }
+//                }
+//                else{
+//                    buyList.removeSource(repositorySource);
+//                }
+//            }
+//        });
+        return buyRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title,listing_type, language, pageNumber, category_id );
 
     }
 
-    public Call<ResponseBody> deleteImage( String image_id, String path){
+    public Call<ResponseBody> deleteImage( String image_id, String path, String post_id){
 
-        return buyRepository.deleteImage(image_id, path);
+        return buyRepository.deleteImage(image_id, path, post_id);
 
     }
+
+    public void updateImage(String image_id, String path, String post_id, String dashboard){
+
+        buyRepository.updateImage(image_id, path, post_id,dashboard);
+
+    }
+
 
     public Call<ResponseBody> block(String self_user_id, String to_user_id){
 
         return buyRepository.block( self_user_id,to_user_id);
 
     }
-    public Call<ResponseBody> deletePost (String to_user_id){
+//    public LiveData<Resource<List<Buy>>> deletePost (String to_user_id, String category_id){
+    public void deletePost (String to_user_id, String category_id){
 
-        return buyRepository.deletePost(to_user_id);
+        final LiveData<Resource<List<Buy>>> repositorySource = buyRepository.deletePost(to_user_id,  pageNumber, category_id );
+        buyList.addSource(repositorySource, new Observer<Resource<List<Buy>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<Buy>> listResource) {
+                if(!cancelRequest) {
+                    if (listResource != null) {
+                        buyList.setValue(listResource);
+                        if (listResource.status == Resource.Status.SUCCESS) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            if (listResource.data != null) {
+                                if (listResource.data.size() == 0) {
+                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+                                    buyList.setValue(new Resource<List<Buy>>(
+                                            Resource.Status.ERROR,
+                                            listResource.data,
+                                            QUERY_EXHAUSTED
+                                    ));
+                                    isPerformingQuery = true;
+                                }
+                            }
+                            // must remove or it will keep listening to repository
+                            buyList.removeSource(repositorySource);
+                        } else if (listResource.status == Resource.Status.ERROR) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            buyList.removeSource(repositorySource);
+                        }
+                    } else {
+                        buyList.removeSource(repositorySource);
+                    }
+                }
+                else{
+                    buyList.removeSource(repositorySource);
+                }
+            }
+        });
+
+
+
+     //   return buyRepository.deletePost(to_user_id,  pageNumber, category_id );
 
     }
     public Call<ResponseBody> ReportPost(String user_id, String post_id, String employment_id,String business_id,String report){
 
         return buyRepository.ReportPost(user_id, post_id, employment_id,business_id, report);
+
+    }
+
+    public Call<ResponseBody> logActivity(String post_id, String post_user_id, String user_id,String type){
+
+        return buyRepository.logActivity(post_id,post_user_id,user_id,type);
+
+    }
+
+
+    public void blockRemovefromDb(String to_user_id) {
+
+        buyRepository.blockRemovefromDb(to_user_id);
+
 
     }
 }

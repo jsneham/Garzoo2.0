@@ -25,7 +25,7 @@ public abstract  class BlockedListDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     BlockedListDatabase.class,
                     DATABASE_NAME
-            ).build();
+            ).allowMainThreadQueries().build();
         }
         return instance;
     }

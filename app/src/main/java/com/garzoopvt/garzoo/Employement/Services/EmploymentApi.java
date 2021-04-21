@@ -3,6 +3,8 @@ package com.garzoopvt.garzoo.Employement.Services;
 
 import androidx.lifecycle.LiveData;
 
+import com.garzoopvt.garzoo.Business.Services.BusinessResponse;
+import com.garzoopvt.garzoo.BuySell.Services.BuyResponse;
 import com.garzoopvt.garzoo.RetrofitService.ApiResponse;
 import com.garzoopvt.garzoo.Util.URLs;
 
@@ -59,7 +61,25 @@ public interface EmploymentApi {
             @Part("full_name") RequestBody  full_name,
             @Part("listing_id") RequestBody  listing_id,
             @Part("type") RequestBody  type,
-            @Part("listing_title") RequestBody  listing_title
+            @Part("listing_title") RequestBody  listing_title,
+            @Part("listing_type") RequestBody  listing_type,
+            @Part("language") RequestBody  language
+
+
+    );
+
+    @Multipart
+    @POST(URLs.api_add_listing_interest_2_0)
+    LiveData<ApiResponse<EmploymentResponse>> interest1(
+            @Part("unique_id") RequestBody unique_id,
+            @Part("user_id") RequestBody user_id,
+            @Part("to_user_id") RequestBody  to_user_id,
+            @Part("full_name") RequestBody  full_name,
+            @Part("listing_id") RequestBody  listing_id,
+            @Part("type") RequestBody  type,
+            @Part("listing_title") RequestBody  listing_title,
+            @Part("listing_type") RequestBody  listing_type
+
 
     );
 
@@ -96,6 +116,7 @@ public interface EmploymentApi {
             @Query("user_id") String user_id,
             @Query("p") String record_id
     );
+
     @POST(URLs.api_sell_delete_image)
     @FormUrlEncoded
     Call<ResponseBody> deleteImage(@Field("image_id") String image_id,
@@ -118,7 +139,16 @@ public interface EmploymentApi {
             @Query("report") String report
     );
     @GET(URLs.Employment_delete_record_2_0)
-    Call<ResponseBody> Employment_delete_record_2_0(
+    LiveData<ApiResponse<EmploymentResponse>> Employment_delete_record_2_0(
             @Query("unique_id") String unique_id,
             @Query("p") String post_id);
+
+    @GET(URLs.log_activity)
+    Call<ResponseBody> LogActivity(
+            @Query("unique_id") String unique_id,
+            @Query("post_id") String post_id,
+            @Query("post_user_id") String post_user_id,
+            @Query("user_id") String user_id,
+            @Query("type") String type
+    );
 }

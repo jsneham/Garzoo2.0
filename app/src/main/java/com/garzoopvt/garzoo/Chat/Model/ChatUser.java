@@ -18,6 +18,9 @@ public class ChatUser implements Parcelable {
      @ColumnInfo(name = "to_uid")
     private  String to_uid;
 
+    @ColumnInfo(name = "from_uid")
+    private  String from_uid;
+
      @ColumnInfo(name = "fname")
     private  String fname;
 
@@ -50,7 +53,7 @@ public class ChatUser implements Parcelable {
     public ChatUser() {
     }
 
-    public ChatUser(@NonNull String id, String to_uid, String fname, String lname, String count_id, String chat_count, String last_message, String dt,String phone_no, int timestamp) {
+    public ChatUser(@NonNull String id, String to_uid, String fname, String lname, String count_id, String chat_count, String last_message, String dt,String phone_no, int timestamp, String from_uid) {
         this.id = id;
         this.to_uid = to_uid;
         this.fname = fname;
@@ -61,6 +64,7 @@ public class ChatUser implements Parcelable {
         this.dt = dt;
         this.phone_no = phone_no;
         this.timestamp = timestamp;
+        this.from_uid = from_uid;
     }
 
     @NonNull
@@ -136,6 +140,14 @@ public class ChatUser implements Parcelable {
         this.phone_no = phone_no;
     }
 
+    public String getFrom_uid() {
+        return from_uid;
+    }
+
+    public void setFrom_uid(String from_uid) {
+        this.from_uid = from_uid;
+    }
+
     public int getTimestamp() {
         return timestamp;
     }
@@ -155,6 +167,7 @@ public class ChatUser implements Parcelable {
         dt = in.readString();
         phone_no = in.readString();
         timestamp = in.readInt();
+        from_uid = in.readString();
     }
 
     public static final Creator<ChatUser> CREATOR = new Creator<ChatUser>() {
@@ -186,6 +199,7 @@ public class ChatUser implements Parcelable {
         parcel.writeString(dt);
         parcel.writeString(phone_no);
         parcel.writeInt(timestamp);
+        parcel.writeString(from_uid);
     }
 
     @Override
@@ -193,6 +207,7 @@ public class ChatUser implements Parcelable {
         return "ChatUser{" +
                 "id='" + id + '\'' +
                 ", to_uid='" + to_uid + '\'' +
+                ", from_uid='" + from_uid + '\'' +
                 ", fname='" + fname + '\'' +
                 ", lname='" + lname + '\'' +
                 ", count_id='" + count_id + '\'' +

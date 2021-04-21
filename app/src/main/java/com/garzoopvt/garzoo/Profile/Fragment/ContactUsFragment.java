@@ -140,7 +140,8 @@ public class ContactUsFragment extends Fragment {
     private void startVoiceInput(String type, int i) {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, URLs.language);
+        String  mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, mLanguageCode+ URLs.language);
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.help_text));
         try {
             startActivityForResult(intent, i);
@@ -169,7 +170,7 @@ public class ContactUsFragment extends Fragment {
 //        } else
 
         if (TextUtils.isEmpty(etEnquiry.getText().toString())) {
-            etEnquiry.setError("कृपया चौकशी संदेश लिहा");
+            etEnquiry.setError(getString(R.string.contact_error));
             etEnquiry.requestFocus();
             return false;
         } else {

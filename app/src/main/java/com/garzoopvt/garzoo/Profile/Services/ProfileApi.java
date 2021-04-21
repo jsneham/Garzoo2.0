@@ -97,4 +97,69 @@ public interface ProfileApi {
             @Field("district") String district,
             @Field("latitude") String latitude,
             @Field("longitude") String longitude);
+
+
+    @GET(URLs.log_activity)
+    Call<ResponseBody> LogActivity(
+            @Query("unique_id") String unique_id,
+            @Query("post_id") String post_id,
+            @Query("post_user_id") String post_user_id,
+            @Query("user_id") String user_id,
+            @Query("type") String type
+    );
+
+
+    @GET(URLs.Business_delete_record_2_0)
+    Call<ResponseBody> Business_delete_record_2_0(
+            @Query("unique_id") String unique_id,
+            @Query("p") String post_id);
+
+    @GET(URLs.Employment_delete_record_2_0)
+    Call<ResponseBody> Employment_delete_record_2_0(
+            @Query("unique_id") String unique_id,
+            @Query("p") String post_id);
+
+    @GET(URLs.Listing_rent_delete_record_2_0)
+    Call<ResponseBody> Listing_rent_delete_record_2_0(
+            @Query("unique_id") String unique_id,
+            @Query("p") String post_id);
+
+    @GET(URLs.Listing_sell_delete_record_2_0)
+    Call<ResponseBody> Listing_sell_delete_record_2_0(
+            @Query("unique_id") String unique_id,
+            @Query("p") String post_id);
+
+    @GET(URLs.Pd_delete_record_2_0)
+    Call<ResponseBody> Pd_delete_record_2_0(
+            @Query("unique_id") String unique_id,
+            @Query("p") String post_id);
+
+
+    @POST(URLs.remove_block)
+    @FormUrlEncoded
+    Call<ResponseBody> RemoveBlock(@Field("record_id") String record_id);
+
+    @POST(URLs.renew)
+    @FormUrlEncoded
+    Call<ResponseBody> renew(@Field("type") String type,  @Field("record_id") String record_id);
+
+    @GET(URLs.dashboard_delete_record_2_0)
+    LiveData<ApiResponse<DashboardResponse>> Dashboard_delete_record_2_0(
+            @Query("unique_id") String unique_id,
+            @Query("p") String post_id,
+            @Query("type") String type,
+            @Query("master_id") String master_id
+
+    );
+
+    @FormUrlEncoded
+    @POST(URLs.device_registration_2_0)
+    Call<ResponseBody> uploadToken(
+            @Field("user_id") String user_id,
+            @Field("name") String  name,
+            @Field("token") String  token,
+            @Field("imei") String  imei,
+            @Field("language") String  language
+
+    );
 }

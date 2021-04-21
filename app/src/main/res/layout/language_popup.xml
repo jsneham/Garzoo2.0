@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:padding="@dimen/dp15"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/lgn_shape">
+
+    <ImageView
+        android:layout_marginTop="@dimen/dp10"
+        android:layout_gravity="center"
+        android:layout_width="@dimen/dp80"
+        android:layout_height="@dimen/dp80"
+        android:src="@drawable/ic_garzoo_tm"></ImageView>
+
+    <TextView
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:text="@string/lang"
+        android:layout_margin="@dimen/dp5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
+
+    <RadioGroup
+        android:gravity="left"
+
+        android:id="@+id/rbLanguage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:checked="true"
+            android:id="@+id/rbEnglish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/english" />
+
+        <RadioButton
+            android:id="@+id/rbMarathi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/marathi" />
+
+        <RadioButton
+            android:id="@+id/rbHindi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/hindi" />
+    </RadioGroup>
+
+
+    <LinearLayout
+        android:layout_margin="@dimen/dp10"
+        android:weightSum="2"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnCancel"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp40"
+            android:layout_marginLeft="@dimen/dp10"
+            android:layout_marginTop="@dimen/dp10"
+            android:layout_marginRight="@dimen/dp10"
+            android:text="@string/no"
+            android:textColor="@color/white"
+            android:background="@drawable/btn_shape_login"
+            android:textSize="18sp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnOk"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp40"
+            android:layout_marginLeft="@dimen/dp10"
+            android:layout_marginTop="@dimen/dp10"
+            android:layout_marginRight="@dimen/dp10"
+            android:text="@string/yes"
+            android:textColor="@color/white"
+            android:background="@drawable/btn_shape_login"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

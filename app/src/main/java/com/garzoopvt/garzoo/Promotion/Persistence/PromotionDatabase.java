@@ -25,7 +25,7 @@ public abstract  class PromotionDatabase extends RoomDatabase {
                     context.getApplicationContext(),
                     PromotionDatabase.class,
                     DATABASE_NAME
-            ).build();
+            ).allowMainThreadQueries().build();
         }
         return instance;
     }

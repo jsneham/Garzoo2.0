@@ -8,6 +8,10 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 
 
+import com.garzoopvt.garzoo.Dashboard.Persistence.DashboardListDao;
+import com.garzoopvt.garzoo.Dashboard.Persistence.DashboardListDatabase;
+import com.garzoopvt.garzoo.Profile.Room.MyListDao;
+import com.garzoopvt.garzoo.Profile.Room.MyListDatabase;
 import com.garzoopvt.garzoo.Promotion.Model.Promotion;
 import com.garzoopvt.garzoo.Promotion.Persistence.PromotionDao;
 import com.garzoopvt.garzoo.Promotion.Persistence.PromotionDatabase;
@@ -18,6 +22,7 @@ import com.garzoopvt.garzoo.RetrofitService.Resource;
 import com.garzoopvt.garzoo.RetrofitService.ServiceGenerator;
 import com.garzoopvt.garzoo.Util.URLs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.MultipartBody;
@@ -33,41 +38,61 @@ public class PromotionRepository {
 
     //new
     private PromotionDao promotionDao;
-    public static PromotionRepository getInstance(Context context){
-        if(instance == null){
+    private DashboardListDao dashboardListDao;
+    private MyListDao myListDao;
+    private static Context context;
+
+    public static PromotionRepository getInstance(Context context) {
+        if (instance == null) {
             instance = new PromotionRepository(context);
         }
         return instance;
     }
 
     private PromotionRepository(Context context) {
+        this.context=context;
         promotionDao = PromotionDatabase.getInstance(context).getListDao();
     }
 
 
-    public LiveData<Resource<List<Promotion>>> getPromotionList(final String user_id , final int pageNumber, final String search_name, final String latitude, final String longitude, final String category_id){
-        return new NetworkBoundResource<List<Promotion>, PromotionResponse>(AppExecutors.getInstance() ){
+    public LiveData<Resource<List<Promotion>>> getPromotionList(final String user_id, final int pageNumber, final String search_name, final String latitude, final String longitude, final String category_id) {
+        return new NetworkBoundResource<List<Promotion>, PromotionResponse>(AppExecutors.getInstance()) {
 
             @Override
             public void saveCallResult(@NonNull PromotionResponse item) {
 
-                if(item.getPromotion() != null){ //  list will be null if api key is expired
-                    Promotion[] recipes = new Promotion[item.getPromotion().size()];
+                try {
+                    if (item.getPromotion() != null) { //  list will be null if api key is expired
+                        Promotion[] list = new Promotion[item.getPromotion().size()];
+                        ArrayList<String> ids=new ArrayList<>();
+                        int index = 0;
+                        for (long rowId : promotionDao.insertData((Promotion[]) (item.getPromotion().toArray(list)))) {
+                            if (rowId == -1) { // conflict detected
+                                Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
+                                // if already exists, I don't want to set the values  or timestamp b/c they will be erased
+                                promotionDao.updateList(
+                                        list[index].getId(),
+                                        list[index].getTitle(),
+                                        list[index].getDescription(),
+                                        list[index].getAddress(),
+                                        list[index].getBlock_status(),
+                                        list[index].getStatus(),
+                                        list[index].getInterest_status(),
+                                        list[index].getLatitude(),
+                                        list[index].getLongitude(),
+                                        list[index].getDistance(),
+                                        list[index].getImages(),
+                                        list[index].getImage_id()
+                                );
+                            }
+                            ids.add(list[index].getId());
+                            index++;
 
-                    int index = 0;
-                    for(long rowId: promotionDao.insertData((Promotion[])(item.getPromotion().toArray(recipes)))){
-                        if(rowId == -1){ // conflict detected
-                            Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
-                            // if already exists, I don't want to set the values  or timestamp b/c they will be erased
-                              promotionDao.updateList(
-                                    recipes[index].getId(),
-                                    recipes[index].getTitle(),
-                                    recipes[index].getDescription(),
-                                    recipes[index].getAddress()
-                            );
                         }
-                        index++;
+                        if(ids.size()>0) promotionDao.deleteOldData(ids);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
             }
@@ -80,7 +105,7 @@ public class PromotionRepository {
             @NonNull
             @Override
             public LiveData<List<Promotion>> loadFromDb() {
-                return   promotionDao.searchList(search_name, pageNumber);
+                return promotionDao.searchList(search_name, pageNumber);
             }
 
             @NonNull
@@ -100,15 +125,15 @@ public class PromotionRepository {
     }
 
 
-    public void cancelRequest(){
+    public void cancelRequest() {
 //        mDashboardApiClient.cancelRequest();
     }
 
 
-    public Call<ResponseBody> uploadData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status,  RequestBody title,
-                                             RequestBody description, RequestBody latitude, RequestBody longitude, RequestBody address, MultipartBody.Part video_file, RequestBody pd_status){
+    public Call<ResponseBody> uploadData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody title,
+                                         RequestBody description, RequestBody latitude, RequestBody longitude, RequestBody address, MultipartBody.Part video_file, RequestBody pd_status) {
 
-        return  ServiceGenerator.getPromotionApi().upload(
+        return ServiceGenerator.getPromotionApi().upload(
                 user_id,
                 mobile_status,
                 title,
@@ -124,24 +149,87 @@ public class PromotionRepository {
     }
 
     public Call<ResponseBody> interest(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
-                                       RequestBody listing_id, RequestBody type, RequestBody listing_title){
+                                       RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type, RequestBody language) {
 
-        return  ServiceGenerator.getPromotionApi().interest(
+
+        return ServiceGenerator.getPromotionApi().interest(
                 unique_id,
                 user_id,
                 to_user_id,
                 full_name,
                 listing_id,
                 type,
-                listing_title
+                listing_title,
+                listing_type,language
         );
+
 
     }
 
-    public Call<ResponseBody> editData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody title,
-                                       RequestBody description,  RequestBody latitude, RequestBody longitude, RequestBody address, MultipartBody.Part video_file, RequestBody pd_status, RequestBody product_id){
 
-        return  ServiceGenerator.getPromotionApi().edit(
+    public LiveData<Resource<List<Promotion>>> interest1(RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
+                                                         RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type) {
+
+        return new NetworkBoundResource<List<Promotion>, PromotionResponse>(AppExecutors.getInstance()) {
+
+            @Override
+            public void saveCallResult(@NonNull PromotionResponse item) {
+
+                if (item.getPromotion() != null) { //  list will be null if api key is expired
+                    Promotion[] list = new Promotion[item.getPromotion().size()];
+
+                    int index = 0;
+                    for (long rowId : promotionDao.insertData((Promotion[]) (item.getPromotion().toArray(list)))) {
+                        if (rowId == -1) { // conflict detected
+                            Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
+                            // if already exists, I don't want to set the values  or timestamp b/c they will be erased
+                            promotionDao.updateInterestStatusList(
+                                    list[index].getId(),
+                                    list[index].getInterest_status()
+                            );
+                        }
+                        index++;
+                    }
+                }
+
+            }
+
+            @Override
+            public boolean shouldFetch(@Nullable List<Promotion> data) {
+                return true; // always query the network since the queries can be anything
+            }
+
+            @NonNull
+            @Override
+            public LiveData<List<Promotion>> loadFromDb() {
+                return promotionDao.searchList("", 1);
+            }
+
+            @NonNull
+            @Override
+            public LiveData<ApiResponse<PromotionResponse>> createCall() {
+                return ServiceGenerator.getPromotionApi().interest1(
+                        unique_id,
+                        user_id,
+                        to_user_id,
+                        full_name,
+                        listing_id,
+                        type,
+                        listing_title,
+                        listing_type
+                );
+            }
+
+        }.getAsLiveData();
+
+
+    }
+
+
+    public Call<ResponseBody> editData(MultipartBody.Part list[], RequestBody user_id, RequestBody mobile_status, RequestBody title,
+                                       RequestBody description, RequestBody latitude, RequestBody longitude, RequestBody address, MultipartBody.Part video_file, RequestBody pd_status, RequestBody product_id) {
+
+        return ServiceGenerator.getPromotionApi().edit(
                 user_id,
                 mobile_status,
                 title,
@@ -157,18 +245,52 @@ public class PromotionRepository {
 
     }
 
-    public Call<ResponseBody> deleteImage(String image_id, String path){
+    public Call<ResponseBody> deleteImage(String image_id, String path) {
 
-        return  ServiceGenerator.getPromotionApi().deleteImage(
+        return ServiceGenerator.getPromotionApi().deleteImage(
                 image_id,
                 path
         );
 
     }
 
-    public Call<ResponseBody> block(String self_user_id, String to_user_id){
+    public void updateImage(String image_id, String path, String post_id, String screen){
 
-        return  ServiceGenerator.getPromotionApi().block(
+        if(screen.equalsIgnoreCase("dashboard")){
+            dashboardListDao = DashboardListDatabase.getInstance(context).getDashboardListDao();
+            dashboardListDao.updateImage(
+                    path,
+                    image_id,
+                    post_id
+
+            );
+        }
+        else if(screen.equalsIgnoreCase("mylist")){
+            myListDao = MyListDatabase.getInstance(context).getDashboardListDao();
+            myListDao.updateImage(
+                    path,
+                    image_id,
+                    post_id
+
+            );
+        }
+        else {
+            promotionDao.updateImage(
+                    path,
+                    image_id,
+                    post_id
+
+            );
+        }
+
+
+
+    }
+
+
+    public Call<ResponseBody> block(String self_user_id, String to_user_id) {
+
+        return ServiceGenerator.getPromotionApi().block(
                 URLs.unique_id,
                 self_user_id,
                 to_user_id
@@ -176,28 +298,87 @@ public class PromotionRepository {
 
     }
 
-    public Call<ResponseBody> deletePost(String post_id){
+    public LiveData<Resource<List<Promotion>>> deletePost(String post_id) {
+        return new NetworkBoundResource<List<Promotion>, PromotionResponse>(AppExecutors.getInstance()) {
+
+            @Override
+            public void saveCallResult(@NonNull PromotionResponse item) {
+
+                if (item.getPromotion() != null) { //  list will be null if api key is expired
+                    Promotion[] list = new Promotion[item.getPromotion().size()];
+
+                    int index = 0;
+                    for (long rowId : promotionDao.insertData((Promotion[]) (item.getPromotion().toArray(list)))) {
+                        if (rowId == -1) { // conflict detected
+                            Log.d(TAG, "saveCallResult: CONFLICT... This list is already in cache.");
+                            // if already exists, I don't want to set the values  or timestamp b/c they will be erased
+                            promotionDao.updateList(
+                                    list[index].getId(),
+                                    list[index].getStatus()
+                            );
+                        }
+                        index++;
+                    }
+                }
+
+            }
+
+            @Override
+            public boolean shouldFetch(@Nullable List<Promotion> data) {
+                return true; // always query the network since the queries can be anything
+            }
+
+            @NonNull
+            @Override
+            public LiveData<List<Promotion>> loadFromDb() {
+                return promotionDao.searchList("", 1);
+            }
+
+            @NonNull
+            @Override
+            public LiveData<ApiResponse<PromotionResponse>> createCall() {
+                return ServiceGenerator.getPromotionApi().Pd_delete_record_2_0(
+                        URLs.unique_id,
+                        post_id
+                );
+            }
+
+        }.getAsLiveData();
 
 
-        return  ServiceGenerator.getPromotionApi().Pd_delete_record_2_0(
-                URLs.unique_id,
-                post_id
-        );
+//        return  ServiceGenerator.getPromotionApi().Pd_delete_record_2_0(
+//                URLs.unique_id,
+//                post_id
+//        );
 
     }
 
-    public Call<ResponseBody> ReportPost(String user_id, String post_id, String employment_id,String business_id,String report){
+    public Call<ResponseBody> ReportPost(String user_id, String post_id, String employment_id, String business_id, String report) {
 
-        return  ServiceGenerator.getPromotionApi().ReportPost(
+        return ServiceGenerator.getPromotionApi().ReportPost(
                 URLs.unique_id,
                 user_id,
-                post_id, employment_id,business_id, report
+                post_id, employment_id, business_id, report
         );
 
 
+    }
+
+    public Call<ResponseBody> logActivity(String post_id, String post_user_id, String user_id, String type) {
+
+        return ServiceGenerator.getPromotionApi().LogActivity(
+                URLs.unique_id,
+                post_id,
+                post_user_id, user_id, type
+        );
 
 
+    }
 
+    public void blockRemovefromDb(String to_user_id) {
+        promotionDao.delete(to_user_id);
+        DashboardListDao dao = DashboardListDatabase.getInstance(context).getDashboardListDao();
+        dao.block(to_user_id);
     }
 }
 

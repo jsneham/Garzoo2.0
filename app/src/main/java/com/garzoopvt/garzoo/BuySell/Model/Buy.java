@@ -118,7 +118,8 @@ public class Buy implements Parcelable{
     @ColumnInfo(name = "timestamp")
     private int timestamp;
 
-
+    @ColumnInfo(name = "block_status")
+    private String block_status;
 
     @Ignore
     public Buy() {
@@ -132,7 +133,7 @@ public class Buy implements Parcelable{
                          String dt, String fname, String lname, String category, String data_type, String listing_status,
                          String address, String available_status, String mobile, String images, String distance,
                          String interest_status, String mobile_status, String video, String media_url, String area,
-                         String taluka, String pd_status, String image_id, String emp_status, int timestamp) {
+                         String taluka, String pd_status, String image_id, String emp_status, int timestamp, String block_status) {
         this.id = id;
         this.admin_id = admin_id;
         this.category_id = category_id;
@@ -166,6 +167,7 @@ public class Buy implements Parcelable{
         this.image_id = image_id;
         this.emp_status = emp_status;
         this.timestamp = timestamp;
+        this.block_status = block_status;
     }
 
 
@@ -204,6 +206,7 @@ public class Buy implements Parcelable{
         this.image_id = buyList.image_id;
         this.emp_status = buyList.emp_status;
         this.timestamp = buyList.timestamp;
+        this.block_status = buyList.block_status;
     }
 
 
@@ -243,6 +246,7 @@ public class Buy implements Parcelable{
         image_id = in.readString();
         emp_status = in.readString();
         timestamp = in.readInt();
+        block_status = in.readString();
     }
 
     public static final Parcelable.Creator<Buy> CREATOR = new Parcelable.Creator<Buy>() {
@@ -521,6 +525,14 @@ public class Buy implements Parcelable{
         this.timestamp = timestamp;
     }
 
+    public String getBlock_status() {
+        return block_status;
+    }
+
+    public void setBlock_status(String block_status) {
+        this.block_status = block_status;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -561,6 +573,7 @@ public class Buy implements Parcelable{
         parcel.writeString(image_id);
         parcel.writeString(emp_status);
         parcel.writeInt(timestamp);
+        parcel.writeString(block_status);
     }
 
     @Override
@@ -599,6 +612,7 @@ public class Buy implements Parcelable{
                 ", image_id='" + image_id + '\'' +
                 ", emp_status='" + emp_status + '\'' +
                 ", timestamp=" + timestamp +
+                ", block_status='" + block_status + '\'' +
                 '}';
     }
 }

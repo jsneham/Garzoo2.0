@@ -168,10 +168,47 @@ public class PromotionViewModel extends AndroidViewModel {
         return promotionRepository.editData(list, user_id,mobile_status,title,description,latitude,longitude,address,video_file,pd_status,product_id);
 
     }
-    public Call<ResponseBody> interest( RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
-                                        RequestBody listing_id, RequestBody type, RequestBody listing_title){
+    public  Call<ResponseBody> interest( RequestBody unique_id, RequestBody user_id, RequestBody to_user_id, RequestBody full_name,
+               RequestBody listing_id, RequestBody type, RequestBody listing_title, RequestBody listing_type, RequestBody language){
 
-        return promotionRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title);
+//        final LiveData<Resource<List<Promotion>>> repositorySource = promotionRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title,listing_type);
+//        list.addSource(repositorySource, new Observer<Resource<List<Promotion>>>() {
+//            @Override
+//            public void onChanged(@Nullable Resource<List<Promotion>> listResource) {
+//                if(!cancelRequest) {
+//                    if (listResource != null) {
+//                        list.setValue(listResource);
+//                        if (listResource.status == Resource.Status.SUCCESS) {
+//                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+//                            isPerformingQuery = false;
+//                            if (listResource.data != null) {
+//                                if (listResource.data.size() == 0) {
+//                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+//                                    list.setValue(new Resource<List<Promotion>>(
+//                                            Resource.Status.ERROR,
+//                                            listResource.data,
+//                                            QUERY_EXHAUSTED
+//                                    ));
+//                                    isPerformingQuery = true;
+//                                }
+//                            }
+//                            // must remove or it will keep listening to repository
+//                            list.removeSource(repositorySource);
+//                        } else if (listResource.status == Resource.Status.ERROR) {
+//                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+//                            isPerformingQuery = false;
+//                            list.removeSource(repositorySource);
+//                        }
+//                    } else {
+//                        list.removeSource(repositorySource);
+//                    }
+//                }
+//                else{
+//                    list.removeSource(repositorySource);
+//                }
+//            }
+//        });
+        return promotionRepository.interest(unique_id, user_id,to_user_id,full_name,listing_id,type,listing_title,listing_type,language);
 
     }
 
@@ -181,20 +218,76 @@ public class PromotionViewModel extends AndroidViewModel {
 
     }
 
+    public void updateImage(String image_id, String path, String post_id, String dashboard){
+
+        promotionRepository.updateImage(image_id, path, post_id,dashboard);
+
+    }
 
     public Call<ResponseBody> block(String self_user_id, String to_user_id){
 
         return promotionRepository.block( self_user_id,to_user_id);
 
     }
-    public Call<ResponseBody> deletePost (String to_user_id){
+    public void deletePost (String post_id){
 
-        return promotionRepository.deletePost(to_user_id);
+
+        final LiveData<Resource<List<Promotion>>> repositorySource = promotionRepository.deletePost(post_id);
+        list.addSource(repositorySource, new Observer<Resource<List<Promotion>>>() {
+            @Override
+            public void onChanged(@Nullable Resource<List<Promotion>> listResource) {
+                if(!cancelRequest) {
+                    if (listResource != null) {
+                        list.setValue(listResource);
+                        if (listResource.status == Resource.Status.SUCCESS) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            if (listResource.data != null) {
+                                if (listResource.data.size() == 0) {
+                                    Log.d(TAG, "onChanged: query is EXHAUSTED...");
+                                    list.setValue(new Resource<List<Promotion>>(
+                                            Resource.Status.ERROR,
+                                            listResource.data,
+                                            QUERY_EXHAUSTED
+                                    ));
+                                    isPerformingQuery = true;
+                                }
+                            }
+                            // must remove or it will keep listening to repository
+                            list.removeSource(repositorySource);
+                        } else if (listResource.status == Resource.Status.ERROR) {
+                            Log.d(TAG, "onChanged: REQUEST TIME: " + (System.currentTimeMillis() - requestStartTime) / 1000 + " seconds.");
+                            isPerformingQuery = false;
+                            list.removeSource(repositorySource);
+                        }
+                    } else {
+                        list.removeSource(repositorySource);
+                    }
+                }
+                else{
+                    list.removeSource(repositorySource);
+                }
+            }
+        });
+//        return promotionRepository.deletePost(to_user_id);
 
     }
     public Call<ResponseBody> ReportPost(String user_id, String post_id, String employment_id,String business_id,String report){
 
         return promotionRepository.ReportPost(user_id, post_id, employment_id,business_id, report);
+
+    }
+
+    public Call<ResponseBody> logActivity(String post_id, String post_user_id, String user_id,String type){
+
+        return promotionRepository.logActivity(post_id,post_user_id,user_id,type);
+
+    }
+
+    public void blockRemovefromDb(String to_user_id) {
+
+        promotionRepository.blockRemovefromDb(to_user_id);
+
 
     }
 }

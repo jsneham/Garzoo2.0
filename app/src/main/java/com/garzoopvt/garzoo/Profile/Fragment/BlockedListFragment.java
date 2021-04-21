@@ -26,11 +26,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.bumptech.glide.util.ViewPreloadSizeProvider;
+import com.garzoopvt.garzoo.Business.Persistence.BusinessDao;
+import com.garzoopvt.garzoo.Business.Persistence.BusinessDatabase;
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
 
 import com.garzoopvt.garzoo.Profile.Adapter.BlockedUserAdapter;
 import com.garzoopvt.garzoo.Profile.Adapter.InterestedAdapter;
+import com.garzoopvt.garzoo.Profile.Adapter.OnBlockedListener;
 import com.garzoopvt.garzoo.Profile.Model.BlockedPeople;
+import com.garzoopvt.garzoo.Profile.Room.BlockedListDao;
+import com.garzoopvt.garzoo.Profile.Room.BlockedListDatabase;
 import com.garzoopvt.garzoo.Profile.ViewModel.ProfileViewModel;
 import com.garzoopvt.garzoo.R;
 
@@ -50,9 +55,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static com.garzoopvt.garzoo.Dashboard.ViewModel.DashboardViewModel.QUERY_EXHAUSTED;
 
-public class BlockedListFragment extends Fragment implements  BlockedUserAdapter.EventListener {
+public class BlockedListFragment extends Fragment implements OnBlockedListener {
 
 
     private ProfileViewModel mViewModel;
@@ -63,7 +73,7 @@ public class BlockedListFragment extends Fragment implements  BlockedUserAdapter
 
     private SessionManager sessionManager;
     private String user_id;
-    View root;
+    View view;
 
     RelativeLayout body;
     FrameLayout noConnectionLayout;
@@ -93,26 +103,26 @@ public class BlockedListFragment extends Fragment implements  BlockedUserAdapter
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        root= inflater.inflate(R.layout.fragment_interested, container, false);
+        view= inflater.inflate(R.layout.fragment_interested, container, false);
         mViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         init();
         initRecyclerView();
         subscribeObservers();
-        return root;
+        return view;
     }
 
     private void init() {
         context=getContext();
 
 
-        llNodata = root.findViewById(R.id.llNodata);
-        rvList = root.findViewById(R.id.rv_main);
+        llNodata = view.findViewById(R.id.llNodata);
+        rvList = view.findViewById(R.id.rv_main);
         sessionManager = new SessionManager(context);
         user_id = sessionManager.getFromSessionManager(SessionManager.USER_ID);
 
-        body = root.findViewById(R.id.body);
-        noConnectionLayout = root.findViewById(R.id.fl_retry_internet);
-        btnRetry = root.findViewById(R.id.btn_retry);
+        body = view.findViewById(R.id.body);
+        noConnectionLayout = view.findViewById(R.id.fl_retry_internet);
+        btnRetry = view.findViewById(R.id.btn_retry);
         btnRetry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,7 +202,7 @@ public class BlockedListFragment extends Fragment implements  BlockedUserAdapter
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
-                                Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
+                                //     Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
                                 if(listResource.message.equals(QUERY_EXHAUSTED)){
                                     mAdapter.setQueryExhausted();
@@ -253,8 +263,45 @@ public class BlockedListFragment extends Fragment implements  BlockedUserAdapter
     }
 
     @Override
-    public void onEvent(int data) {
-        currentPage = 1;
+    public void onEvent(int position) {
+        BlockedPeople dl= mAdapter.getSelected(position);
+        Call<ResponseBody> call = mViewModel.RemoveBlock(dl.getBlock_record_id());
+        String blocked_status= dl.getStatus();
+        if(blocked_status.equals("0")) blocked_status="1";
 
+        String finalBlocked_status = blocked_status;
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response != null) {
+                    if (response.isSuccessful()) {
+                        try {
+                            String result = response.body().string();
+                            if(result.equals("success")) {
+                                mAdapter.deleteSelected(position);
+                                BlockedListDao bDao = BlockedListDatabase.getInstance(context).getListDao();
+                                bDao.updateList(dl.getId(), finalBlocked_status);
+
+                            }
+                            else
+                                Utils.openSnackBar(getString(R.string.block_fail_response), view);
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable throwable) {
+                Log.e("main", "on error is called and the error is  ----> " + throwable.getMessage());
+
+            }
+        });
     }
 }

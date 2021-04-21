@@ -1,5 +1,6 @@
 package com.garzoopvt.garzoo.Login.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.lifecycle.ViewModelProviders;
@@ -8,6 +9,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -23,12 +25,14 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.garzoopvt.garzoo.Home.HomeActivity;
@@ -40,10 +44,17 @@ import com.garzoopvt.garzoo.Util.SessionManager;
 import com.garzoopvt.garzoo.Util.Transaltion;
 import com.garzoopvt.garzoo.Util.URLs;
 import com.garzoopvt.garzoo.Util.Utils;
+import com.garzoopvt.garzoo.services.SmsBroadcastReceiver;
+import com.google.android.gms.auth.api.phone.SmsRetriever;
+import com.google.android.gms.auth.api.phone.SmsRetrieverClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 import okhttp3.ResponseBody;
@@ -55,6 +66,10 @@ import retrofit2.Response;
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
+    private Context context=this;
+    public SmsBroadcastReceiver smsBroadcastReceiver;
+    private static final int REQ_USER_CONSENT = 200;
+    private LoginResult responseToStore=null;
 
     //UI
     private RelativeLayout container;
@@ -90,7 +105,24 @@ public class LoginActivity extends AppCompatActivity {
         sessionManager = new SessionManager(getApplicationContext());
         init();
 
-        etMobile.addTextChangedListener(afterTextChangedListener);
+        startSmsUserConsent();
+//        etMobile.addTextChangedListener(afterTextChangedListener);
+
+        cbTerms.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                int length=etMobile.getText().toString().trim().length();
+                if(b&& length>=10 ){
+                    loginButton.setEnabled(true);
+                    loginButton.setBackground(getDrawable(R.drawable.btn_shape_login));
+                }
+                else{
+                    loginButton.setEnabled(false);
+                    loginButton.setBackground(getDrawable(R.drawable.btn_shape_login_disable));
+                }
+            }
+        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -241,28 +273,11 @@ public class LoginActivity extends AppCompatActivity {
                 if (response != null) {
                     if (response.isSuccessful()) {
                         try {
-                            user_id = String.valueOf(response.body().getUser_id());
-                            username = response.body().getUsername();
-                            otp = response.body().getOtp();
-                            otp_id = response.body().isOtp_id();
-                            latitude = response.body().getLatitude();
-                            longitude = response.body().getLongitude();
-                            String area = response.body().getArea();
-                            age = response.body().getAge();
-                            String taluka = response.body().getTaluka();
-                            String address = response.body().getAddress();
-                            sessionManager.setToSessionManager(SessionManager.LATITUDE_FIXED, latitude);
-                            sessionManager.setToSessionManager(SessionManager.LONGITUDE_FIXED, longitude);
-                            sessionManager.setToSessionManager(SessionManager.Login_TALUKA, taluka);
-                            sessionManager.setToSessionManager(SessionManager.Login_CITY, area);
-                            sessionManager.setToSessionManager(SessionManager.LOCATION_final, address);
-                            sessionManager.setToSessionManager(SessionManager.AGE, age);
-                            sessionManager.setToSessionManager(SessionManager.OTP, otp);
-                            sessionManager.setToSessionManager(SessionManager.USER_ID, user_id);
-                            sessionManager.setToSessionManager(SessionManager.USERNAME, username);
-                            mobile = etMobile.getText().toString();
-                            sessionManager.setToSessionManager(SessionManager.MOBILE, mobile);
-                            sessionManager.setToSessionManager(SessionManager.OTP_STATE, "0");
+
+                            responseToStore = response.body();
+                            saveDataInSessionAfterMobileNumberEnter(response);
+
+
 
                             Log.d("otp", otp);
 
@@ -273,7 +288,7 @@ public class LoginActivity extends AppCompatActivity {
                             llroot.setVisibility(View.GONE);
 
 
-                            tvMobile.setText(getString(R.string.entno) + mobile);
+                            tvMobile.setText(getString(R.string.entno) +": " + mobile);
 
                             startTimer(noOfMinutes, countdownTimerText, btnResend);
 
@@ -298,6 +313,34 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void saveDataInSessionAfterMobileNumberEnter(Response<LoginResult> response) {
+
+        user_id = String.valueOf(response.body().getUser_id());
+        username = response.body().getUsername();
+        otp = response.body().getOtp();
+        otp_id = response.body().isOtp_id();
+        latitude = response.body().getLatitude();
+        longitude = response.body().getLongitude();
+        String area = response.body().getArea();
+        age = response.body().getAge();
+        mobile = etMobile.getText().toString();
+        String taluka = response.body().getTaluka();
+        String address = response.body().getAddress();
+
+        sessionManager.setToSessionManager(SessionManager.LATITUDE_FIXED, latitude);
+        sessionManager.setToSessionManager(SessionManager.LONGITUDE_FIXED, longitude);
+        sessionManager.setToSessionManager(SessionManager.Login_TALUKA, taluka);
+        sessionManager.setToSessionManager(SessionManager.Login_CITY, area);
+        sessionManager.setToSessionManager(SessionManager.LOCATION_final, address);
+      //  sessionManager.setToSessionManager(SessionManager.AGE, age);
+        sessionManager.setToSessionManager(SessionManager.OTP, otp);
+       // sessionManager.setToSessionManager(SessionManager.USER_ID, user_id);
+       // sessionManager.setToSessionManager(SessionManager.USERNAME, username);
+       // mobile = etMobile.getText().toString();
+       // sessionManager.setToSessionManager(SessionManager.MOBILE, mobile);
+        sessionManager.setToSessionManager(SessionManager.OTP_STATE, "0");
     }
 
     public void openBrowser(View view) {
@@ -330,7 +373,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onTick(long millisUntilFinished) {
                 long millis = millisUntilFinished;
                 //Convert milliseconds into hour,minute and seconds
-                String hms = String.format("%02d:%02d:%02d आत ओटीपी पाठविला जाईल",
+                String hms = String.format("%02d:%02d:%02d" + getString(R.string.otp_text),
                         TimeUnit.MILLISECONDS.toHours(millis),
                         TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
                         TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
@@ -443,6 +486,7 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     stopCountdown();
                     saveDataInSession();
+
                     goToHome();
                 }
 
@@ -486,11 +530,11 @@ public class LoginActivity extends AppCompatActivity {
     private void setLocationData() {
         try {
 
-            Transaltion.translate(sessionManager.getFromSessionManager(SessionManager.STATE), etState);
-            Transaltion.translate(sessionManager.getFromSessionManager(SessionManager.DISTRICT), etDistrict);
-            Transaltion.translate(sessionManager.getFromSessionManager(SessionManager.TALUKA), etTaluka);
-            Transaltion.translate(sessionManager.getFromSessionManager(SessionManager.CITY), etArea);
-            Transaltion.translate(sessionManager.getFromSessionManager(SessionManager.LOCATION), etLoation);
+            Transaltion.translate(sessionManager.getFromSessionManager(SessionManager.STATE), etState,context);
+            Transaltion.translate(sessionManager.getFromSessionManager(SessionManager.DISTRICT), etDistrict,context);
+            Transaltion.translate(sessionManager.getFromSessionManager(SessionManager.TALUKA), etTaluka,context);
+            Transaltion.translate(sessionManager.getFromSessionManager(SessionManager.CITY), etArea,context);
+            Transaltion.translate(sessionManager.getFromSessionManager(SessionManager.LOCATION), etLoation,context);
 
             sessionManager.setToSessionManager(SessionManager.LOCATION, etLoation.getText().toString());
             sessionManager.setToSessionManager(SessionManager.STATE, etState.getText().toString());
@@ -522,7 +566,8 @@ public class LoginActivity extends AppCompatActivity {
     private void startVoiceInput(String type, int i) {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, URLs.language);
+        String  mLanguageCode = sessionManager.getFromSessionManager(SessionManager.LANGUAGE);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, mLanguageCode+ URLs.language);
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.help_text));
         try {
             startActivityForResult(intent, i);
@@ -561,11 +606,23 @@ public class LoginActivity extends AppCompatActivity {
                 case 8:
                     etLoation.setText(result.get(0));
                     break;
+                case  REQ_USER_CONSENT:
+                    if ((resultCode == RESULT_OK) && (data != null)) {
+                        //That gives all message to us.
+                        // We need to get the code from inside with regex
+                        String message = data.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE);
+                       // Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+//                textViewMessage.setText(
+//                        String.format("%s - %s", getString(R.string.received_message), message));
+                        getOtpFromMessage(message);
+                    }
+                    break;
 
             }
 
 
         }
+
     }
 
     public void WelcomeLayout(View view) {
@@ -646,6 +703,8 @@ public class LoginActivity extends AppCompatActivity {
                             } else {
                                 llName.setVisibility(View.GONE);
                                 llWelcome.setVisibility(View.VISIBLE);
+                                Toast.makeText(context, getString(R.string.failed_msg), Toast.LENGTH_SHORT).show();
+
                             }
 
                         } catch (Exception e) {
@@ -668,6 +727,72 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
+    }
+
+
+
+
+    private void startSmsUserConsent() {
+        SmsRetrieverClient client = SmsRetriever.getClient(this);
+        //We can add sender phone number or leave it blank
+        // I'm adding null here
+        client.startSmsUserConsent(null).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                //Toast.makeText(getApplicationContext(), "On Success", Toast.LENGTH_LONG).show();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+               // Toast.makeText(getApplicationContext(), "On OnFailure", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
+
+
+    private void registerBroadcastReceiver() {
+        smsBroadcastReceiver = new SmsBroadcastReceiver();
+        smsBroadcastReceiver.smsBroadcastReceiverListener =
+                new SmsBroadcastReceiver.SmsBroadcastReceiverListener() {
+                    @Override
+                    public void onSuccess(Intent intent) {
+                        startActivityForResult(intent, REQ_USER_CONSENT);
+                    }
+                    @Override
+                    public void onFailure() {
+                    }
+                };
+        IntentFilter intentFilter = new IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION);
+        registerReceiver(smsBroadcastReceiver, intentFilter);
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerBroadcastReceiver();
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(smsBroadcastReceiver);
+    }
+
+    private void getOtpFromMessage(String message) {
+        // This will match any 4 digit number in the message
+        Pattern pattern = Pattern.compile("(|^)\\d{4}");
+        Matcher matcher = pattern.matcher(message);
+        if (matcher.find()) {
+              otp1.setText(String.valueOf(matcher.group(0).charAt(0)));
+            otp2.setText(String.valueOf(matcher.group(0).charAt(1)));
+            otp3.setText(String.valueOf(matcher.group(0).charAt(2)));
+            otp4.setText(String.valueOf(matcher.group(0).charAt(3)));
+
+//            Log.d("getOtpFromMessage:1 ", String.valueOf(matcher.group(0).charAt(0)));
+//            Log.d("getOtpFromMessage:2 ", String.valueOf(matcher.group(0).charAt(1)));
+//            Log.d("getOtpFromMessage:3 ", String.valueOf(matcher.group(0).charAt(2)));
+//            Log.d("getOtpFromMessage:4 ", String.valueOf(matcher.group(0).charAt(3)));
+        }
     }
 
 }

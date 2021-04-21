@@ -1,46 +1,100 @@
 <resources>
+
+    <!--    login-->
+
+    <string name="welcome">"स्वागत आहे"</string>
+    <string name="login_text_string">मोबाईल नंबर प्रविष्ट करा, ओटीपी या नंबर ला पाठवला जाईल</string>
+    <string name="terms"><u>कृपया नियम व अटी मान्य करा</u></string>
+    <string name="login">Login</string>
+    <string name="login_">सबमिट/समाविष्ट करा</string>
+    <string name="entno">"प्रविष्ट केलेला मोबाईल नंबर"</string>
+    <string name="edit_">बदल करा</string>
+    <string name="otp_text">आता ओटीपी पाठवला जाईल</string>
+    <string name="serach_hint">येथे बोलून शोधा </string>
     <string name="app_name">GarZoo</string>
     <string name="app_name_marathi">गरजू</string>
     <string name="copyright">Garzoo Technologies and Solution Private Limited</string>
-    <string name="login_text_string">मोबाइल नंबर प्रविष्ट करा,ओटीपी या नंबरवर पाठविला जाईल</string>
-    <string name="terms"><u>कृपया नियम व अटी मान्य करा!</u></string>
     <string name="app_info_1">हे संपुर्ण अँप आपल्या आवाजावर चालतं</string>
     <string name="app_info_2">बॉक्स मधिल माईकला टच करा आणि आपली नोंदणी करा</string>
     <string name="no_internet_msg">No internet connection!</string>
     <string name="err_login">"अयशस्वी, कृपया नंतर प्रयत्न करा !!"</string>
-    <string name="sucess">"तुमचा प्रतिसाद नोंदविण्यात आला आहे ! धन्यवाद"</string>
-    <string name="entno">"प्रविष्ट केलेला मोबाइल नंबर: "</string>
+    <string name="otp">OTP</string>
+    <string name="resend">OTP पुन्हा पाठवा</string>
+    <string name="welcomeTo">गरजू मध्ये आपले स्वागत आहे!! \nयेथे नोंदणी करा</string>
     <string name="app_info_3">Connecting Needy People</string>
+    <!--    end login-->
+
+
+    <!--    Category-->
+    <string name="buy">खरेदी</string>
+    <string name="sell">विक्री</string>
+    <string name="rent">भाडे</string>
+    <string name="employement">रोजगार</string>
+    <string name="buisness">व्यवसाय</string>
+    <string name="promotion">मनोरंजन/ \nजाहिरात</string>
+    <!--  End  Category-->
+
+
+    <!--    Listing-->
+    <string name="download">डाउनलोड करा</string>
+    <string name="like">लाईक</string>
+    <string name="chat">संवाद</string>
+    <string name="share">शेअर करा</string>
+    <string name="block">अवरोधित (ब्लॉक) करा</string>
+    <string name="Report">रिपोर्ट करा</string>
+
+    <string name="rp1">फसवणूक/आक्षेपार्ह सामग्री</string>
+    <string name="rp2">डुप्लिकेट पोस्ट</string>
+    <string name="rp3">वस्तु आधीच विकली गेली आहे</string>
+    <string name="rp4">चित्र आणि वस्तु भिन्न(असंबद्धीत) आहेत</string>
+    <!--  end  Listing-->
+
+
+    <!--    Notification-->
+    <string name="noti_contact">संपर्क साधा</string>
+    <string name="noti_chat">संवाद</string>
+    <string name="noti_msg">(व्यक्ती)ने तुम्हाला संदेश पाठविला आहे</string>
+    <!-- end   Notification-->
+
+
+    <!--    My Profile-->
+
     <string name="MyListings">माझी यादी</string>
     <string name="Interested">माझी आवड</string>
     <string name="ContactUs">संपर्क साधा</string>
     <string name="feedback">प्रतिक्रीया आणि बदल</string>
     <string name="blocklist">अवरोधित वापरकर्त्याची यादी</string>
     <string name="out">अप्लीकेशन मधुन बाहेर पडा</string>
+
+    <!--    end My Profile-->
+
+     <string name="sucess">"तुमचा प्रतिसाद नोंदविण्यात आला आहे ! धन्यवाद"</string>
+
+
+
     <string name="lang">अप्लीकेशनची भाषा निवडा</string>
     <string name="update">अप्लीकेशन अपडेट करा</string>
     <string name="name">नाव</string>
     <string name="mobile">मोबाइल</string>
-    <string name="chat">संवाद</string>
     <string name="jahirat">जाहिरात</string>
-    <string name="charcha">चर्चा</string>
-    <string name="charcha__">चर्चा/जाहिरात</string>
-    <string name="share">शेअर करा</string>
-    <string name="interestd">इच्छुक</string>
+    <string name="charcha">मनोरंजन</string>
+    <string name="charcha__">मनोरंजन/जाहिरात</string>
+
+<!--    <string name="interestd">इच्छुक</string>-->
     <string name="title">वस्तुचे नाव</string>
     <string name="description_">वस्तुची माहिती</string>
     <string name="price_">किंमत</string>
     <string name="photos"> फोटो</string>
-    <string name="videos"> 20 सेकंदांचा व्हिडिओ</string>
+    <string name="videos"> 1 मिनिटाचा व्हिडिओ</string>
     <string name="category">प्रकार निवडा</string>
-    <string name="serach_hint">येथे बोलून शोधा.....</string>
+
     <string name="write_hint">येथे बोला.....</string>
     <string name="rentrequiremnt">(भाड्याने घेणे)</string>
     <string name="rentregist">(भाड्याने देणे)</string>
     <string name="roj_pahije">(नोकरी/रोजगार पहिजे)</string>
     <string name="kam_pahije">(कर्मचारी/कामगार पहिजे)</string>
     <string name="jahirat_">(जाहिरात)</string>
-    <string name="charcha_">(चर्चा)</string>
+    <string name="charcha_">(मनोरंजन)</string>
     <string name="title_charch">नाव</string>
     <string name="description_charch">अधिक महिती</string>
     <string name="sell_">(विक्रीसाठी)</string>
@@ -49,8 +103,8 @@
     <string name="rbHome">होम</string>
     <string name="rbCurrent">सध्याचे</string>
     <string name="rbSelect">निवडा</string>
-    <string name="charch_vishay">चर्चेचा विषय</string>
-    <string name="charch_varnan">चर्चेचे वर्णन</string>
+    <string name="charch_vishay">मनोरंजनाचा विषय</string>
+    <string name="charch_varnan">मनोरंजनाचे वर्णन</string>
     <string name="jahirat_vishay">जाहिरात विषय</string>
     <string name="jahirat_varnan">जाहिरात वर्णन</string>
     <string name="kala">कला कौशल्य</string>
@@ -62,21 +116,18 @@
     <string name="bus_hint">(आरोग्य, हॉटेल,शिवणकाम, दुकान..इत्यादी)</string>
     <string name="bus_name">व्यवसायाचे नाव</string>
     <string name="bus_description">व्यवसायाची माहिती</string>
-    <string name="discussion">कृपया चर्चेसाठी आपले प्रश्न येथे नोंदवा</string>
+    <string name="discussion">कृपया मनोरंजनासाठी आपले व्हिडिओ येथे नोंदवा</string>
     <string name="ads">कृपया आपली जाहिरात येथे नोंदवा</string>
     <string name="empprice_">पगार</string> <!--    /दर-->
-    <string name="buy">खरेदी</string>
-    <string name="sell">विक्री</string>
-    <string name="rent">भाडे</string>
+
     <string name="dar">दर</string>
-    <string name="employement">रोजगार</string>
-    <string name="buisness">व्यवसाय</string>
-    <string name="promotion">करमणूक/जाहिरात</string>
+
     <string name="edit">बदल करा</string>
-    <string name="edit_">बदल करा</string>
+
     <string name="renew">रिन्यूव करा</string>
     <string name="delete">काढुन टाका</string>
     <string name="select_location">ठिकाण निवडा</string>
+    <string name="select_pv">फोटो आणि व्हिडिओ निवडा</string>
     <string name="mobile_show">माझा मोबाइल नंबर दाखवा</string>
     <string name="mobile_dont_show">माझा मोबाइल नंबर दाखवू नका</string>
     <string name="mobile_not_available">मोबाइल नंबर उपलब्ध नाही</string>
@@ -114,8 +165,8 @@
     <string name="err_busi_title">कृपया तुमच्या व्यवसायाचे नाव लिहा.</string>
     <string name="err_busi_descr">कृपया तुमच्या व्यवसायाची महिती लिहा.</string>
 
-    <string name="err_charch_title">कृपया तुमच्या चर्चेचा विषय लिहा.</string>
-    <string name="err_charch_descr">कृपया तुमच्या चर्चेचे वर्णन लिहा.</string>
+    <string name="err_charch_title">कृपया तुमच्या मनोरंजनाचा विषय लिहा.</string>
+    <string name="err_charch_descr">कृपया तुमच्या मनोरंजनाचे वर्णन लिहा.</string>
 
     <string name="err_adv_title">कृपया तुमच्या जाहिरातीचे नाव लिहा.</string>
     <string name="err_adv_descr">कृपया तुमच्या जाहिरातीचे वर्णन लिहा.</string>
@@ -139,18 +190,17 @@
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="welcome">"Welcome !"</string>
+
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="rphone">फोन नंबर</string>
-    <string name="otp_text">OTP will send in 0.07 sec</string>
-    <string name="otp">OTP</string>
-    <string name="resend">OTP पुन्हा पाठवा</string>
+
+
     <string name="hoy">ठीक आहे</string>
     <string name="ho">होय</string>
     <string name="no">नाही</string>
-    <string name="welcomeTo">गरजू मध्ये आपले स्वागत आहे!! \nयेथे नोंदणी करा</string>
+
     <string name="rfname">प्रथम नाव</string>
     <string name="rlname">आडनाव</string>
     <string name="rgender">लिंग</string>
@@ -167,8 +217,50 @@
     <string name="enquiry">चौकशी</string>
     <string name="enquiry_msg">Message/Query</string>
     <string name="unblock">अनब्लॉक करा</string>
-    <string name="block">अवरोधित(ब्लॉक) करा</string>
-    <string name="Report">रीपोर्ट करा</string>
+
+    <string name="notnow">आता नाही</string>
+    <string name="morer">अधिक वस्तु</string>
+    <string name="lnPop1">गरजू कडून अधिक पोस्ट पहा</string>
+    <string name="lnPop2">संवाद करण्याचे अधिक मार्ग. विविध गोष्टींशी संबंधित अधिक पोस्ट. केवळ अॅपवर.</string>
+
+    <string name="english">English</string>
+    <string name="marathi">मराठी</string>
+    <string name="hindi">हिंदी</string>
+
+    <string name="takevideo">व्हिडिओ घ्या</string>
+    <string name="takephoto">फोटो घ्या</string>
+    <string name="choosegallery">गॅलरीमधून निवडा</string>
+    <string name="cancel">रद्द करा</string>
+
+    <string name="title1">नाव</string>
+    <string name="description1">माहिती</string>
+    <string name="price1">किंमत</string>
+
+    <string name="emp_title">कलाकौशल्य</string>
+    <string name="emp_description">अधिक माहिती</string>
+    <string name="emp_price">पगार</string>
+
+    <string name="busi_title">नाव</string>
+    <string name="busi_type">स्वरूप</string>
+    <string name="busi_description">माहिती</string>
+
+    <string name="jahirat_title">विषय</string>
+    <string name="jahirat_des">वर्णन</string>
+
+    <string name="charcha_title">विषय</string>
+    <string name="charcha_des">वर्णन</string>
+
+
+    <string name="block_sucess_response">आपण या व्यक्तीस यशस्वीरित्या अवरोधित केले आहे</string>
+    <string name="block_fail_response">अयशस्वी, कृपया पुन्हा प्रयत्न करा</string>
+
+    <string name="Failed">अयशस्वी</string>
+    <string name="Success">यशस्वी</string>
+
+    <string name="failed_msg">अयशस्वी, कृपया पुन्हा प्रयत्न करा</string>
+    <string name="sucess_msg">यशस्वीरित्या अपलोड केले</string>
+
+    <string name="contact_error">कृपया चौकशी संदेश लिहा</string>
 
     <string name="fb_placement_id">390694838957593_390726152287795</string>
 
@@ -180,7 +272,7 @@
 
     <string name="fcm_message">FCM Message</string>
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
-    <string name="default_notification_channel_name" translatable="true">Weather</string>
+    <string name="default_notification_channel_name" translatable="true">Garzoo</string>
 </resources>
 
 

@@ -3,6 +3,7 @@ package com.garzoopvt.garzoo.Profile.Room;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import com.garzoopvt.garzoo.Dashboard.Model.DashboardList;
@@ -16,8 +17,8 @@ import static androidx.room.OnConflictStrategy.REPLACE;
 @Dao
 public interface BlockedListDao {
 
-    @Insert(onConflict = IGNORE)
-    long[] insertRecipes(BlockedPeople... dashboardList);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    long[] insertData(BlockedPeople... dashboardList);
 
     @Insert(onConflict = REPLACE)
     void insertRecipe(BlockedPeople dashboardList);
@@ -27,6 +28,10 @@ public interface BlockedListDao {
             "last_modified = :last_modified, dt = :dt, image = :image  WHERE id = :id")
     void updateList(String id, String block_record_id,String fname,String lname, String status, boolean flag, String last_modified, String dt, String image);
 
+    @Query("UPDATE blockedpeople SET status = :status WHERE id = :id")
+    void updateList(String id, String status);
+
+
     // NOTE: The SQL query sometimes won't return EXACTLY what the api does since the API might use a different query
     // or even a different database. But they are very very close.
     @Query("SELECT * FROM blockedpeople WHERE fname LIKE '%' || :query || '%' LIMIT (:pageNumber * 8)")
@@ -35,7 +40,13 @@ public interface BlockedListDao {
     @Query("SELECT * FROM blockedpeople WHERE id = :id")
     LiveData<BlockedPeople> getLIst(String id);
 
-    @Query("SELECT * FROM blockedpeople")
+    @Query("SELECT * FROM blockedpeople WHERE status='0'")
     LiveData<List<BlockedPeople>> getLIst();
+
+    @Query("DELETE FROM blockedpeople")
+    void deleteAll();
+
+    @Query("DELETE FROM blockedpeople WHERE id NOT IN(:lstIDUsers)")
+    void deleteOldData(List<String> lstIDUsers);
 
 }

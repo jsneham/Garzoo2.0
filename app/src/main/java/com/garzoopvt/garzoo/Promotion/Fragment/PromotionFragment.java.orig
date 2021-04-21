@@ -79,10 +79,10 @@ public class PromotionFragment extends Fragment implements NativeAdsManager.List
     //Data
     private String category_id = "";
     private String user_id = "0";
-    private String username = "Sneha";
+    private String username = "";
     private String search_name = "";
-    private String latitude = "19.108589";
-    private String longitude = "72.827072";
+    private String latitude = "";
+    private String longitude = "";
     private int page_no = 1;
     public final int ITEM_PER_ADV = 8;
 
@@ -223,7 +223,7 @@ public class PromotionFragment extends Fragment implements NativeAdsManager.List
                                 Log.e(TAG, "onChanged: status: ERROR, #Recipes: " + listResource.data.size());
                                 mAdapter.hideLoading();
                                 mAdapter.setList(listResource.data);
-                                Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
+                            //     Toast.makeText(context, listResource.message, Toast.LENGTH_SHORT).show();
 
                                 if (listResource.message.equals(QUERY_EXHAUSTED)) {
                                     mAdapter.setQueryExhausted();
@@ -302,7 +302,7 @@ public class PromotionFragment extends Fragment implements NativeAdsManager.List
                     String number = dl.getMobile();
                     Intent intent = new Intent(Intent.ACTION_DIAL);
                     intent.setData(Uri.parse("tel:" + number));
-                    context.startActivity(intent);
+                    startActivity(intent);
                 } else Utils.openSnackBar(context.getString(R.string.mobile_not_available), view);
             }
         } else {
@@ -403,6 +403,6 @@ public class PromotionFragment extends Fragment implements NativeAdsManager.List
         Promotion dl = mAdapter.getSelected(position);
         Intent intent = new Intent(context, PDInnerActivity.class);
         intent.putExtra("data", dl);
-        context.startActivity(intent);
+        startActivity(intent);
     }
 }

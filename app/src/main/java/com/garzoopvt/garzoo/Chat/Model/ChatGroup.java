@@ -15,26 +15,23 @@ public class ChatGroup implements Parcelable {
     @NonNull
     private String id;
 
-     @ColumnInfo(name = "to_uid")
-    private  String to_uid;
+//    @ColumnInfo(name = "to_uid")
+//    private  String to_uid;
 
-     @ColumnInfo(name = "fname")
-    private  String fname;
+    @ColumnInfo(name = "title")
+    private  String title;
 
-     @ColumnInfo(name = "lname")
-    private  String lname;
 
-     @ColumnInfo(name = "count_id")
-    private  String count_id;
 
-     @ColumnInfo(name = "chat_count")
-    private  String chat_count;
 
-     @ColumnInfo(name = "last_message")
+
+    @ColumnInfo(name = "last_message")
     private  String last_message;
 
-     @ColumnInfo(name = "dt")
+    @ColumnInfo(name = "dt")
     private  String dt;
+
+
 
     /**
      * Saves current timestamp in **SECONDS**
@@ -45,13 +42,11 @@ public class ChatGroup implements Parcelable {
     public ChatGroup() {
     }
 
-    public ChatGroup(@NonNull String id, String to_uid, String fname, String lname, String count_id, String chat_count, String last_message, String dt, int timestamp) {
+    public ChatGroup(@NonNull String id, String to_uid, String title, String last_message, String dt, int timestamp) {
         this.id = id;
-        this.to_uid = to_uid;
-        this.fname = fname;
-        this.lname = lname;
-        this.count_id = count_id;
-        this.chat_count = chat_count;
+
+        this.title = title;
+
         this.last_message = last_message;
         this.dt = dt;
         this.timestamp = timestamp;
@@ -66,45 +61,7 @@ public class ChatGroup implements Parcelable {
         this.id = id;
     }
 
-    public String getTo_uid() {
-        return to_uid;
-    }
 
-    public void setTo_uid(String to_uid) {
-        this.to_uid = to_uid;
-    }
-
-    public String getFname() {
-        return fname;
-    }
-
-    public void setFname(String fname) {
-        this.fname = fname;
-    }
-
-    public String getLname() {
-        return lname;
-    }
-
-    public void setLname(String lname) {
-        this.lname = lname;
-    }
-
-    public String getCount_id() {
-        return count_id;
-    }
-
-    public void setCount_id(String count_id) {
-        this.count_id = count_id;
-    }
-
-    public String getChat_count() {
-        return chat_count;
-    }
-
-    public void setChat_count(String chat_count) {
-        this.chat_count = chat_count;
-    }
 
     public String getLast_message() {
         return last_message;
@@ -122,6 +79,14 @@ public class ChatGroup implements Parcelable {
         this.dt = dt;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public int getTimestamp() {
         return timestamp;
     }
@@ -132,25 +97,23 @@ public class ChatGroup implements Parcelable {
 
     protected ChatGroup(Parcel in) {
         id = in.readString();
-        to_uid = in.readString();
-        fname = in.readString();
-        lname = in.readString();
-        count_id = in.readString();
-        chat_count = in.readString();
+        title = in.readString();
+
         last_message = in.readString();
         dt = in.readString();
+
         timestamp = in.readInt();
     }
 
-    public static final Creator<ChatGroup> CREATOR = new Creator<ChatGroup>() {
+    public static final Creator<ChatUser> CREATOR = new Creator<ChatUser>() {
         @Override
-        public ChatGroup createFromParcel(Parcel in) {
-            return new ChatGroup(in);
+        public ChatUser createFromParcel(Parcel in) {
+            return new ChatUser(in);
         }
 
         @Override
-        public ChatGroup[] newArray(int size) {
-            return new ChatGroup[size];
+        public ChatUser[] newArray(int size) {
+            return new ChatUser[size];
         }
     };
 
@@ -162,25 +125,20 @@ public class ChatGroup implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(id);
-        parcel.writeString(to_uid);
-        parcel.writeString(fname);
-        parcel.writeString(lname);
-        parcel.writeString(count_id);
-        parcel.writeString(chat_count);
+        parcel.writeString(title);
+
         parcel.writeString(last_message);
         parcel.writeString(dt);
+
         parcel.writeInt(timestamp);
     }
+
 
     @Override
     public String toString() {
         return "ChatGroup{" +
                 "id='" + id + '\'' +
-                ", to_uid='" + to_uid + '\'' +
-                ", fname='" + fname + '\'' +
-                ", lname='" + lname + '\'' +
-                ", count_id='" + count_id + '\'' +
-                ", chat_count='" + chat_count + '\'' +
+                ", title='" + title + '\'' +
                 ", last_message='" + last_message + '\'' +
                 ", dt='" + dt + '\'' +
                 ", timestamp=" + timestamp +
